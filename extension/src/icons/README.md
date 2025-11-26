@@ -1,0 +1,1 @@
+Add 16/48/128 px PNG icons before packaging the extension.
