@@ -9,6 +9,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         popup: resolve(__dirname, "src/popup/index.html"),
+        callback: resolve(__dirname, "src/auth/callback.html"),
         background: resolve(__dirname, "src/background.ts"),
         content: resolve(__dirname, "src/content.ts"),
       },

@@ -1,0 +1,119 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+  font-family: 'Inter', system-ui, sans-serif;
+  color: #f6f7ff;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: radial-gradient(circle at 20% 20%, rgba(88, 240, 255, 0.3), transparent 60%),
+    radial-gradient(circle at 80% 0%, rgba(156, 107, 255, 0.25), transparent 45%),
+    #04050b;
+}
+
+.hud {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+header .eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.35em;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+header h1 {
+  margin: 4px 0 0;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
+  font-size: 26px;
+}
+
+.stats {
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(24px);
+  padding: 18px;
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 16px;
+}
+
+.focus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ring {
+  position: relative;
+}
+
+.ring svg {
+  width: 140px;
+  height: 140px;
+}
+
+.ring-value {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -55%);
+  font-size: 32px;
+  font-weight: 600;
+}
+
+.ring p {
+  text-align: center;
+  margin-top: -10px;
+  font-size: 11px;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+}
+
+.stat-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.stat-grid article {
+  padding: 12px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.stat-grid p {
+  margin: 0;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.4em;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.stat-grid strong {
+  font-size: 22px;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+button {
+  width: 100%;
+  border: none;
+  border-radius: 999px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  background: linear-gradient(120deg, #58f0ff, #9c6bff);
+  color: #05060a;
+  cursor: pointer;
+}
+
+footer {
+  padding-top: 6px;
+}

@@ -17,3 +17,12 @@ if (existsSync(nestedHtml)) {
   await rename(nestedHtml, rootHtml);
   console.log("Moved index.html to dist root");
 }
+
+// Move auth callback HTML from nested path to root
+const nestedCallback = resolve(dist, "src/auth/callback.html");
+const rootCallback = resolve(dist, "callback.html");
+
+if (existsSync(nestedCallback)) {
+  await rename(nestedCallback, rootCallback);
+  console.log("Moved callback.html to dist root");
+}

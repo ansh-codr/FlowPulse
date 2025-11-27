@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "FlowPulse Prototype",
+  "description": "Mocked telemetry dashboard for hackathon demo.",
+  "version": "0.1.0",
+  "action": {
+    "default_title": "FlowPulse",
+    "default_popup": "popup.html"
+  },
+  "options_page": "options.html",
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "permissions": ["storage"],
+  "host_permissions": ["http://localhost/*"],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

@@ -1,15 +1,14 @@
 import { supabase } from "./supabase";
 
-export async function signIn() {
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
+export async function signIn(email: string) {
+  const { error } = await supabase.auth.signInWithOtp({
+    email,
     options: {
-      skipBrowserRedirect: false,
+      emailRedirectTo: chrome.runtime.getURL("callback.html"),
     },
   });
 
   if (error) throw error;
-  return data.session;
 }
 
 export async function getSession() {

@@ -38,12 +38,7 @@ create table if not exists public.focus_sessions (
   user_id uuid not null references public.users(id) on delete cascade,
   start_time timestamptz not null,
   end_time timestamptz,
-  total_minutes int generated always as (
-    greatest(
-      floor(extract(epoch from coalesce(end_time, now()) - start_time) / 60),
-      0
-    )
-  ) stored
+  total_minutes int
 );
 
 create table if not exists public.app_settings (

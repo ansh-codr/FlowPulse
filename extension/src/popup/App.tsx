@@ -38,7 +38,15 @@ export default function App() {
   }
 
   async function handleLogin() {
-    await supabase.auth.signInWithOtp({ email: prompt("Email") ?? "" });
+    const email = prompt("Enter your email:");
+    if (!email) return;
+    
+    try {
+      await supabase.auth.signInWithOtp({ email });
+      alert("Check your email for the magic link!");
+    } catch (error) {
+      alert("Failed to send magic link. Please try again.");
+    }
   }
 
   async function handleLogout() {
