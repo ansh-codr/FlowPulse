@@ -1,6 +1,6 @@
 [build]
-  command = "cd dashboard && npm install && npm run build"
-  publish = "dashboard/dist"
+  command = "cd flowpulse/dashboard && npm install && npm run build"
+  publish = "flowpulse/dashboard/dist"
 
 [[redirects]]
   from = "/*"
