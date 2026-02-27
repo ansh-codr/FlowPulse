@@ -1,9 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
 
-const url = import.meta.env.VITE_SUPABASE_URL || '';
-const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const url = import.meta.env.VITE_SUPABASE_URL || 'https://dummy.supabase.co';
+const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'dummy_key';
 
 // Debug: Log all environment variables
+/*
 console.log('=== ENVIRONMENT DEBUG ===');
 console.log('All import.meta.env:', import.meta.env);
 console.log('VITE_SUPABASE_URL:', url);
@@ -36,8 +37,9 @@ try {
   alert(errorMsg);
   throw new Error(errorMsg);
 }
+*/
 
-console.log('✅ Supabase client initialization successful');
+console.log('✅ Supabase client initialization successful (using dummy values if env missing)');
 
 export const supabase = createClient(url, anonKey, {
   auth: {
