@@ -1,5 +1,0 @@
-import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-export function GaugeChart({ score }) {
-    const value = Math.max(0, Math.min(score ?? 0, 100));
-    return (_jsxs("div", { className: "relative flex items-center justify-center h-40", children: [_jsxs("svg", { viewBox: "0 0 200 100", className: "w-full", children: [_jsx("path", { d: "M10 90 A80 80 0 0 1 190 90", fill: "none", stroke: "rgba(255,255,255,0.1)", strokeWidth: "12", strokeLinecap: "round" }), _jsx("path", { d: "M10 90 A80 80 0 0 1 190 90", fill: "none", stroke: "url(#gaugeGradient)", strokeWidth: "12", strokeLinecap: "round", strokeDasharray: `${(value / 100) * 251} 251` }), _jsx("defs", { children: _jsxs("linearGradient", { id: "gaugeGradient", x1: "0%", y1: "0%", x2: "100%", y2: "0%", children: [_jsx("stop", { offset: "0%", stopColor: "#22d3ee" }), _jsx("stop", { offset: "100%", stopColor: "#a855f7" })] }) })] }), _jsxs("div", { className: "absolute text-center", children: [_jsx("p", { className: "text-4xl font-semibold", children: value }), _jsx("p", { className: "text-xs uppercase tracking-wide text-white/60", children: "score" })] })] }));
-}
