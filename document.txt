@@ -1,0 +1,346 @@
+================================================================================
+                    FLOWPULSE 2.0 – PROJECT DOCUMENTATION
+================================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. PROJECT OVERVIEW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Project Name      : FlowPulse
+  Project Type      : Browser Extension + Web Application
+  Architecture      : Serverless (Firebase-based)
+
+  Core Objective    : Track daily web activity, analyze usage patterns, and
+                      provide productivity insights through a centralized
+                      dashboard using Firebase backend.
+
+  Problem Statement : Users are unaware of how they spend time online. There
+                      is no simple, privacy-focused, centralized system that
+                      visualizes browsing behavior across sessions in real-time.
+
+  Proposed Solution : FlowPulse collects browser activity via a Chrome
+                      extension, stores structured logs in Cloud Firestore,
+                      processes analytics using Firebase Cloud Functions, and
+                      displays insights in a React web dashboard.
+
+  Final Deliverable : A fully functional, scalable productivity tracking
+                      platform that integrates browser extension tracking with
+                      centralized cloud analytics.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. SYSTEM ARCHITECTURE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  High-Level Data Flow:
+
+    Browser Extension
+        │
+        ▼
+    Firebase Authentication (Google Sign-In)
+        │
+        ▼
+    Cloud Firestore (Activity Logs + Settings + Stats)
+        │
+        ▼
+    Firebase Cloud Functions (Aggregation / Insights / Scoring)
+        │
+        ▼
+    Web Dashboard (React + Recharts)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. TECHNOLOGY STACK
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ┌─────────────────────┬──────────────────────────────────────────────┐
+  │ Layer               │ Technologies                                 │
+  ├─────────────────────┼──────────────────────────────────────────────┤
+  │ Frontend (Web App)  │ React, Firebase SDK, Recharts, Tailwind CSS │
+  │ Browser Extension   │ JavaScript, Chrome Extension APIs (MV3),    │
+  │                     │ Firebase SDK                                 │
+  │ Authentication      │ Firebase Authentication (Google Login)       │
+  │ Database            │ Cloud Firestore                              │
+  │ Backend Logic       │ Firebase Cloud Functions (Node.js)           │
+  │ Hosting             │ Firebase Hosting                             │
+  │ Build Tool          │ Vite                                         │
+  └─────────────────────┴──────────────────────────────────────────────┘
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. SYSTEM COMPONENTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  A. BROWSER EXTENSION
+  ─────────────────────
+  Responsibilities:
+    • Detect active tab and track time spent on each domain
+    • Extract domain and page title from active tabs
+    • Calculate browsing duration per site
+    • Send activity logs to Firestore in batches
+    • Sync user settings (tracking enabled/disabled, blocked sites)
+
+  Key Modules:
+    1. Background Script   – Tab tracking, idle detection, alarm-based flush
+    2. Content Script       – Title extraction, focus/blur detection
+    3. Popup UI             – Quick stats, sign-in/out, toggle tracking
+    4. Firebase Auth Handler – Google login flow, session management
+
+  B. FIREBASE BACKEND
+  ─────────────────────
+  Authentication:
+    • Google Sign-In via Firebase Auth
+    • User-based data isolation (all data scoped to userId)
+
+  Cloud Firestore:
+    • Store activity logs (per-session browsing events)
+    • Store user settings (tracking toggle, blocked sites, timezone)
+    • Store aggregated daily/weekly statistics
+
+  Cloud Functions:
+    • Daily aggregation – Summarize activity logs into daily stats
+    • Productivity scoring – Calculate focus score from usage patterns
+    • Pattern detection – Identify top sites, peak hours, trends
+
+  C. WEB DASHBOARD
+  ─────────────────────
+  Features:
+    • Daily activity chart (time spent per domain)
+    • Category breakdown (productive vs. distraction)
+    • Weekly trends (line/area charts)
+    • Productivity score (gauge/meter visualization)
+    • Enable/Disable tracking toggle
+    • Manage blocked sites list
+    • Real-time data updates
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. DATABASE DESIGN (FIRESTORE COLLECTIONS)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Collection: users/{userId}
+  ──────────────────────────
+  Document Fields:
+    • email            : string
+    • displayName      : string
+    • photoURL         : string
+    • createdAt        : timestamp
+
+  Sub-collection: users/{userId}/settings
+  ────────────────────────────────────────
+  Document: "preferences"
+    • trackingEnabled  : boolean     (default: true)
+    • blockedDomains   : string[]    (domains to exclude)
+    • timezone         : string      (e.g. "America/New_York")
+
+  Sub-collection: users/{userId}/activityLogs
+  ────────────────────────────────────────────
+  Each document represents one browsing session:
+    • url              : string
+    • domain           : string
+    • title            : string
+    • category         : string      ("productive" | "neutral" | "distraction")
+    • startTime        : timestamp
+    • endTime          : timestamp
+    • duration         : number      (seconds)
+
+  Sub-collection: users/{userId}/dailyStats
+  ──────────────────────────────────────────
+  Document ID: date string (e.g. "2026-02-26")
+    • totalDuration    : number      (total seconds tracked)
+    • productiveTime   : number      (seconds on productive sites)
+    • distractionTime  : number      (seconds on distraction sites)
+    • neutralTime      : number      (seconds on neutral sites)
+    • topDomains       : map[]       [{domain, duration, category}]
+    • peakHour         : number      (0-23, hour with most activity)
+    • focusScore       : number      (0-100, computed productivity score)
+    • domainBreakdown  : map         {domain: durationInSeconds}
+    • updatedAt        : timestamp
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+6. FUNCTIONAL REQUIREMENTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  FR-01  User can sign in securely via Google Login
+  FR-02  Extension detects active tab and tracks browsing duration
+  FR-03  Activity logs are stored per user in Firestore
+  FR-04  Dashboard displays real-time daily analytics
+  FR-05  Dashboard displays weekly trend charts
+  FR-06  Dashboard shows productivity score
+  FR-07  User can enable/disable tracking from dashboard and extension
+  FR-08  User can manage a blocked-sites list
+  FR-09  System aggregates daily usage automatically via Cloud Functions
+  FR-10  Settings sync in real-time between extension and dashboard
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+7. NON-FUNCTIONAL REQUIREMENTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  NFR-01  Secure user isolation – Each user sees only their own data
+  NFR-02  Scalable Firestore design – Sub-collections for efficient queries
+  NFR-03  Low latency logging – Batch writes, minimal network calls
+  NFR-04  Real-time settings sync – Firestore onSnapshot listeners
+  NFR-05  Minimal browser performance impact – Background script optimized
+  NFR-06  Responsive dashboard – Works on desktop and tablet screens
+  NFR-07  Data validation – Firestore security rules enforce schema
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+8. DEVELOPMENT PHASES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  PHASE 1 – PROJECT SETUP
+  ────────────────────────
+    □ Create Firebase project in Firebase Console
+    □ Enable Firebase Authentication (Google provider)
+    □ Initialize Cloud Firestore
+    □ Define Firestore security rules
+    □ Set up React app with Vite + Tailwind
+    □ Set up Chrome extension scaffold (Manifest V3)
+    □ Configure Firebase SDK in both extension and web app
+
+  PHASE 2 – EXTENSION DEVELOPMENT
+  ────────────────────────────────
+    □ Implement active tab detection (chrome.tabs API)
+    □ Implement idle state detection (chrome.idle API)
+    □ Track duration per tab session
+    □ Extract domain and title from URLs
+    □ Batch activity logs and push to Firestore
+    □ Implement Google Sign-In flow in extension popup
+    □ Build popup UI (status, today's stats, toggle tracking)
+    □ Sync settings from Firestore to extension
+
+  PHASE 3 – WEB DASHBOARD DEVELOPMENT
+  ────────────────────────────────────
+    □ Implement Firebase Auth (Google login/logout)
+    □ Build dashboard layout with sidebar navigation
+    □ Daily activity chart (Recharts BarChart / AreaChart)
+    □ Category breakdown (PieChart)
+    □ Weekly trends (LineChart)
+    □ Productivity score gauge
+    □ Settings page (tracking toggle, blocked sites, timezone)
+    □ Real-time data fetching with Firestore onSnapshot
+
+  PHASE 4 – BACKEND LOGIC (CLOUD FUNCTIONS)
+  ──────────────────────────────────────────
+    □ Scheduled function: Daily aggregation of activity logs
+    □ Compute productivity score per day
+    □ Compute top domains and peak hour
+    □ Write results to dailyStats sub-collection
+    □ Pattern detection for weekly trends
+
+  PHASE 5 – OPTIMIZATION & SECURITY
+  ──────────────────────────────────
+    □ Firestore security rules (user isolation, field validation)
+    □ Input validation in Cloud Functions
+    □ Rate limiting for activity log writes
+    □ Performance tuning (batch writes, indexing)
+    □ Error handling and logging
+
+  PHASE 6 – DEPLOYMENT
+  ─────────────────────
+    □ Package Chrome extension for Chrome Web Store (or local load)
+    □ Deploy web app to Firebase Hosting
+    □ Deploy Cloud Functions to production
+    □ Configure production environment variables
+    □ Final end-to-end testing
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+9. PROJECT START PLAN (IMPLEMENTATION ORDER)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Step 1  → Define final Firestore schema (collections + documents)
+  Step 2  → Create Firebase project + enable Auth + Firestore
+  Step 3  → Implement Google authentication in web app
+  Step 4  → Build minimal extension tracker (tab detection + Firestore write)
+  Step 5  → Verify end-to-end logging (extension → Firestore → dashboard read)
+  Step 6  → Build full dashboard UI with charts and settings
+  Step 7  → Implement Cloud Functions for daily aggregation
+  Step 8  → Add productivity scoring and pattern detection
+  Step 9  → Implement settings sync (real-time between extension + dashboard)
+  Step 10 → Security rules, validation, optimization
+  Step 11 → Final testing and deployment
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+10. COMPLETION CRITERIA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Project is considered COMPLETE when:
+
+    ✓ Users can sign in via Google Login
+    ✓ Extension tracks browsing activity accurately
+    ✓ Activity logs are stored in Firestore per user
+    ✓ Dashboard displays daily and weekly insights
+    ✓ Productivity score is calculated and displayed
+    ✓ Settings sync in real-time between extension and dashboard
+    ✓ Data is secure and isolated per user
+    ✓ System performs reliably under multiple concurrent users
+    ✓ Extension is packaged and loadable
+    ✓ Web app is deployed and accessible
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+11. FOLDER STRUCTURE (TARGET)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  FlowPulse/
+  ├── document.txt                    # This document
+  ├── dashboard/                      # React web application
+  │   ├── package.json
+  │   ├── vite.config.ts
+  │   ├── tailwind.config.js
+  │   ├── tsconfig.json
+  │   ├── public/
+  │   └── src/
+  │       ├── main.tsx
+  │       ├── App.tsx
+  │       ├── lib/
+  │       │   └── firebase.ts         # Firebase SDK init
+  │       ├── hooks/
+  │       │   └── useAuth.ts          # Auth state hook
+  │       ├── components/
+  │       │   ├── DailyChart.tsx
+  │       │   ├── CategoryBreakdown.tsx
+  │       │   ├── WeeklyTrends.tsx
+  │       │   ├── ProductivityScore.tsx
+  │       │   └── Sidebar.tsx
+  │       ├── pages/
+  │       │   ├── LoginPage.tsx
+  │       │   ├── DashboardPage.tsx
+  │       │   └── SettingsPage.tsx
+  │       └── styles/
+  │           └── global.css
+  ├── extension/                      # Chrome extension (Manifest V3)
+  │   ├── manifest.json
+  │   ├── background.js
+  │   ├── content.js
+  │   ├── popup.html
+  │   ├── popup.js
+  │   ├── popup.css
+  │   ├── lib/
+  │   │   ├── firebase.js             # Firebase SDK init
+  │   │   ├── auth.js                 # Google auth handler
+  │   │   └── firestore.js            # Firestore read/write helpers
+  │   └── icons/
+  │       ├── icon16.png
+  │       ├── icon48.png
+  │       └── icon128.png
+  ├── functions/                      # Firebase Cloud Functions
+  │   ├── package.json
+  │   ├── index.js
+  │   ├── dailyAggregation.js
+  │   ├── productivityScore.js
+  │   └── patternDetection.js
+  ├── firebase.json                   # Firebase project config
+  ├── firestore.rules                 # Firestore security rules
+  ├── firestore.indexes.json          # Firestore composite indexes
+  └── .firebaserc                     # Firebase project alias
+
+
+================================================================================
+                              END OF DOCUMENT
+================================================================================
