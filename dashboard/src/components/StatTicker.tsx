@@ -6,9 +6,16 @@ interface StatTickerProps {
   label: string;
   prefix?: string;
   suffix?: string;
+  accentColor?: string;
 }
 
-export function StatTicker({ value, label, prefix = "", suffix = "" }: StatTickerProps) {
+export function StatTicker({
+  value,
+  label,
+  prefix = "",
+  suffix = "",
+  accentColor = "#58f0ff",
+}: StatTickerProps) {
   const spring = useSpring(0, { stiffness: 90, damping: 20 });
   const [display, setDisplay] = useState(0);
 
@@ -21,13 +28,16 @@ export function StatTicker({ value, label, prefix = "", suffix = "" }: StatTicke
   });
 
   return (
-    <div>
-      <motion.p className="font-display text-4xl text-white" key={value}>
-        {prefix}
-        {display}
-        {suffix}
+    <div className="group flex flex-col gap-1">
+      <motion.p
+        className="font-display text-3xl font-bold leading-none text-white"
+        key={value}
+      >
+        <span className="text-white/30">{prefix}</span>
+        <span style={{ color: accentColor }}>{display}</span>
+        <span className="text-lg text-white/50">{suffix}</span>
       </motion.p>
-      <p className="text-sm uppercase tracking-[0.3em] text-slate-300">{label}</p>
+      <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-white/40">{label}</p>
     </div>
   );
 }
