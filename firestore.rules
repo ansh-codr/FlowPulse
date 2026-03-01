@@ -1,0 +1,52 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── User profile ─────────────────────────────────────────
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      // ── Settings ──────────────────────────────────────────
+      match /settings/{doc} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      // ── Activity logs ─────────────────────────────────────
+      match /activityLogs/{logId} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow create: if request.auth != null && request.auth.uid == userId
+          && request.resource.data.keys().hasAll(['url', 'domain', 'title', 'category', 'startTime', 'endTime', 'duration'])
+          && request.resource.data.category in ['productive', 'neutral', 'distraction']
+          && request.resource.data.duration is number
+          && request.resource.data.duration >= 0;
+        allow update, delete: if false; // Immutable once written
+      }
+
+      // ── Daily stats (written by Cloud Functions) ──────────
+      match /dailyStats/{dateId} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow write: if false; // Only Cloud Functions (admin SDK) can write
+      }
+
+      // ── Nudges ────────────────────────────────────────────
+      match /nudges/{nudgeId} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow update: if request.auth != null && request.auth.uid == userId
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['dismissed']);
+        allow create, delete: if false; // Only Cloud Functions
+      }
+    }
+
+    // ── Leaderboard (public read, admin write) ──────────────
+    match /leaderboard/{weekId} {
+      allow read: if request.auth != null;
+      allow write: if false; // Only Cloud Functions (admin SDK)
+
+      match /entries/{entryId} {
+        allow read: if request.auth != null;
+        allow write: if false;
+      }
+    }
+  }
+}

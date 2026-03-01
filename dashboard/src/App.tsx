@@ -1,36 +1,23 @@
-import { Navigate, Route, Routes } from "react-router-dom";
-import { Suspense } from "react";
-import { useAuth } from "./lib/useAuth";
-import LoginPage from "./pages/LoginPage";
-import DashboardPage from "./pages/DashboardPage";
-import SettingsPage from "./pages/SettingsPage";
-import LandingPage from "./pages/LandingPage";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { DashboardLayout } from "./layouts/DashboardLayout";
+import { HomePage } from "./pages/Home";
+import { TimelinePage } from "./pages/Timeline";
+import { HeatmapPage } from "./pages/Heatmap";
+import { TopAppsPage } from "./pages/TopApps";
+import { SessionsPage } from "./pages/Sessions";
 
 export default function App() {
-  const { session, loading } = useAuth();
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-slate-200 bg-[#0D0D10]">
-        Loading FlowPulse...
-      </div>
-    );
-  }
-
   return (
-    <Suspense fallback={<div className="p-8 bg-[#0D0D10] text-[#0055FF] h-screen w-screen">Loading...</div>}>
+    <BrowserRouter>
       <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route
-          path="/dashboard"
-          element={session ? <DashboardPage /> : <Navigate to="/login" replace />}
-        />
-        <Route
-          path="/settings"
-          element={session ? <SettingsPage /> : <Navigate to="/login" replace />}
-        />
+        <Route path="/" element={<DashboardLayout />}>
+          <Route index element={<HomePage />} />
+          <Route path="timeline" element={<TimelinePage />} />
+          <Route path="heatmap" element={<HeatmapPage />} />
+          <Route path="top-apps" element={<TopAppsPage />} />
+          <Route path="sessions" element={<SessionsPage />} />
+        </Route>
       </Routes>
-    </Suspense>
+    </BrowserRouter>
   );
 }

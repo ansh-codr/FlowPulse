@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>FlowPulse Prototype</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div class="hud">
+      <header>
+        <p class="eyebrow">Today</p>
+        <h1>FlowPulse</h1>
+      </header>
+      <section class="stats">
+        <div class="focus">
+          <div class="ring">
+            <svg viewBox="0 0 160 160"></svg>
+            <div class="ring-value" id="focusValue">0%</div>
+            <p>Focus</p>
+          </div>
+        </div>
+        <div class="stat-grid">
+          <article>
+            <p>Time Active</p>
+            <strong id="activeMinutes">312m</strong>
+          </article>
+          <article>
+            <p>Distractions</p>
+            <strong id="distractions">0</strong>
+          </article>
+          <article>
+            <p>Top Zone</p>
+            <strong id="topChannel">—</strong>
+          </article>
+        </div>
+      </section>
+      <footer>
+        <button id="openDashboard">Open Dashboard</button>
+      </footer>
+    </div>
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

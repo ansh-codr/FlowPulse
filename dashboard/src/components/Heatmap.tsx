@@ -1,47 +1,41 @@
-import clsx from "clsx";
-import { ActivityEvent } from "../state/useActivityStore";
+import type { HeatmapCell } from "../../../shared/types";
 
-type Props = {
-  events: ActivityEvent[];
-};
+const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-const hours = Array.from({ length: 24 }, (_, i) => i);
-
-function bucketMinutes(events: ActivityEvent[]) {
-  const bucket: Record<number, number> = {};
-  for (const evt of events) {
-    const hour = new Date(evt.ts).getHours();
-    bucket[hour] = (bucket[hour] ?? 0) + (evt.is_idle ? 0 : evt.active_seconds / 60);
-  }
-  return bucket;
-}
-
-export function Heatmap({ events }: Props) {
-  const bucket = bucketMinutes(events);
-  const max = Math.max(...Object.values(bucket), 1);
-
+export function HeatmapGrid({ data }: { data: HeatmapCell[] }) {
   return (
-    <div className="rounded-3xl bg-white/5 border border-white/10 p-6 backdrop-blur shadow-glass">
-      <p className="text-sm text-slate-300 mb-4">Distraction heatmap</p>
-      <div className="grid grid-cols-6 gap-2 text-xs">
-        {hours.map((hour) => {
-          const value = bucket[hour] ?? 0;
-          const intensity = Math.min(1, value / max);
-          return (
-            <div
-              key={hour}
-              className={clsx(
-                "h-10 rounded-xl flex flex-col justify-center items-center",
-                intensity === 0
-                  ? "bg-slate-800/50"
-                  : "bg-gradient-to-br from-indigo-500/80 to-cyan-400/80"
-              )}
-            >
-              <span>{hour.toString().padStart(2, "0")}:00</span>
-              <span className="text-[10px] text-white/70">{value.toFixed(0)}m</span>
-            </div>
-          );
-        })}
+    <div className="overflow-x-auto">
+      <div className="min-w-[640px]">
+        <div className="mb-2 grid grid-cols-[60px_repeat(24,minmax(16px,1fr))] gap-1 text-xs uppercase tracking-[0.3em] text-white/40">
+          <span />
+          {Array.from({ length: 24 }, (_, hour) => (
+            <span key={hour} className="text-center">
+              {hour % 3 === 0 ? `${hour}` : ""}
+            </span>
+          ))}
+        </div>
+        {days.map((day, dayIdx) => (
+          <div
+            key={day}
+            className="mb-1 grid grid-cols-[60px_repeat(24,minmax(16px,1fr))] gap-1 text-xs text-white/70"
+          >
+            <span className="text-white/60">{day}</span>
+            {Array.from({ length: 24 }, (_, hour) => {
+              const cell = data.find((c) => c.day === dayIdx && c.hour === hour);
+              const intensity = cell ? cell.intensity : 0;
+              return (
+                <span
+                  key={`${day}-${hour}`}
+                  className="h-5 rounded-md"
+                  style={{
+                    background: `linear-gradient(135deg, rgba(88,240,255,${0.2 + intensity * 0.5}), rgba(156,107,255,${intensity}))`,
+                    boxShadow: intensity > 0.65 ? "0 0 12px rgba(156,107,255,0.4)" : "none",
+                  }}
+                />
+              );
+            })}
+          </div>
+        ))}
       </div>
     </div>
   );

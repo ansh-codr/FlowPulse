@@ -110,17 +110,18 @@ export default function LandingPage() {
           transition={{ type: "spring", stiffness: 100, damping: 30 }}
           className="relative w-[300px] h-[300px] text-white/70 font-mono tracking-widest text-xs font-semibold uppercase"
         >
-          <span className="absolute top-[20%] left-[30%]">F</span>
-          <span className="absolute top-[20%] right-[30%]">L</span>
-          <span className="absolute top-[40%] left-[20%]">A</span>
-          <span className="absolute top-[40%] right-[20%]">R</span>
-          <span className="absolute top-[60%] left-[20%]">E</span>
-          <span className="absolute top-[60%] right-[20%]">U</span>
-          <span className="absolute top-[80%] left-[30%]">M</span>
-          <span className="absolute top-[80%] right-[30%] text-[#0055ff]">•</span>
+          <span className="absolute top-[10%] left-[45%]">F</span>
+          <span className="absolute top-[20%] right-[20%]">L</span>
+          <span className="absolute top-[40%] right-[10%]">O</span>
+          <span className="absolute top-[65%] right-[20%]">W</span>
+          <span className="absolute top-[85%] left-[45%]">P</span>
+          <span className="absolute top-[65%] left-[20%]">U</span>
+          <span className="absolute top-[40%] left-[10%]">L</span>
+          <span className="absolute top-[20%] left-[20%]">S</span>
+          <span className="absolute top-[45%] left-[46%] text-[#0055ff] font-bold text-xl">E</span>
 
           {/* White Dot indicator on orbit */}
-          <div className="absolute top-[50%] right-[10%] w-2 h-2 rounded-full bg-white shadow-[0_0_10px_white]" />
+          <div className="absolute top-[80%] right-[10%] w-2 h-2 rounded-full bg-white shadow-[0_0_10px_white]" />
         </motion.div>
       </div>
 
@@ -149,9 +150,9 @@ export default function LandingPage() {
             transition={{ duration: 1, delay: 0.2 }}
             className="text-5xl md:text-7xl font-semibold text-white leading-[1.1] mb-6"
           >
-            Design
+            Deep Work
             <br />
-            System Builder.
+            Command Center.
           </motion.h1>
 
           <motion.p
@@ -160,7 +161,7 @@ export default function LandingPage() {
             transition={{ duration: 1, delay: 0.4 }}
             className="text-lg md:text-xl text-white/50 font-light mb-12 leading-relaxed"
           >
-            Secure your spot on the waiting list now to experience an advanced workflow.
+            Track context switches, map out your focus layers, and sustain peak performance.
           </motion.p>
 
           <motion.div
@@ -170,7 +171,7 @@ export default function LandingPage() {
             className="flex items-center gap-4"
           >
             <Link to="/dashboard" className="px-8 py-3.5 rounded-full border border-white/20 text-xs tracking-[0.2em] font-medium text-white/80 hover:text-white hover:bg-white/10 transition-all font-mono">
-              JOIN BETA
+              OPEN APP
             </Link>
             <button className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition-all group">
               <svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg" className="translate-x-0.5 text-white/80 group-hover:text-white transition-colors">
