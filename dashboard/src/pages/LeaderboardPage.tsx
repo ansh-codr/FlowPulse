@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { GlassCard } from "../components/GlassCard";
 import { getLeaderboard } from "../lib/firestoreQueries";
-import { useAuth } from "../hooks/useAuth";
 import type { LeaderboardEntry } from "../../../shared/types";
 
 const rankColors: Record<number, string> = {
@@ -11,7 +10,6 @@ const rankColors: Record<number, string> = {
 };
 
 export function LeaderboardPage() {
-  const { user: _ } = useAuth();
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
