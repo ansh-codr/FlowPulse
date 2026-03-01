@@ -11,7 +11,7 @@ const rankColors: Record<number, string> = {
 };
 
 export function LeaderboardPage() {
-  const { user } = useAuth();
+  const { user: _ } = useAuth();
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
 

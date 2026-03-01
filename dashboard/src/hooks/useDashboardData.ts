@@ -2,10 +2,9 @@
  * useDashboardData – Transforms Firestore data into dashboard view models.
  * Central hook that all pages consume for real Firebase data.
  */
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useAuth } from "./useAuth";
 import {
-  getActivityLogs,
   getDailyStatsForDate,
   getWeeklyStats,
   getStreakDays,
@@ -141,7 +140,6 @@ export function logsToApps(logs: ActivityLog[]): AppUsage[] {
 /* ── Log → ActivityEvent[] ────────────────────────────────────────────── */
 export function logsToEvents(logs: ActivityLog[]): ActivityEvent[] {
   return logs.map((log, i) => {
-    const dur = log.duration;
     const focusScore = log.category === "productive" ? 80 : log.category === "neutral" ? 55 : 25;
     return {
       id: log.id ?? `e-${i}`,

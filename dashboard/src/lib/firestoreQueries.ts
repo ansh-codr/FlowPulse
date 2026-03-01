@@ -24,14 +24,6 @@ import type {
 
 /* ── Helpers ──────────────────────────────────────────────────────────────── */
 
-function userRef(uid: string) {
-  return doc(db, "users", uid);
-}
-
-function toDate(iso: string): Date {
-  return new Date(iso);
-}
-
 /* ── Activity Logs ────────────────────────────────────────────────────────── */
 
 export async function getActivityLogs(
