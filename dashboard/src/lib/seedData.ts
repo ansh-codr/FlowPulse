@@ -230,20 +230,16 @@ export async function seedDemoData(uid: string): Promise<{ logsWritten: number; 
   nudgeBatch.set(nudgeRef, {
     type: "refocus",
     message: "Your distraction ratio was high this morning. Try a 25-min focused sprint!",
-    date: dateStr(new Date()),
+    timestamp: new Date().toISOString(),
     dismissed: false,
-    priority: "medium",
-    createdAt: serverTimestamp(),
   });
 
   const nudgeRef2 = doc(collection(db, "users", uid, "nudges"));
   nudgeBatch.set(nudgeRef2, {
     type: "break",
     message: "You've been active for 4+ hours. Take a walk — your brain will thank you!",
-    date: dateStr(new Date()),
+    timestamp: new Date().toISOString(),
     dismissed: false,
-    priority: "low",
-    createdAt: serverTimestamp(),
   });
   await nudgeBatch.commit();
 
