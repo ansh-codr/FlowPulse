@@ -1,22 +1,49 @@
 {
   "manifest_version": 3,
-  "name": "FlowPulse Prototype",
-  "description": "Mocked telemetry dashboard for hackathon demo.",
-  "version": "0.1.0",
-  "action": {
-    "default_title": "FlowPulse",
-    "default_popup": "popup.html"
-  },
-  "options_page": "options.html",
+  "name": "FlowPulse — Productivity Intelligence",
+  "version": "1.0.0",
+  "description": "Track your browsing focus, classify activity, and build better productivity habits.",
+  "permissions": [
+    "tabs",
+    "activeTab",
+    "idle",
+    "storage",
+    "alarms",
+    "notifications",
+    "identity"
+  ],
+  "host_permissions": [
+    "https://*.firebaseio.com/*",
+    "https://*.googleapis.com/*",
+    "https://identitytoolkit.googleapis.com/*",
+    "https://securetoken.googleapis.com/*"
+  ],
   "background": {
     "service_worker": "background.js",
     "type": "module"
   },
-  "permissions": ["storage"],
-  "host_permissions": ["http://localhost/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "FlowPulse",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
+  },
+  "oauth2": {
+    "scopes": ["openid", "email", "profile"]
   }
 }
