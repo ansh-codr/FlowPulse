@@ -5,14 +5,14 @@
  * Config is injected at build time or hardcoded for development.
  */
 
-// Firebase config — replace with your project values
+// Firebase config
 const FIREBASE_CONFIG = {
-  apiKey: "__FIREBASE_API_KEY__",
-  authDomain: "__FIREBASE_AUTH_DOMAIN__",
-  projectId: "__FIREBASE_PROJECT_ID__",
-  storageBucket: "__FIREBASE_STORAGE_BUCKET__",
-  messagingSenderId: "__FIREBASE_MESSAGING_SENDER_ID__",
-  appId: "__FIREBASE_APP_ID__",
+  apiKey: "AIzaSyAj7-7d1ez68B4J4pHxZyz_Er4SOXiYuJ8",
+  authDomain: "flowpulse-dc45a.firebaseapp.com",
+  projectId: "flowpulse-dc45a",
+  storageBucket: "flowpulse-dc45a.firebasestorage.app",
+  messagingSenderId: "398649552926",
+  appId: "1:398649552926:web:6dcb2f4f1ed80c0d69be0f",
 };
 
 // We'll use the REST API directly instead of the SDK in service workers
