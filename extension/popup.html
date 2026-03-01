@@ -2,41 +2,62 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>FlowPulse Prototype</title>
+    <title>FlowPulse</title>
     <link rel="stylesheet" href="popup.css" />
   </head>
   <body>
     <div class="hud">
-      <header>
-        <p class="eyebrow">Today</p>
-        <h1>FlowPulse</h1>
-      </header>
-      <section class="stats">
-        <div class="focus">
-          <div class="ring">
-            <svg viewBox="0 0 160 160"></svg>
-            <div class="ring-value" id="focusValue">0%</div>
-            <p>Focus</p>
+      <!-- Auth section -->
+      <div id="authSection" style="display:none;">
+        <header>
+          <h1>FlowPulse</h1>
+          <p class="eyebrow">Sign in to start tracking</p>
+        </header>
+        <footer>
+          <button id="signInBtn">Sign in with Google</button>
+        </footer>
+      </div>
+
+      <!-- Main dashboard section -->
+      <div id="mainSection" style="display:none;">
+        <header>
+          <div class="user-row">
+            <img id="userAvatar" class="avatar" src="" alt="" />
+            <div>
+              <p class="eyebrow">Today</p>
+              <h1>FlowPulse</h1>
+            </div>
           </div>
-        </div>
-        <div class="stat-grid">
-          <article>
-            <p>Time Active</p>
-            <strong id="activeMinutes">312m</strong>
-          </article>
-          <article>
-            <p>Distractions</p>
-            <strong id="distractions">0</strong>
-          </article>
-          <article>
-            <p>Top Zone</p>
-            <strong id="topChannel">—</strong>
-          </article>
-        </div>
-      </section>
-      <footer>
-        <button id="openDashboard">Open Dashboard</button>
-      </footer>
+        </header>
+        <section class="stats">
+          <div class="focus">
+            <div class="ring">
+              <svg viewBox="0 0 160 160"></svg>
+              <div class="ring-value" id="focusValue">0%</div>
+              <p>Focus</p>
+            </div>
+          </div>
+          <div class="stat-grid">
+            <article>
+              <p>Time Active</p>
+              <strong id="activeMinutes">0m</strong>
+            </article>
+            <article>
+              <p>Distractions</p>
+              <strong id="distractions">0</strong>
+            </article>
+            <article>
+              <p>Top Domain</p>
+              <strong id="topChannel">—</strong>
+            </article>
+          </div>
+        </section>
+        <footer>
+          <button id="syncBtn">Sync Now</button>
+          <button id="openDashboard">Open Dashboard</button>
+          <button id="signOutBtn" class="secondary">Sign Out</button>
+        </footer>
+      </div>
     </div>
     <script type="module" src="popup.js"></script>
   </body>
