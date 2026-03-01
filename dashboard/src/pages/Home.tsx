@@ -1,33 +1,14 @@
-import { useEffect, useState } from "react";
 import { GlassCard } from "../components/GlassCard";
 import { FocusRing } from "../components/FocusRing";
 import { StatTicker } from "../components/StatTicker";
 import { ActiveBar, FocusTimeline, MiniPie } from "../components/charts";
 import { KpiCard } from "../components/KpiCard";
-import type {
-  AttentionSlice,
-  DashboardKpis,
-  OverviewStats,
-  TimelineBlock,
-} from "../../../shared/types";
-import { mockApi } from "../mock/mockData";
+import { useDashboardData } from "../hooks/useDashboardData";
 
 export function HomePage() {
-  const [overview, setOverview] = useState<OverviewStats | null>(null);
-  const [timeline, setTimeline] = useState<TimelineBlock[]>([]);
-  const [attention, setAttention] = useState<AttentionSlice[]>([]);
-  const [distractions, setDistractions] = useState<AttentionSlice[]>([]);
-  const [kpis, setKpis] = useState<DashboardKpis | null>(null);
+  const { overview, timeline, attention, distractions, kpis, loading } = useDashboardData();
 
-  useEffect(() => {
-    mockApi.getOverview().then(setOverview);
-    mockApi.getTimeline().then(setTimeline);
-    mockApi.getAttentionSplit().then(setAttention);
-    mockApi.getDistractionSplit().then(setDistractions);
-    mockApi.getKpis().then(setKpis);
-  }, []);
-
-  if (!overview) {
+  if (loading || !overview) {
     return <p className="text-white/60">Booting FlowPulse HUD...</p>;
   }
 
@@ -40,7 +21,7 @@ export function HomePage() {
             <KpiCard label="Context Switches" value={`${kpis.contextSwitches}`} caption="tracked today" />
             <KpiCard label="Longest Session" value={`${kpis.longestSession}m`} caption="flow lock" />
             <KpiCard label="Deepest Block" value={kpis.deepestBlock} caption="neuro focus" />
-            <KpiCard label="Shipped" value={`${kpis.shippedArtifacts}`} caption="artifacts today" />
+            <KpiCard label="Shipped" value={`${kpis.shippedArtifacts}`} caption="deep blocks" />
           </div>
         )}
           <p className="text-sm uppercase tracking-[0.4em] text-white/50">Today</p>
@@ -72,8 +53,10 @@ export function HomePage() {
         <GlassCard title="Dominant channel" subtitle={overview.topCategory}>
           <div className="space-y-4 text-white/80">
             <p>
-              The AI senses a strong creative surge. You held deep focus streaks for
-              <span className="text-white"> 47 min</span> avg.
+              {overview.focusScore >= 70
+                ? <>Strong creative surge. You held deep focus streaks for <span className="text-white">{Math.round(overview.totalActiveMinutes / Math.max(1, timeline.length))} min</span> avg.</>
+                : <>Mixed attention today. Try to protect a focused block this afternoon.</>
+              }
             </p>
             <div className="grid grid-cols-2 gap-3 text-sm">
               {timeline.slice(0, 4).map((block) => (
@@ -87,7 +70,7 @@ export function HomePage() {
           </div>
         </GlassCard>
       </div>
-      {(attention.length || distractions.length) && (
+      {(attention.length > 0 || distractions.length > 0) && (
         <div className="grid gap-6 lg:grid-cols-2">
           <GlassCard title="Attention split" subtitle="Signal allocation">
             <div className="grid gap-4 md:grid-cols-[200px_1fr]">

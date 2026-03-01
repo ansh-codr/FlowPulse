@@ -1,15 +1,11 @@
-import { useEffect, useState } from "react";
-import type { AppUsage } from "../../../shared/types";
-import { mockApi } from "../mock/mockData";
 import { GlassCard } from "../components/GlassCard";
 import { AppsPie } from "../components/charts";
+import { useDashboardData } from "../hooks/useDashboardData";
 
 export function TopAppsPage() {
-  const [apps, setApps] = useState<AppUsage[]>([]);
+  const { apps, loading } = useDashboardData();
 
-  useEffect(() => {
-    mockApi.getApps().then(setApps);
-  }, []);
+  if (loading) return <p className="text-white/60">Loading apps…</p>;
 
   return (
     <div className="space-y-8">
@@ -19,19 +15,23 @@ export function TopAppsPage() {
           <AppsPie data={apps} />
         </GlassCard>
         <GlassCard title="Stack detail" subtitle="Productivity signature">
-          <div className="space-y-4">
-            {apps.map((app) => (
-              <div key={app.name} className="flex items-center justify-between rounded-2xl border border-white/5 bg-white/5 px-4 py-3">
-                <div>
-                  <p className="font-semibold text-white">{app.name}</p>
-                  <p className="text-xs uppercase tracking-[0.3em] text-white/40">{app.category}</p>
+          {apps.length === 0 ? (
+            <p className="text-white/40 text-sm">No domain data yet. Browse with the extension active.</p>
+          ) : (
+            <div className="space-y-4">
+              {apps.map((app) => (
+                <div key={app.name} className="flex items-center justify-between rounded-2xl border border-white/5 bg-white/5 px-4 py-3">
+                  <div>
+                    <p className="font-semibold text-white">{app.name}</p>
+                    <p className="text-xs uppercase tracking-[0.3em] text-white/40">{app.category}</p>
+                  </div>
+                  <p className="text-lg font-bold" style={{ color: app.color }}>
+                    {app.minutes}m
+                  </p>
                 </div>
-                <p className="text-lg font-bold" style={{ color: app.color }}>
-                  {app.minutes}m
-                </p>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </GlassCard>
       </div>
     </div>

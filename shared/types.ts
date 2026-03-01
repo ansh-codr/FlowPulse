@@ -147,3 +147,14 @@ export interface DashboardKpis {
   deepestBlock: string;
   shippedArtifacts: number;
 }
+
+/** Activity event for timeline event stream (derived from ActivityLog) */
+export interface ActivityEvent {
+  id: string;
+  title: string;
+  url: string;
+  start: string; // ISO timestamp
+  end: string;   // ISO timestamp
+  focusScore: number; // 0-100
+  category: ActivityCategory;
+}
