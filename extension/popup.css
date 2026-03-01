@@ -20,11 +20,18 @@ body {
   gap: 16px;
 }
 
+#authSection, #mainSection {
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Header ───────────────────────────── */
 header .eyebrow {
   text-transform: uppercase;
   letter-spacing: 0.35em;
   font-size: 10px;
   color: rgba(255, 255, 255, 0.5);
+  margin: 0;
 }
 
 header h1 {
@@ -34,6 +41,20 @@ header h1 {
   font-size: 26px;
 }
 
+.user-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid rgba(88, 240, 255, 0.4);
+}
+
+/* ── Stats card ───────────────────────── */
 .stats {
   border-radius: 28px;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -102,6 +123,7 @@ header h1 {
   font-family: 'Space Grotesk', sans-serif;
 }
 
+/* ── Buttons ──────────────────────────── */
 button {
   width: 100%;
   border: none;
@@ -112,8 +134,23 @@ button {
   background: linear-gradient(120deg, #58f0ff, #9c6bff);
   color: #05060a;
   cursor: pointer;
+  transition: opacity 0.2s;
 }
 
+button:hover { opacity: 0.9; }
+
+button.secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  padding: 8px;
+}
+
+button.secondary:hover { color: #fff; }
+
 footer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   padding-top: 6px;
 }
