@@ -4,7 +4,13 @@
 [build]
   base = "dashboard"
   command = "npm install && npm run build"
-  publish = "dashboard/dist"
+  publish = "dist"
+
+# Disable the auto-detected Next.js plugin — this is a Vite React app
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+  [plugins.inputs]
+    skip = true
 
 # SPA — send all routes to index.html for React Router
 [[redirects]]
