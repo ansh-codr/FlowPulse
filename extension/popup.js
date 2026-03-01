@@ -82,7 +82,7 @@ $("syncBtn").addEventListener("click", () => {
 });
 
 $("openDashboard").addEventListener("click", () => {
-  chrome.tabs.create({ url: "https://flowpulse.web.app/" });
+  chrome.tabs.create({ url: "https://flowpulse-dc45a.web.app/" });
 });
 
 /* ── Live updates ───────────────────────────────────── */
