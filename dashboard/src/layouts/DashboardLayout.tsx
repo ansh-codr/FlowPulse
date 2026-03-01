@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useAuth } from "../hooks/useAuth";
 
 const nav = [
   { label: "Overview", to: "/" },
@@ -7,21 +8,26 @@ const nav = [
   { label: "Heatmap", to: "/heatmap" },
   { label: "Top Apps", to: "/top-apps" },
   { label: "Sessions", to: "/sessions" },
+  { label: "Leaderboard", to: "/leaderboard" },
+  { label: "Settings", to: "/settings" },
 ];
 
 export function DashboardLayout() {
+  const { user, signOut } = useAuth();
+
   return (
     <div className="grid min-h-screen grid-cols-[220px_1fr] bg-night/95 text-white">
       <aside className="flex flex-col gap-6 border-r border-white/5 bg-gradient-to-b from-white/5 to-transparent p-6">
         <div>
           <p className="font-display text-2xl tracking-tight text-white">FlowPulse</p>
-          <p className="text-xs uppercase tracking-[0.5em] text-white/50">Prototype</p>
+          <p className="text-xs uppercase tracking-[0.5em] text-white/50">Intelligence</p>
         </div>
         <nav className="flex flex-col gap-2">
           {nav.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
+              end={item.to === "/"}
               className={({ isActive }) =>
                 `rounded-2xl px-4 py-3 text-sm font-semibold transition ${
                   isActive
@@ -34,11 +40,37 @@ export function DashboardLayout() {
             </NavLink>
           ))}
         </nav>
-        <div className="mt-auto rounded-3xl border border-white/10 bg-white/5 p-4 text-sm text-white/80">
-          <p className="text-xs uppercase text-white/40">Status</p>
-          <p className="font-semibold text-white">Mocked API Online</p>
-          <p className="text-white/60">v0.1 Hackathon build</p>
-        </div>
+
+        {/* User info */}
+        {user && (
+          <div className="mt-auto space-y-3">
+            <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-3">
+              {user.photoURL ? (
+                <img
+                  src={user.photoURL}
+                  alt=""
+                  className="h-8 w-8 rounded-full"
+                />
+              ) : (
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-aurora/30 text-sm font-bold text-white">
+                  {(user.displayName ?? user.email ?? "U")[0].toUpperCase()}
+                </div>
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-semibold text-white">
+                  {user.displayName ?? "User"}
+                </p>
+                <p className="truncate text-xs text-white/50">{user.email}</p>
+              </div>
+            </div>
+            <button
+              onClick={signOut}
+              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/60 hover:bg-white/10 hover:text-white"
+            >
+              Sign Out
+            </button>
+          </div>
+        )}
       </aside>
       <main className="relative overflow-hidden">
         <motion.div
