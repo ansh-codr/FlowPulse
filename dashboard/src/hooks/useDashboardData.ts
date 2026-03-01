@@ -282,8 +282,8 @@ export function useDashboardData(dateStr?: string) {
   const heatmap = useMemo(() => statsToHeatmap(weeklyStats), [weeklyStats]);
   const kpis = useMemo(() => computeKpis(logs, sessions, timeline), [logs, sessions, timeline]);
 
-  const overview: OverviewStats | null = useMemo(() => {
-    if (!logs.length && !dailyStats) return null;
+  const overview: OverviewStats = useMemo(() => {
+    // Always return a valid overview — zeros when no data yet
     const focusScore = dailyStats?.focusScore ?? (timeline.length > 0
       ? Math.round(timeline.reduce((s, b) => s + b.focusScore, 0) / timeline.length)
       : 0);
@@ -302,6 +302,8 @@ export function useDashboardData(dateStr?: string) {
     };
   }, [logs, dailyStats, timeline, apps, streak]);
 
+  const hasData = logs.length > 0 || dailyStats !== null;
+
   return {
     logs,
     dailyStats,
@@ -317,5 +319,6 @@ export function useDashboardData(dateStr?: string) {
     kpis,
     streak,
     loading,
+    hasData,
   };
 }
