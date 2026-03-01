@@ -1,0 +1,24 @@
+{
+  "name": "flowpulse",
+  "version": "1.0.0",
+  "description": "FlowPulse is a Supabase-powered productivity tracker that combines a Chrome extension for activity capture, a realtime analytics dashboard, and serverless Supabase Edge Functions for ingestion and summarization. The stack avoids any self-hosted services: the dashboard deploys to Netlify, the backend lives entirely in Supabase, and the browser extension syncs directly to Supabase APIs.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ansh-codr/FlowPulse.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/ansh-codr/FlowPulse/issues"
+  },
+  "homepage": "https://github.com/ansh-codr/FlowPulse#readme",
+  "dependencies": {
+    "firebase-admin": "^13.7.0"
+  }
+}
