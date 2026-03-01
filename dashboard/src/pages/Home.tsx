@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import { GlassCard } from "../components/GlassCard";
 import { FocusRing } from "../components/FocusRing";
 import { StatTicker } from "../components/StatTicker";
@@ -6,7 +6,7 @@ import { ActiveBar, FocusTimeline, MiniPie } from "../components/charts";
 import { KpiCard } from "../components/KpiCard";
 import { useDashboardData } from "../hooks/useDashboardData";
 
-const container = {
+const container: Variants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
@@ -14,9 +14,9 @@ const container = {
   },
 };
 
-const item = {
+const item: Variants = {
   hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] } },
+  show: { opacity: 1, y: 0 },
 };
 
 const kpiAccents = ["#58f0ff", "#9c6bff", "#f5c842", "#4ade80"];

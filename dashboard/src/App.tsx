@@ -14,10 +14,18 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-night">
+      <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-night">
+        <div className="relative flex h-16 w-16 items-center justify-center">
+          {/* Outer spinning ring */}
+          <div className="absolute inset-0 animate-spin rounded-full border-2 border-transparent border-t-neon border-r-neon/30" />
+          {/* Logo */}
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-plasma to-aurora shadow-glow-plasma">
+            <span className="font-display text-sm font-bold text-white">FP</span>
+          </div>
+        </div>
         <div className="text-center">
-          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-neon border-t-transparent" />
-          <p className="text-sm text-white/60">Loading FlowPulse...</p>
+          <p className="font-display text-lg font-semibold text-white">FlowPulse</p>
+          <p className="mt-1 text-xs uppercase tracking-[0.4em] text-white/30">Initializing…</p>
         </div>
       </div>
     );
