@@ -66,17 +66,27 @@ export function HeroScene() {
                 />
             </div>
 
-            {/* ─── Watermark kill strip ──────────────────────────────────
-                Luma adds a small watermark bottom-right. We cover it with
-                a matching dark gradient bar that blends seamlessly with the
-                bottom vignette below.
+            {/* ─── Watermark kill strips ─────────────────────────────────
+                Luma adds watermark top-right. Covered with a dark gradient
+                that blends with the top vignette. Also a small bottom-right
+                strip as a belt-and-suspenders measure.
             */}
+            {/* Top-right cover — main Luma logo placement */}
             <div
-                className="pointer-events-none absolute bottom-0 right-0 z-[3]"
+                className="pointer-events-none absolute right-0 top-0 z-[5]"
                 style={{
-                    width: "260px",
-                    height: "56px",
-                    background: "linear-gradient(135deg, transparent 0%, rgba(0,0,0,0.92) 50%, #000 100%)",
+                    width: "220px",
+                    height: "64px",
+                    background: "linear-gradient(225deg, rgba(0,0,0,1) 30%, rgba(0,0,0,0.9) 60%, transparent 100%)",
+                }}
+            />
+            {/* Bottom-right cover — secondary */}
+            <div
+                className="pointer-events-none absolute bottom-0 right-0 z-[5]"
+                style={{
+                    width: "180px",
+                    height: "48px",
+                    background: "linear-gradient(135deg, transparent 0%, rgba(0,0,0,0.92) 55%, #000 100%)",
                 }}
             />
 
