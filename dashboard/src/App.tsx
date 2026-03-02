@@ -41,7 +41,7 @@ function AppRoutes() {
   return (
     <Routes>
       {/* Public landing page */}
-      <Route path="/" element={<LandingPage />} />
+      <Route path="/" element={<ImmersiveLanding />} />
 
       {/* Login — redirect to /app if already signed in */}
       <Route
