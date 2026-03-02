@@ -16,3 +16,6 @@ yarn-error.log*
 # Editor
 .vscode/
 .idea/
+
+# Firebase service account key (NEVER commit)
+service-account.json
