@@ -35,8 +35,8 @@ function FloatingGeometry({ mouseX, mouseY }: { mouseX: number; mouseY: number }
                 <mesh ref={ico} position={[0, 0, 0]}>
                     <icosahedronGeometry args={[1.6, 0]} />
                     <meshStandardMaterial
-                        color="#58f0ff"
-                        emissive="#58f0ff"
+                        color="#7C9FC9"
+                        emissive="#7C9FC9"
                         emissiveIntensity={0.15}
                         wireframe
                         transparent
@@ -53,7 +53,7 @@ function FloatingGeometry({ mouseX, mouseY }: { mouseX: number; mouseY: number }
                         anisotropicBlur={0.1}
                         thickness={0.4}
                         roughness={0}
-                        color="#9c6bff"
+                        color="#527FB0"
                         chromaticAberration={0.06}
                     />
                 </mesh>
@@ -64,8 +64,8 @@ function FloatingGeometry({ mouseX, mouseY }: { mouseX: number; mouseY: number }
                 <mesh ref={dodec} position={[3.2, 0.5, -1]}>
                     <dodecahedronGeometry args={[0.55, 0]} />
                     <meshStandardMaterial
-                        color="#9c6bff"
-                        emissive="#9c6bff"
+                        color="#527FB0"
+                        emissive="#527FB0"
                         emissiveIntensity={0.2}
                         wireframe
                         transparent
@@ -76,9 +76,9 @@ function FloatingGeometry({ mouseX, mouseY }: { mouseX: number; mouseY: number }
 
             {/* Small orbiting tetrahedra */}
             {([
-                [-2.5, 1.2, 0.5, "#f5c842"],
-                [2.8, -1.5, 1, "#4ade80"],
-                [-3, -1, -1, "#58f0ff"],
+                [-2.5, 1.2, 0.5, "#7C9FC9"],
+                [2.8, -1.5, 1, "#7C9FC9"],
+                [-3, -1, -1, "#7C9FC9"],
             ] as [number, number, number, string][]).map(([x, y, z, color], i) => (
                 <Float key={i} speed={1.5 + i * 0.3} rotationIntensity={1} floatIntensity={0.8}>
                     <mesh position={[x, y, z]}>
@@ -98,7 +98,7 @@ function FloatingGeometry({ mouseX, mouseY }: { mouseX: number; mouseY: number }
                         ), 3]}
                     />
                 </bufferGeometry>
-                <pointsMaterial size={0.02} color="#58f0ff" transparent opacity={0.5} sizeAttenuation />
+                <pointsMaterial size={0.02} color="#7C9FC9" transparent opacity={0.5} sizeAttenuation />
             </points>
         </group>
     );
@@ -118,9 +118,9 @@ export function Hero3DCanvas({ mouseX, mouseY }: Hero3DCanvasProps) {
             style={{ background: "transparent" }}
         >
             <ambientLight intensity={0.3} />
-            <pointLight position={[5, 5, 5]} intensity={1.2} color="#58f0ff" />
-            <pointLight position={[-5, -3, -5]} intensity={0.8} color="#9c6bff" />
-            <pointLight position={[0, -5, 2]} intensity={0.5} color="#f5c842" />
+            <pointLight position={[5, 5, 5]} intensity={1.2} color="#7C9FC9" />
+            <pointLight position={[-5, -3, -5]} intensity={0.8} color="#527FB0" />
+            <pointLight position={[0, -5, 2]} intensity={0.5} color="#7C9FC9" />
             <Suspense fallback={null}>
                 <FloatingGeometry mouseX={mouseX} mouseY={mouseY} />
             </Suspense>
@@ -135,7 +135,7 @@ export function Hero3DFallback() {
             <div
                 className="h-64 w-64 animate-[spin_20s_linear_infinite] rounded-full opacity-40"
                 style={{
-                    background: "conic-gradient(from 0deg, transparent, rgba(88,240,255,0.4), rgba(156,107,255,0.4), transparent)",
+                    background: "conic-gradient(from 0deg, transparent, rgba(124,159,201,0.4), rgba(82,127,176,0.4), transparent)",
                     filter: "blur(40px)",
                 }}
             />

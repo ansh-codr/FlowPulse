@@ -10,11 +10,11 @@ export function CTASection() {
             {/* Rich gradient background */}
             <div className="pointer-events-none absolute inset-0">
                 <div className="absolute inset-0"
-                    style={{ background: "radial-gradient(ellipse 80% 60% at 50% 50%, rgba(109,109,255,0.2), transparent 70%)" }} />
+                    style={{ background: "radial-gradient(ellipse 80% 60% at 50% 50%, rgba(82,127,176,0.2), transparent 70%)" }} />
                 <div className="absolute left-0 top-0 h-full w-px"
-                    style={{ background: "linear-gradient(to bottom, transparent, rgba(88,240,255,0.1), transparent)" }} />
+                    style={{ background: "linear-gradient(to bottom, transparent, rgba(124,159,201,0.1), transparent)" }} />
                 <div className="absolute right-0 top-0 h-full w-px"
-                    style={{ background: "linear-gradient(to bottom, transparent, rgba(156,107,255,0.1), transparent)" }} />
+                    style={{ background: "linear-gradient(to bottom, transparent, rgba(82,127,176,0.1), transparent)" }} />
             </div>
 
             <div className="relative z-10 mx-auto max-w-3xl px-8 text-center">
@@ -32,7 +32,7 @@ export function CTASection() {
 
                     <h2 className="mb-5 font-display text-5xl font-bold leading-tight text-white lg:text-6xl">
                         Start building your{" "}
-                        <span style={{ background: "linear-gradient(135deg,#58f0ff,#9c6bff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                        <span style={{ background: "linear-gradient(135deg,#7C9FC9,#527FB0)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                             focus ↗
                         </span>
                     </h2>
@@ -46,8 +46,8 @@ export function CTASection() {
                             to="/app"
                             className="group relative inline-flex overflow-hidden rounded-2xl px-10 py-4 text-base font-semibold text-white shadow-glow-neon"
                             style={{
-                                background: "linear-gradient(135deg, rgba(88,240,255,0.3), rgba(109,109,255,0.25))",
-                                border: "1px solid rgba(88,240,255,0.4)",
+                                background: "linear-gradient(135deg, rgba(124,159,201,0.3), rgba(82,127,176,0.25))",
+                                border: "1px solid rgba(124,159,201,0.4)",
                             }}
                         >
                             <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/[0.12] to-transparent transition-transform duration-700 group-hover:translate-x-full" />
@@ -60,8 +60,8 @@ export function CTASection() {
                                 disabled={loading}
                                 className="group relative flex items-center gap-3 overflow-hidden rounded-2xl px-10 py-4 text-base font-semibold text-white shadow-glow-neon disabled:opacity-50"
                                 style={{
-                                    background: "linear-gradient(135deg, rgba(88,240,255,0.25), rgba(109,109,255,0.2))",
-                                    border: "1px solid rgba(88,240,255,0.4)",
+                                    background: "linear-gradient(135deg, rgba(124,159,201,0.25), rgba(82,127,176,0.2))",
+                                    border: "1px solid rgba(124,159,201,0.4)",
                                 }}
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}

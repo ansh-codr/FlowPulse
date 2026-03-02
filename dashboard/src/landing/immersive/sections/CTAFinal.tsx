@@ -32,7 +32,7 @@ function MagneticButton({ children, onClick, disabled }: {
     return (
         <motion.button
             ref={ref}
-            style={{ x: springX, y: springY, background: "linear-gradient(135deg, #58f0ff 0%, #9c6bff 100%)" }}
+            style={{ x: springX, y: springY, background: "linear-gradient(135deg, #7C9FC9 0%, #527FB0 100%)" }}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
             onClick={onClick}
@@ -64,13 +64,13 @@ export function CTAFinal() {
         <section
             ref={sectionRef}
             onMouseMove={handleMouseMove}
-            className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-black py-32"
+            className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-deep py-32"
         >
             {/* Cursor spotlight */}
             <div
                 className="pointer-events-none absolute inset-0 transition-none"
                 style={{
-                    background: `radial-gradient(600px circle at ${spotPos.x}% ${spotPos.y}%, rgba(88,240,255,0.07), transparent 50%)`,
+                    background: `radial-gradient(600px circle at ${spotPos.x}% ${spotPos.y}%, rgba(124,159,201,0.07), transparent 50%)`,
                 }}
             />
 
@@ -107,7 +107,7 @@ export function CTAFinal() {
                         className="font-display font-thin leading-[0.88] tracking-[0.06em]"
                         style={{
                             fontSize: "clamp(56px, 9vw, 120px)",
-                            background: "linear-gradient(135deg, #58f0ff 0%, #9c6bff 60%, #58f0ff 100%)",
+                            background: "linear-gradient(135deg, #7C9FC9 0%, #527FB0 60%, #7C9FC9 100%)",
                             WebkitBackgroundClip: "text",
                             WebkitTextFillColor: "transparent",
                         }}

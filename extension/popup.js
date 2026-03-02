@@ -65,7 +65,7 @@ $("signOutBtn").addEventListener("click", async () => {
 });
 
 $("openDashboard").addEventListener("click", () => {
-  chrome.tabs.create({ url: "https://fllowpulse.netlify.app/" });
+  chrome.tabs.create({ url: "https://anshyadav.tech/" });
 });
 
 /* ── Live updates ───────────────────────────────────── */

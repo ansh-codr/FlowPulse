@@ -28,7 +28,7 @@ const leaderboardData = [
 
 const tooltipStyle = {
     background: "rgba(5,6,10,0.95)",
-    border: "1px solid rgba(88,240,255,0.15)",
+    border: "1px solid rgba(124,159,201,0.15)",
     borderRadius: "10px",
     color: "white",
     fontSize: "11px",
@@ -73,13 +73,13 @@ function AnimatedFocusRing({ inView }: { inView: boolean }) {
                 />
                 <defs>
                     <linearGradient id="demoGrad" x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stopColor="#58f0ff" />
-                        <stop offset="100%" stopColor="#9c6bff" />
+                        <stop offset="0%" stopColor="#7C9FC9" />
+                        <stop offset="100%" stopColor="#527FB0" />
                     </linearGradient>
                 </defs>
             </svg>
             <div className="absolute text-center">
-                <p className="font-display text-4xl font-bold" style={{ background: "linear-gradient(135deg,#58f0ff,#9c6bff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                <p className="font-display text-4xl font-bold" style={{ background: "linear-gradient(135deg,#7C9FC9,#527FB0)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                     {score}
                 </p>
                 <p className="text-[9px] uppercase tracking-widest text-white/40">Focus</p>
@@ -142,9 +142,9 @@ export function LiveDemoSection() {
                                 <AnimatedFocusRing inView={inView} />
                                 <div className="space-y-4">
                                     {[
-                                        { label: "Active mins", value: "4h 12m", color: "#58f0ff" },
-                                        { label: "Distractions", value: "14", color: "#ff8a8a" },
-                                        { label: "Streak", value: "7 days 🔥", color: "#f5c842" },
+                                        { label: "Active mins", value: "4h 12m", color: "#7C9FC9" },
+                                        { label: "Distractions", value: "14", color: "#527FB0" },
+                                        { label: "Streak", value: "7 days 🔥", color: "#7C9FC9" },
                                     ].map((stat) => (
                                         <div key={stat.label}>
                                             <p className="text-[10px] uppercase tracking-wider text-white/30">{stat.label}</p>
@@ -169,12 +169,12 @@ export function LiveDemoSection() {
                                 <AreaChart data={chartData}>
                                     <defs>
                                         <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#58f0ff" stopOpacity={0.4} />
-                                            <stop offset="100%" stopColor="#9c6bff" stopOpacity={0.02} />
+                                            <stop offset="0%" stopColor="#7C9FC9" stopOpacity={0.4} />
+                                            <stop offset="100%" stopColor="#527FB0" stopOpacity={0.02} />
                                         </linearGradient>
                                         <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
-                                            <stop offset="0%" stopColor="#9c6bff" />
-                                            <stop offset="100%" stopColor="#58f0ff" />
+                                            <stop offset="0%" stopColor="#527FB0" />
+                                            <stop offset="100%" stopColor="#7C9FC9" />
                                         </linearGradient>
                                     </defs>
                                     <XAxis dataKey="hour" stroke="rgba(255,255,255,0.15)" tickLine={false} axisLine={false} style={{ fontSize: "10px" }} />
@@ -184,7 +184,7 @@ export function LiveDemoSection() {
                                         stroke="url(#lineGrad)" fill="url(#areaGrad)"
                                         strokeWidth={2} dot={false}
                                         animationDuration={1500}
-                                        activeDot={{ r: 4, fill: "#58f0ff", stroke: "rgba(88,240,255,0.4)", strokeWidth: 4 }}
+                                        activeDot={{ r: 4, fill: "#7C9FC9", stroke: "rgba(124,159,201,0.4)", strokeWidth: 4 }}
                                     />
                                 </AreaChart>
                             </ResponsiveContainer>
@@ -207,12 +207,12 @@ export function LiveDemoSection() {
                                 <BarChart data={inView ? barDataFull : focusData.map(d => ({ hour: d.hour, mins: 0 }))}>
                                     <defs>
                                         <linearGradient id="barGrad2" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#58f0ff" stopOpacity={0.9} />
-                                            <stop offset="100%" stopColor="#6d6dff" stopOpacity={0.5} />
+                                            <stop offset="0%" stopColor="#7C9FC9" stopOpacity={0.9} />
+                                            <stop offset="100%" stopColor="#527FB0" stopOpacity={0.5} />
                                         </linearGradient>
                                     </defs>
                                     <XAxis dataKey="hour" stroke="rgba(255,255,255,0.15)" tickLine={false} axisLine={false} style={{ fontSize: "10px" }} />
-                                    <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "rgba(88,240,255,0.06)" }} />
+                                    <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "rgba(124,159,201,0.06)" }} />
                                     <Bar dataKey="mins" radius={[6, 6, 0, 0]} fill="url(#barGrad2)" animationDuration={1200} />
                                 </BarChart>
                             </ResponsiveContainer>
@@ -242,7 +242,7 @@ export function LiveDemoSection() {
                                         transition={{ delay: 0.3 + i * 0.08 }}
                                     >
                                         <span className="font-display text-lg font-bold w-7 text-center"
-                                            style={{ color: i === 0 ? "#f5c842" : i === 1 ? "#a0aec0" : i === 2 ? "#b7791f" : "rgba(255,255,255,0.3)" }}>
+                                            style={{ color: i === 0 ? "#7C9FC9" : i === 1 ? "#7C9FC9" : i === 2 ? "#527FB0" : "rgba(255,255,255,0.3)" }}>
                                             #{entry.rank}
                                         </span>
                                         <span className={`flex-1 font-medium ${entry.isYou ? "text-neon" : "text-white"}`}>{entry.name}</span>

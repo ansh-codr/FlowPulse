@@ -11,7 +11,7 @@ const features = [
         eyebrow: "Activity Intelligence",
         headline: "Every App.\nEvery Minute.",
         body: "A silent Chrome extension tracks every tab, app, and domain in real-time. No browsing content is ever transmitted — only time-on-task metadata, processed on-device.",
-        accent: "#58f0ff",
+        accent: "#7C9FC9",
         visual: (
             <div className="relative h-64 w-full">
                 {/* Mock browser tabs */}
@@ -34,12 +34,12 @@ const features = [
                             <span
                                 className="h-2 w-2 flex-shrink-0 rounded-full"
                                 style={{
-                                    background: tab.type === "focus" ? "#4ade80" : tab.type === "shallow" ? "#f5c842" : "#ff8a8a",
-                                    boxShadow: `0 0 8px ${tab.type === "focus" ? "#4ade80" : tab.type === "shallow" ? "#f5c842" : "#ff8a8a"}80`,
+                                    background: tab.type === "focus" ? "#7C9FC9" : tab.type === "shallow" ? "#7C9FC9" : "#527FB0",
+                                    boxShadow: `0 0 8px ${tab.type === "focus" ? "#7C9FC9" : tab.type === "shallow" ? "#7C9FC9" : "#527FB0"}80`,
                                 }}
                             />
                             <span className="flex-1 truncate font-mono text-xs text-white/40">{tab.label}</span>
-                            <span className="text-xs font-bold" style={{ color: tab.type === "focus" ? "#4ade80" : tab.type === "shallow" ? "#f5c842" : "#ff8a8a" }}>
+                            <span className="text-xs font-bold" style={{ color: tab.type === "focus" ? "#7C9FC9" : tab.type === "shallow" ? "#7C9FC9" : "#527FB0" }}>
                                 {tab.pct}%
                             </span>
                         </motion.div>
@@ -53,13 +53,13 @@ const features = [
         eyebrow: "Smart Classification",
         headline: "Intelligent\nBy Design.",
         body: "Every domain is classified into Focus, Shallow Work, or Distraction using a trained model. Override any classification and watch your score recalculate instantly.",
-        accent: "#9c6bff",
+        accent: "#527FB0",
         visual: (
             <div className="relative flex flex-wrap gap-3">
                 {[
-                    { label: "Focus", color: "#4ade80", apps: ["GitHub", "Notion", "Coursera", "VS Code"] },
-                    { label: "Shallow", color: "#f5c842", apps: ["Reddit", "Twitter/X", "HN"] },
-                    { label: "Distraction", color: "#ff8a8a", apps: ["Instagram", "TikTok", "YouTube"] },
+                    { label: "Focus", color: "#7C9FC9", apps: ["GitHub", "Notion", "Coursera", "VS Code"] },
+                    { label: "Shallow", color: "#7C9FC9", apps: ["Reddit", "Twitter/X", "HN"] },
+                    { label: "Distraction", color: "#527FB0", apps: ["Instagram", "TikTok", "YouTube"] },
                 ].map((group) => (
                     <div key={group.label} className="flex-1 min-w-[140px] rounded-2xl border border-white/[0.06] bg-white/[0.03] p-4">
                         <div className="mb-3 flex items-center gap-2">
@@ -86,7 +86,7 @@ const features = [
         eyebrow: "Focus Computation",
         headline: "Your Focus,\nQuantified.",
         body: "A real-time 0–100 score synthesizes session continuity, distraction frequency, streak length, and time-of-day patterns. Compete on the weekly leaderboard.",
-        accent: "#f5c842",
+        accent: "#7C9FC9",
         visual: (
             <div className="flex flex-col items-center gap-6">
                 {/* Focus ring */}
@@ -107,8 +107,8 @@ const features = [
                         />
                         <defs>
                             <linearGradient id="pinnedGrad" x1="0" y1="0" x2="1" y2="0">
-                                <stop offset="0%" stopColor="#f5c842" />
-                                <stop offset="100%" stopColor="#58f0ff" />
+                                <stop offset="0%" stopColor="#7C9FC9" />
+                                <stop offset="100%" stopColor="#7C9FC9" />
                             </linearGradient>
                         </defs>
                     </svg>
@@ -163,13 +163,13 @@ export function PinnedSection() {
     }, []);
 
     return (
-        <section id="pinned" ref={containerRef} className="bg-black py-32">
+        <section id="pinned" ref={containerRef} className="bg-deep py-32">
             {/* Section header */}
             <div className="mb-20 px-8 text-center">
                 <p className="mb-3 text-[10px] uppercase tracking-[0.6em] text-white/25">How It Works</p>
                 <h2 className="font-display text-[clamp(36px,5vw,64px)] font-black leading-none tracking-tight text-white">
                     THREE LAYERS OF<br />
-                    <span style={{ background: "linear-gradient(135deg,#58f0ff,#9c6bff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                    <span style={{ background: "linear-gradient(135deg,#7C9FC9,#527FB0)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                         INTELLIGENCE
                     </span>
                 </h2>

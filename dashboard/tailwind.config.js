@@ -11,26 +11,32 @@ export default {
         body: ["Inter", "system-ui", "sans-serif"],
       },
       colors: {
-        night: "#05060a",
-        plasma: "#6d6dff",
-        aurora: "#9c6bff",
-        neon: "#58f0ff",
-        ember: "#ff8a8a",
-        gold: "#f5c842",
-        success: "#4ade80",
-        "neon-dim": "rgba(88,240,255,0.15)",
-        "plasma-dim": "rgba(109,109,255,0.15)",
+        // ── FlowPulse Brand Palette (strict 4 colors) ──────────────
+        deep: "#011023",   // deepest background
+        surface: "#052558",   // cards / panels / secondary bg
+        accent: "#527FB0",   // primary accent (CTAs, dividers)
+        highlight: "#7C9FC9",   // light accent (gradient top, text tints)
+        // ── Semantic aliases for backward compat in dashboard ───────
+        night: "#011023",
+        plasma: "#527FB0",
+        aurora: "#7C9FC9",
+        neon: "#7C9FC9",
+        ember: "#527FB0",
+        gold: "#7C9FC9",
+        success: "#7C9FC9",
+        "neon-dim": "rgba(124,159,201,0.15)",
+        "plasma-dim": "rgba(82,127,176,0.15)",
       },
       boxShadow: {
-        glow: "0 0 40px rgba(88,240,255,0.2), 0 20px 60px rgba(88,240,255,0.1)",
-        "glow-sm": "0 0 20px rgba(88,240,255,0.15)",
-        "glow-lg": "0 0 80px rgba(88,240,255,0.25), 0 30px 80px rgba(88,240,255,0.15)",
-        "glow-neon": "0 0 30px rgba(88,240,255,0.4), 0 0 60px rgba(88,240,255,0.2)",
-        "glow-plasma": "0 0 30px rgba(109,109,255,0.4), 0 0 60px rgba(109,109,255,0.2)",
-        "glow-aurora": "0 0 30px rgba(156,107,255,0.4), 0 0 60px rgba(156,107,255,0.2)",
-        "glow-gold": "0 0 30px rgba(245,200,66,0.4)",
-        "inner-glow": "inset 0 0 30px rgba(88,240,255,0.05)",
-        card: "0 4px 24px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.05)",
+        glow: "0 0 40px rgba(82,127,176,0.2), 0 20px 60px rgba(82,127,176,0.1)",
+        "glow-sm": "0 0 20px rgba(82,127,176,0.15)",
+        "glow-lg": "0 0 80px rgba(82,127,176,0.25), 0 30px 80px rgba(82,127,176,0.15)",
+        "glow-neon": "0 0 30px rgba(124,159,201,0.35), 0 0 60px rgba(124,159,201,0.15)",
+        "glow-plasma": "0 0 30px rgba(82,127,176,0.35), 0 0 60px rgba(82,127,176,0.15)",
+        "glow-aurora": "0 0 30px rgba(124,159,201,0.35), 0 0 60px rgba(124,159,201,0.15)",
+        "glow-gold": "0 0 30px rgba(124,159,201,0.3)",
+        "inner-glow": "inset 0 0 30px rgba(82,127,176,0.06)",
+        card: "0 4px 24px rgba(1,16,35,0.5), 0 1px 0 rgba(255,255,255,0.04)",
       },
       backdropBlur: {
         glass: "30px",

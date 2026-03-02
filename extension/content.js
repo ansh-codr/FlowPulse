@@ -11,14 +11,19 @@
 
 let lastTitle = document.title;
 
+/** Safe wrapper — silently no-ops if extension was reloaded/uninstalled */
+function safeSend(msg) {
+  try {
+    if (!chrome.runtime?.id) return;
+    chrome.runtime.sendMessage(msg).catch(() => {});
+  } catch (_) { /* context invalidated */ }
+}
+
 const titleObserver = new MutationObserver(() => {
   const newTitle = document.title;
   if (newTitle !== lastTitle) {
     lastTitle = newTitle;
-    chrome.runtime.sendMessage({
-      type: "FLOWPULSE_TITLE_UPDATE",
-      title: newTitle,
-    }).catch(() => {}); // Ignore if background is not ready
+    safeSend({ type: "FLOWPULSE_TITLE_UPDATE", title: newTitle });
   }
 });
 
@@ -29,13 +34,8 @@ if (titleElement) {
 
 /* ── Window focus/blur ────────────────────────────────────────────────────── */
 
-window.addEventListener("focus", () => {
-  chrome.runtime.sendMessage({ type: "FLOWPULSE_WINDOW_FOCUS" }).catch(() => {});
-});
-
-window.addEventListener("blur", () => {
-  chrome.runtime.sendMessage({ type: "FLOWPULSE_WINDOW_BLUR" }).catch(() => {});
-});
+window.addEventListener("focus", () => safeSend({ type: "FLOWPULSE_WINDOW_FOCUS" }));
+window.addEventListener("blur", () => safeSend({ type: "FLOWPULSE_WINDOW_BLUR" }));
 
 /* ── YouTube metadata extraction ──────────────────────────────────────────── */
 
@@ -66,11 +66,11 @@ function extractYouTubeMetadata() {
     "";
 
   if (videoTitle || channelName) {
-    chrome.runtime.sendMessage({
+    safeSend({
       type: "FLOWPULSE_YOUTUBE_META",
       videoTitle: videoTitle?.trim() || "",
       channelName: channelName?.trim() || "",
-    }).catch(() => {});
+    });
   }
 }
 

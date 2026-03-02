@@ -43,7 +43,7 @@ export async function storeAuth(data) {
  * Content script on the dashboard will pick up auth automatically.
  */
 export async function signIn() {
-  chrome.tabs.create({ url: "https://fllowpulse.netlify.app/login" });
+  chrome.tabs.create({ url: "https://anshyadav.tech/login" });
 }
 
 /**

@@ -23,7 +23,7 @@ const leaderboardBase = [
 
 const tooltipStyle = {
     background: "rgba(0,0,0,0.95)",
-    border: "1px solid rgba(88,240,255,0.15)",
+    border: "1px solid rgba(124,159,201,0.15)",
     borderRadius: "10px",
     color: "white",
     fontSize: "11px",
@@ -72,7 +72,7 @@ function AnimatedLeaderboard() {
                         <span
                             className="w-7 text-center font-display text-base font-bold"
                             style={{
-                                color: entry.rank === 1 ? "#f5c842" : entry.rank === 2 ? "#a0aec0" : entry.rank === 3 ? "#b7791f" : "rgba(255,255,255,0.25)",
+                                color: entry.rank === 1 ? "#7C9FC9" : entry.rank === 2 ? "#7C9FC9" : entry.rank === 3 ? "#527FB0" : "rgba(255,255,255,0.25)",
                             }}
                         >
                             #{entry.rank}
@@ -103,7 +103,7 @@ export function DataShowcase() {
     }, []);
 
     return (
-        <section ref={sectionRef} className="relative overflow-hidden bg-black py-32">
+        <section ref={sectionRef} className="relative overflow-hidden bg-deep py-32">
             {/* Gradient splash */}
             <div className="pointer-events-none absolute inset-0">
                 <div className="absolute left-1/4 top-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-plasma/[0.12] blur-[120px]" />
@@ -115,7 +115,7 @@ export function DataShowcase() {
                     <p className="mb-3 text-[10px] uppercase tracking-[0.6em] text-white/25">Live Analytics</p>
                     <h2 className="font-display text-[clamp(36px,5vw,72px)] font-black leading-[0.9] tracking-tight text-white">
                         DATA THAT<br />
-                        <span style={{ background: "linear-gradient(135deg,#58f0ff,#9c6bff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                        <span style={{ background: "linear-gradient(135deg,#7C9FC9,#527FB0)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                             MOVES WITH YOU
                         </span>
                     </h2>
@@ -138,12 +138,12 @@ export function DataShowcase() {
                                 <BarChart data={triggered ? barData : barData.map((d) => ({ ...d, mins: 0 }))}>
                                     <defs>
                                         <linearGradient id="barGradDS" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#58f0ff" stopOpacity={1} />
-                                            <stop offset="100%" stopColor="#6d6dff" stopOpacity={0.4} />
+                                            <stop offset="0%" stopColor="#7C9FC9" stopOpacity={1} />
+                                            <stop offset="100%" stopColor="#527FB0" stopOpacity={0.4} />
                                         </linearGradient>
                                     </defs>
                                     <XAxis dataKey="hour" stroke="rgba(255,255,255,0.12)" tickLine={false} axisLine={false} style={{ fontSize: "10px", fill: "rgba(255,255,255,0.4)" }} />
-                                    <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "rgba(88,240,255,0.04)" }} />
+                                    <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "rgba(124,159,201,0.04)" }} />
                                     <Bar dataKey="mins" radius={[8, 8, 0, 0]} fill="url(#barGradDS)" animationDuration={1400} maxBarSize={40} />
                                 </BarChart>
                             </ResponsiveContainer>

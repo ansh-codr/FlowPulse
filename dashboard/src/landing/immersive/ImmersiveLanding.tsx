@@ -11,7 +11,7 @@ export function ImmersiveLanding() {
     const onLoaderComplete = useCallback(() => setLoaderDone(true), []);
 
     return (
-        <div className="relative bg-black" style={{ overflowX: "hidden" }}>
+        <div className="relative bg-deep" style={{ overflowX: "hidden" }}>
             {/* Film grain overlay — always present */}
             <div
                 className="pointer-events-none fixed inset-0 z-[90] mix-blend-overlay opacity-[0.025]"
@@ -44,7 +44,7 @@ export function ImmersiveLanding() {
                     <CTAFinal />
 
                     {/* Footer */}
-                    <footer className="border-t border-white/[0.04] bg-black py-10">
+                    <footer className="border-t border-white/[0.04] bg-deep py-10">
                         <div className="mx-auto flex max-w-7xl flex-col items-center gap-5 px-8 sm:flex-row sm:justify-between">
                             <div className="flex items-center gap-2.5">
                                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-plasma to-aurora">

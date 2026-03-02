@@ -30,9 +30,9 @@ export function LandingPage() {
                     className="absolute inset-0"
                     style={{
                         background:
-                            "radial-gradient(ellipse 80% 50% at 50% -10%, rgba(109,109,255,0.18) 0%, transparent 60%), " +
-                            "radial-gradient(ellipse 60% 40% at 80% 80%, rgba(88,240,255,0.08) 0%, transparent 55%), " +
-                            "#05060a",
+                            "radial-gradient(ellipse 80% 50% at 50% -10%, rgba(82,127,176,0.18) 0%, transparent 60%), " +
+                            "radial-gradient(ellipse 60% 40% at 80% 80%, rgba(124,159,201,0.08) 0%, transparent 55%), " +
+                            "#011023",
                     }}
                 />
             </div>

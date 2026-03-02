@@ -6,28 +6,32 @@
  * and forwards it to the extension's background service worker.
  */
 
+/** Safe wrapper — silently no-ops if extension was reloaded/uninstalled */
+function safeSend(msg) {
+  try {
+    if (!chrome.runtime?.id) return;
+    chrome.runtime.sendMessage(msg).catch(() => {});
+  } catch (_) { /* context invalidated */ }
+}
+
 window.addEventListener("message", (event) => {
   if (event.source !== window) return;
 
   if (event.data?.type === "__FLOWPULSE_AUTH__" && event.data.uid) {
-    chrome.runtime
-      .sendMessage({
-        type: "FLOWPULSE_DASHBOARD_AUTH",
-        uid: event.data.uid,
-        email: event.data.email,
-        displayName: event.data.displayName,
-        photoURL: event.data.photoURL,
-        refreshToken: event.data.refreshToken,
-        accessToken: event.data.accessToken,
-        expirationTime: event.data.expirationTime,
-      })
-      .catch(() => {}); // Ignore if service worker isn't ready
+    safeSend({
+      type: "FLOWPULSE_DASHBOARD_AUTH",
+      uid: event.data.uid,
+      email: event.data.email,
+      displayName: event.data.displayName,
+      photoURL: event.data.photoURL,
+      refreshToken: event.data.refreshToken,
+      accessToken: event.data.accessToken,
+      expirationTime: event.data.expirationTime,
+    });
   }
 
   if (event.data?.type === "__FLOWPULSE_NO_AUTH__") {
-    chrome.runtime
-      .sendMessage({ type: "FLOWPULSE_DASHBOARD_NO_AUTH" })
-      .catch(() => {});
+    safeSend({ type: "FLOWPULSE_DASHBOARD_NO_AUTH" });
   }
 });
 

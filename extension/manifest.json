@@ -37,13 +37,13 @@
       "run_at": "document_idle"
     },
     {
-      "matches": ["https://fllowpulse.netlify.app/*", "http://localhost:5173/*"],
+      "matches": ["https://anshyadav.tech/*", "https://fllowpulse.netlify.app/*", "http://localhost:5173/*"],
       "js": ["content-dashboard-main.js"],
       "world": "MAIN",
       "run_at": "document_idle"
     },
     {
-      "matches": ["https://fllowpulse.netlify.app/*", "http://localhost:5173/*"],
+      "matches": ["https://anshyadav.tech/*", "https://fllowpulse.netlify.app/*", "http://localhost:5173/*"],
       "js": ["content-dashboard.js"],
       "run_at": "document_idle"
     }

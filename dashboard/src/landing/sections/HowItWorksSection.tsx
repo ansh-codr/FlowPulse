@@ -10,7 +10,7 @@ const steps = [
                 <rect x="2" y="3" width="20" height="14" rx="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" />
             </svg>
         ),
-        color: "#58f0ff",
+        color: "#7C9FC9",
     },
     {
         number: "02",
@@ -21,7 +21,7 @@ const steps = [
                 <path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18" />
             </svg>
         ),
-        color: "#9c6bff",
+        color: "#527FB0",
     },
     {
         number: "03",
@@ -32,7 +32,7 @@ const steps = [
                 <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
             </svg>
         ),
-        color: "#f5c842",
+        color: "#7C9FC9",
     },
     {
         number: "04",
@@ -43,7 +43,7 @@ const steps = [
                 <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
             </svg>
         ),
-        color: "#4ade80",
+        color: "#7C9FC9",
     },
 ];
 
@@ -75,7 +75,7 @@ export function HowItWorksSection() {
                 <div className="relative grid gap-8 md:grid-cols-2 lg:grid-cols-4">
                     {/* Connector line (desktop) */}
                     <div className="pointer-events-none absolute top-8 left-[12.5%] right-[12.5%] hidden h-px lg:block"
-                        style={{ background: "linear-gradient(90deg, transparent, rgba(88,240,255,0.2), rgba(156,107,255,0.2), rgba(245,200,66,0.2), transparent)" }} />
+                        style={{ background: "linear-gradient(90deg, transparent, rgba(124,159,201,0.2), rgba(82,127,176,0.2), rgba(245,200,66,0.2), transparent)" }} />
 
                     {steps.map((step, i) => (
                         <motion.div
@@ -99,7 +99,7 @@ export function HowItWorksSection() {
                                     {/* Step number badge */}
                                     <div
                                         className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-bold"
-                                        style={{ background: step.color, color: "#05060a" }}
+                                        style={{ background: step.color, color: "#011023" }}
                                     >
                                         {i + 1}
                                     </div>

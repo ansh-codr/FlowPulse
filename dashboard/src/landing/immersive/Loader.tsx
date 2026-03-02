@@ -51,7 +51,7 @@ export function Loader({ onComplete }: LoaderProps) {
         <AnimatePresence>
             {phase !== "done" && (
                 <motion.div
-                    className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black"
+                    className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-deep"
                     initial={{ opacity: 1 }}
                     exit={{ opacity: 0, scale: 1.04 }}
                     transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
@@ -71,8 +71,8 @@ export function Loader({ onComplete }: LoaderProps) {
                         <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
                             <defs>
                                 <linearGradient id="ldrGrad" x1="0" y1="0" x2="72" y2="72" gradientUnits="userSpaceOnUse">
-                                    <stop offset="0%" stopColor="#58f0ff" />
-                                    <stop offset="100%" stopColor="#9c6bff" />
+                                    <stop offset="0%" stopColor="#7C9FC9" />
+                                    <stop offset="100%" stopColor="#527FB0" />
                                 </linearGradient>
                             </defs>
                             {/* Rounded square */}
@@ -133,7 +133,7 @@ export function Loader({ onComplete }: LoaderProps) {
                                 className="h-full"
                                 style={{
                                     width: `${progress}%`,
-                                    background: "linear-gradient(90deg, #9c6bff, #58f0ff)",
+                                    background: "linear-gradient(90deg, #527FB0, #7C9FC9)",
                                 }}
                             />
                         </div>

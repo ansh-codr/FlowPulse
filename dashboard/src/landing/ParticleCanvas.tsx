@@ -10,7 +10,7 @@ interface Particle {
     color: string;
 }
 
-const COLORS = ["#58f0ff", "#9c6bff", "#6d6dff", "#ffffff"];
+const COLORS = ["#7C9FC9", "#527FB0", "#527FB0", "#ffffff"];
 
 export function ParticleCanvas() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -61,7 +61,7 @@ export function ParticleCanvas() {
                         ctx.beginPath();
                         ctx.moveTo(particles[i].x, particles[i].y);
                         ctx.lineTo(particles[j].x, particles[j].y);
-                        ctx.strokeStyle = `rgba(88,240,255,${(1 - dist / 120) * 0.06})`;
+                        ctx.strokeStyle = `rgba(124,159,201,${(1 - dist / 120) * 0.06})`;
                         ctx.lineWidth = 0.5;
                         ctx.stroke();
                     }
@@ -72,7 +72,7 @@ export function ParticleCanvas() {
             for (const p of particles) {
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                const colorBase = p.color === "#ffffff" ? "255,255,255" : p.color === "#58f0ff" ? "88,240,255" : p.color === "#9c6bff" ? "156,107,255" : "109,109,255";
+                const colorBase = p.color === "#ffffff" ? "255,255,255" : p.color === "#7C9FC9" ? "124,159,201" : p.color === "#527FB0" ? "82,127,176" : "82,127,176";
                 ctx.fillStyle = `rgba(${colorBase},${p.alpha})`;
                 ctx.fill();
 

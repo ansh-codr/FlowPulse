@@ -13,19 +13,19 @@ const insights = [
         icon: "🧠",
         title: "Cognitive Load Monitoring",
         description: "FlowPulse tracks how quickly you context-switch and estimates your cognitive load across the day.",
-        color: "#58f0ff",
+        color: "#7C9FC9",
     },
     {
         icon: "💤",
         title: "Sleep-Focus Correlation",
         description: "Students who sleep 7–9 hours score 48% higher on average. We surface this connection over time.",
-        color: "#9c6bff",
+        color: "#527FB0",
     },
     {
         icon: "⚡",
         title: "Energy-Aware Scheduling",
         description: "Learn which hours you perform best and schedule your hardest work in your peak focus windows.",
-        color: "#f5c842",
+        color: "#7C9FC9",
     },
 ];
 
@@ -73,7 +73,7 @@ export function WellbeingSection() {
                                         <motion.div
                                             className="flex h-full items-center justify-end pr-3 rounded-lg"
                                             style={{
-                                                background: `linear-gradient(90deg, rgba(109,109,255,0.6), rgba(88,240,255,${0.5 + (stat.focus / 100) * 0.5}))`,
+                                                background: `linear-gradient(90deg, rgba(82,127,176,0.6), rgba(124,159,201,${0.5 + (stat.focus / 100) * 0.5}))`,
                                             }}
                                             initial={{ width: 0 }}
                                             whileInView={{ width: `${(stat.focus / maxFocus) * 100}%` }}

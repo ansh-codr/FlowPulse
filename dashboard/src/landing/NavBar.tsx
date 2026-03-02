@@ -57,8 +57,8 @@ export function NavBar() {
                     to="/login"
                     className="group relative overflow-hidden rounded-xl px-4 py-2 text-sm font-semibold text-white"
                     style={{
-                        background: "linear-gradient(135deg, rgba(88,240,255,0.25), rgba(109,109,255,0.2))",
-                        border: "1px solid rgba(88,240,255,0.3)",
+                        background: "linear-gradient(135deg, rgba(124,159,201,0.25), rgba(82,127,176,0.2))",
+                        border: "1px solid rgba(124,159,201,0.3)",
                     }}
                 >
                     <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/[0.1] to-transparent transition-transform duration-700 group-hover:translate-x-full" />

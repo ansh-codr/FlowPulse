@@ -40,7 +40,7 @@ export function HeroScene() {
         <section
             id="hero"
             ref={containerRef}
-            className="relative flex h-screen min-h-[640px] flex-col items-center justify-center overflow-hidden bg-black"
+            className="relative flex h-screen min-h-[640px] flex-col items-center justify-center overflow-hidden bg-deep"
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
         >
@@ -99,7 +99,7 @@ export function HeroScene() {
             {/* Base dark overlay - background_dark_overlay_opacity: 0.30 */}
             <div
                 className="pointer-events-none absolute inset-0 z-[1]"
-                style={{ background: "rgba(0,0,0,0.30)" }}
+                style={{ background: "rgba(1,16,35,0.30)" }}
             />
 
             {/* Top gradient: dark_gradient_top 0.35 */}
@@ -146,10 +146,10 @@ export function HeroScene() {
                 {/* YOUR FOCUS — thin, gradient, layer 2 */}
                 <motion.div style={{ y: textY2, x: textX2 }}>
                     <motion.h1
-                        className="font-display font-thin leading-none tracking-[0.07em] drop-shadow-[0_4px_40px_rgba(88,240,255,0.25)]"
+                        className="font-display font-thin leading-none tracking-[0.07em] drop-shadow-[0_4px_40px_rgba(124,159,201,0.25)]"
                         style={{
                             fontSize: "clamp(58px, 10.5vw, 128px)",
-                            background: "linear-gradient(135deg, #58f0ff 0%, #9c6bff 55%, #58f0ff 100%)",
+                            background: "linear-gradient(135deg, #7C9FC9 0%, #527FB0 55%, #7C9FC9 100%)",
                             WebkitBackgroundClip: "text",
                             WebkitTextFillColor: "transparent",
                         }}
@@ -182,7 +182,7 @@ export function HeroScene() {
                     <Link
                         to="/login"
                         className="group relative overflow-hidden rounded-full px-8 py-3.5 text-sm font-bold uppercase tracking-[0.15em] text-black"
-                        style={{ background: "linear-gradient(135deg, #58f0ff, #9c6bff)" }}
+                        style={{ background: "linear-gradient(135deg, #7C9FC9, #527FB0)" }}
                     >
                         <span className="absolute inset-0 -translate-x-full bg-white/20 transition-transform duration-500 skew-x-12 group-hover:translate-x-full" />
                         Get Started

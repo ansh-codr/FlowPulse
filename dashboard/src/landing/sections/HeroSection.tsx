@@ -34,9 +34,9 @@ function HeroMockup() {
             {/* Mock KPI row */}
             <div className="mb-3 grid grid-cols-3 gap-2">
                 {[
-                    { label: "Focus Score", value: "82%", color: "#58f0ff" },
-                    { label: "Sessions", value: "14", color: "#9c6bff" },
-                    { label: "Streak", value: "7d", color: "#f5c842" },
+                    { label: "Focus Score", value: "82%", color: "#7C9FC9" },
+                    { label: "Sessions", value: "14", color: "#527FB0" },
+                    { label: "Streak", value: "7d", color: "#7C9FC9" },
                 ].map((kpi) => (
                     <div key={kpi.label} className="rounded-xl border border-white/[0.06] bg-white/[0.04] p-2">
                         <p className="text-[9px] uppercase tracking-wider text-white/30">{kpi.label}</p>
@@ -54,7 +54,7 @@ function HeroMockup() {
                             key={i}
                             className="flex-1 rounded-sm"
                             style={{
-                                background: "linear-gradient(to top, rgba(109,109,255,0.8), rgba(88,240,255,0.8))",
+                                background: "linear-gradient(to top, rgba(82,127,176,0.8), rgba(124,159,201,0.8))",
                             }}
                             initial={{ height: 0 }}
                             animate={{ height: `${h}%` }}
@@ -83,8 +83,8 @@ function HeroMockup() {
                         />
                         <defs>
                             <linearGradient id="heroGrad" x1="0" y1="0" x2="1" y2="0">
-                                <stop offset="0%" stopColor="#58f0ff" />
-                                <stop offset="100%" stopColor="#9c6bff" />
+                                <stop offset="0%" stopColor="#7C9FC9" />
+                                <stop offset="100%" stopColor="#527FB0" />
                             </linearGradient>
                         </defs>
                     </svg>
@@ -94,8 +94,8 @@ function HeroMockup() {
                 </div>
                 <div className="flex-1 space-y-1.5">
                     {[
-                        { label: "Productivity", pct: 78, color: "#58f0ff" },
-                        { label: "Distraction", pct: 22, color: "#ff8a8a" },
+                        { label: "Productivity", pct: 78, color: "#7C9FC9" },
+                        { label: "Distraction", pct: 22, color: "#527FB0" },
                     ].map((bar) => (
                         <div key={bar.label}>
                             <div className="mb-0.5 flex justify-between text-[9px] text-white/30">
@@ -180,7 +180,7 @@ export function HeroSection() {
                                     style={
                                         word === "Focus." || word === "Life."
                                             ? {
-                                                background: "linear-gradient(135deg, #58f0ff, #9c6bff)",
+                                                background: "linear-gradient(135deg, #7C9FC9, #527FB0)",
                                                 WebkitBackgroundClip: "text",
                                                 WebkitTextFillColor: "transparent",
                                             }
@@ -216,8 +216,8 @@ export function HeroSection() {
                                 to="/login"
                                 className="group relative overflow-hidden rounded-xl px-7 py-3.5 text-sm font-semibold text-white shadow-glow-neon"
                                 style={{
-                                    background: "linear-gradient(135deg, rgba(88,240,255,0.3), rgba(109,109,255,0.25))",
-                                    border: "1px solid rgba(88,240,255,0.4)",
+                                    background: "linear-gradient(135deg, rgba(124,159,201,0.3), rgba(82,127,176,0.25))",
+                                    border: "1px solid rgba(124,159,201,0.4)",
                                 }}
                             >
                                 <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/[0.12] to-transparent transition-transform duration-700 group-hover:translate-x-full" />
@@ -242,7 +242,7 @@ export function HeroSection() {
                             transition={{ delay: 1.2 }}
                         >
                             <div className="flex -space-x-2">
-                                {["#58f0ff", "#9c6bff", "#f5c842", "#4ade80"].map((c, i) => (
+                                {["#7C9FC9", "#527FB0", "#7C9FC9", "#7C9FC9"].map((c, i) => (
                                     <div key={i} className="h-7 w-7 rounded-full border-2 border-night" style={{ background: `${c}44` }} />
                                 ))}
                             </div>

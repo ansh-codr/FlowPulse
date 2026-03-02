@@ -9,7 +9,7 @@ const features = [
                 <circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" />
             </svg>
         ),
-        color: "#58f0ff",
+        color: "#7C9FC9",
     },
     {
         title: "Activity Heatmap",
@@ -21,7 +21,7 @@ const features = [
                 <rect x="3" y="17" width="4" height="4" rx="1" /><rect x="10" y="17" width="4" height="4" rx="1" /><rect x="17" y="17" width="4" height="4" rx="1" />
             </svg>
         ),
-        color: "#9c6bff",
+        color: "#527FB0",
     },
     {
         title: "App Analytics",
@@ -31,7 +31,7 @@ const features = [
                 <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
             </svg>
         ),
-        color: "#f5c842",
+        color: "#7C9FC9",
     },
     {
         title: "Leaderboard",
@@ -42,7 +42,7 @@ const features = [
                 <rect x="8" y="4" width="8" height="16" rx="2" />
             </svg>
         ),
-        color: "#4ade80",
+        color: "#7C9FC9",
     },
     {
         title: "Session Replay",
@@ -52,7 +52,7 @@ const features = [
                 <rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" />
             </svg>
         ),
-        color: "#ff8a8a",
+        color: "#527FB0",
     },
     {
         title: "Privacy First",
@@ -62,7 +62,7 @@ const features = [
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
             </svg>
         ),
-        color: "#6d6dff",
+        color: "#527FB0",
     },
 ];
 
