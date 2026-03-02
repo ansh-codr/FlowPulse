@@ -11,10 +11,7 @@ const Hero3DFallback = lazy(() =>
 
 const isMobile = () => typeof window !== "undefined" && window.innerWidth < 768;
 
-const HEADLINE_LINES = [
-    { text: "UNDERSTAND", weight: "font-black" },
-    { text: "YOUR FOCUS", weight: "font-thin" },
-];
+
 
 export function HeroScene() {
     const [mobile, setMobile] = useState(false);
