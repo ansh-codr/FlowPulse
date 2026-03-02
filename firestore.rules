@@ -15,12 +15,12 @@ service cloud.firestore {
       // ── Activity logs ─────────────────────────────────────
       match /activityLogs/{logId} {
         allow read: if request.auth != null && request.auth.uid == userId;
-        allow create: if request.auth != null && request.auth.uid == userId
+        allow create, update: if request.auth != null && request.auth.uid == userId
           && request.resource.data.keys().hasAll(['url', 'domain', 'title', 'category', 'startTime', 'endTime', 'duration'])
           && request.resource.data.category in ['productive', 'neutral', 'distraction']
           && request.resource.data.duration is number
           && request.resource.data.duration >= 0;
-        allow update, delete: if false; // Immutable once written
+        allow delete: if false;
       }
 
       // ── Daily stats (client + Cloud Functions can write for MVP) ─
