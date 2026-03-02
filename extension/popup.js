@@ -60,7 +60,7 @@ $("signInBtn").addEventListener("click", async () => {
   $("signInBtn").textContent = "Signing in…";
   try {
     await signIn();
-    chrome.runtime.sendMessage({ type: "AUTH_CHANGED" });
+    chrome.runtime.sendMessage({ type: "FLOWPULSE_AUTH_CHANGED" });
     checkAuth();
   } catch (e) {
     $("signInBtn").textContent = "Sign in with Google";
@@ -70,19 +70,19 @@ $("signInBtn").addEventListener("click", async () => {
 
 $("signOutBtn").addEventListener("click", async () => {
   await signOut();
-  chrome.runtime.sendMessage({ type: "AUTH_CHANGED" });
+  chrome.runtime.sendMessage({ type: "FLOWPULSE_AUTH_CHANGED" });
   checkAuth();
 });
 
 $("syncBtn").addEventListener("click", () => {
   $("syncBtn").textContent = "Syncing…";
-  chrome.runtime.sendMessage({ type: "SYNC_NOW" }, () => {
+  chrome.runtime.sendMessage({ type: "FLOWPULSE_SYNC_NOW" }, () => {
     setTimeout(() => { $("syncBtn").textContent = "Sync Now"; }, 1200);
   });
 });
 
 $("openDashboard").addEventListener("click", () => {
-  chrome.tabs.create({ url: "https://flowpulse-dc45a.web.app/" });
+  chrome.tabs.create({ url: "https://fllowpulse.netlify.app/" });
 });
 
 /* ── Live updates ───────────────────────────────────── */
