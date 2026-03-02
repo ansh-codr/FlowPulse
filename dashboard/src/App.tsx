@@ -1,7 +1,7 @@
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./hooks/useAuth";
 import { DashboardLayout } from "./layouts/DashboardLayout";
-import { LandingPage } from "./landing/LandingPage";
+import { ImmersiveLanding } from "./landing/immersive/ImmersiveLanding";
 import { LoginPage } from "./pages/LoginPage";
 import { HomePage } from "./pages/Home";
 import { TimelinePage } from "./pages/Timeline";
