@@ -10,6 +10,7 @@ import { TopAppsPage } from "./pages/TopApps";
 import { SessionsPage } from "./pages/Sessions";
 import { SettingsPage } from "./pages/SettingsPage";
 import { LeaderboardPage } from "./pages/LeaderboardPage";
+import { ExtensionDownloadPage } from "./pages/ExtensionDownloadPage";
 
 const LoadingScreen = () => (
   <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-night">
@@ -65,6 +66,7 @@ function AppRoutes() {
         <Route path="sessions" element={<SessionsPage />} />
         <Route path="leaderboard" element={<LeaderboardPage />} />
         <Route path="settings" element={<SettingsPage />} />
+        <Route path="extension" element={<ExtensionDownloadPage />} />
       </Route>
 
       {/* Fallback */}
