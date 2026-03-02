@@ -32,15 +32,12 @@ function MagneticButton({ children, onClick, disabled }: {
     return (
         <motion.button
             ref={ref}
-            style={{ x: springX, y: springY }}
+            style={{ x: springX, y: springY, background: "linear-gradient(135deg, #58f0ff 0%, #9c6bff 100%)" }}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
             onClick={onClick}
             disabled={disabled}
             className="group relative overflow-hidden rounded-full px-12 py-5 text-base font-black uppercase tracking-[0.2em] text-black disabled:opacity-60"
-            style={{
-                background: "linear-gradient(135deg, #58f0ff 0%, #9c6bff 100%)",
-            } as React.CSSProperties}
             whileHover={{ scale: 1.06 }}
             whileTap={{ scale: 0.97 }}
         >
