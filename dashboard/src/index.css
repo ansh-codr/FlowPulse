@@ -117,3 +117,9 @@ body {
     pointer-events: none;
   }
 }
+
+/* ─── Hero video cinematic pan keyframe ─────────────────────── */
+@keyframes heroPan {
+  0%   { transform: scale(1.08) translate3d(0%, 0%, 0); }
+  100% { transform: scale(1.08) translate3d(-2.5%, -0.5%, 0); }
+}
