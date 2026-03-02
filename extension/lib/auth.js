@@ -1,29 +1,53 @@
 /**
- * FlowPulse Extension — Auth with token refresh
+ * FlowPulse Extension — Auth Module (Production-Ready)
  *
- * For development: stores a Firebase ID token + refresh token.
- * On sign-in, we initialize with a server-generated token.
- * The refresh token auto-renews the ID token every hour.
+ * Auth flow:
+ * 1. User signs in on the FlowPulse dashboard (Google sign-in)
+ * 2. Content script on the dashboard reads Firebase auth from IndexedDB
+ * 3. Auth data (including refresh token) is sent here and stored
+ * 4. This module auto-refreshes the ID token before every Firestore call
+ *
+ * No hardcoded tokens. No manual token generation. Works for all users.
  */
 
 import { FIREBASE_CONFIG } from "./firebase.js";
 
 const AUTH_STORAGE_KEY = "flowpulse_auth";
 
-// Pre-generated refresh token (from scripts/get-token.cjs)
-const INITIAL_REFRESH_TOKEN = "AMf-vByOTzKwCa8OYnjihVgPICO2_h8iZ9GKkfvbXx2D3Jstv9DDV4cXqcPRAt6yZyuxbJsG63utuNAs0d_i9vx6xb3qoYWE5WZAFeEsujzkSeddWPpwhoNtTQPfqTDiyVMyc2ivADH1-cmKOEt_5a1nh-y0R652HxE-PWKGbuXf31ylZtz0YTgtGAubhqQcWs4IMfnFSx3D";
-
 /**
- * Sign in — gets a fresh ID token via the refresh token
+ * Store auth data received from dashboard content script.
  */
-export async function signIn() {
-  const authData = await refreshToken(INITIAL_REFRESH_TOKEN);
-  if (!authData) throw new Error("Failed to sign in — could not refresh token");
+export async function storeAuth(data) {
+  if (!data.uid || !data.refreshToken) {
+    console.warn("[FlowPulse] Cannot store auth: missing uid or refreshToken");
+    return null;
+  }
+
+  const authData = {
+    token: data.accessToken || "",
+    refreshToken: data.refreshToken,
+    uid: data.uid,
+    email: data.email || "",
+    displayName: data.displayName || "",
+    photoURL: data.photoURL || "",
+    expiresAt: data.expirationTime || Date.now() + 3600000,
+  };
+
+  await chrome.storage.local.set({ [AUTH_STORAGE_KEY]: authData });
+  console.log("[FlowPulse] Auth stored for:", authData.email);
   return authData;
 }
 
 /**
- * Sign out — clear stored auth
+ * Sign in — opens dashboard for Google sign-in.
+ * Content script on the dashboard will pick up auth automatically.
+ */
+export async function signIn() {
+  chrome.tabs.create({ url: "https://fllowpulse.netlify.app/login" });
+}
+
+/**
+ * Sign out — clear stored auth.
  */
 export async function signOut() {
   await chrome.storage.local.remove(AUTH_STORAGE_KEY);
@@ -31,30 +55,43 @@ export async function signOut() {
 }
 
 /**
- * Get current auth state, auto-refreshing if expired
+ * Get current auth state, auto-refreshing the ID token if expired.
+ * Returns auth object or null if not signed in.
  */
 export async function getAuth() {
   const result = await chrome.storage.local.get(AUTH_STORAGE_KEY);
   const auth = result[AUTH_STORAGE_KEY];
 
-  if (!auth) return null;
+  if (!auth || !auth.refreshToken) return null;
 
-  // Refresh if expired or about to expire (1 min buffer)
-  if (auth.expiresAt && Date.now() > auth.expiresAt - 60000) {
-    const refreshed = await refreshToken(auth.refreshToken || INITIAL_REFRESH_TOKEN);
-    if (refreshed) return refreshed;
-    await signOut();
-    return null;
+  // Token is still valid (with 2 min buffer)
+  if (auth.token && auth.expiresAt && Date.now() < auth.expiresAt - 120000) {
+    return auth;
   }
 
-  return auth;
+  // Token expired or missing — refresh it
+  console.log("[FlowPulse] Token expired, refreshing...");
+  const refreshed = await refreshIdToken(auth.refreshToken);
+  if (refreshed) return refreshed;
+
+  // Refresh failed — don't sign out immediately, might be temporary
+  console.warn("[FlowPulse] Token refresh failed, will retry later");
+  return null;
 }
 
 /**
- * Refresh the Firebase ID token
+ * Check if signed in (quick, no refresh).
  */
-async function refreshToken(token) {
-  if (!token) return null;
+export async function isSignedIn() {
+  const result = await chrome.storage.local.get(AUTH_STORAGE_KEY);
+  return !!result[AUTH_STORAGE_KEY]?.uid;
+}
+
+/**
+ * Refresh Firebase ID token using the refresh token.
+ */
+async function refreshIdToken(refreshToken) {
+  if (!refreshToken) return null;
 
   try {
     const response = await fetch(
@@ -64,7 +101,7 @@ async function refreshToken(token) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           grant_type: "refresh_token",
-          refresh_token: token,
+          refresh_token: refreshToken,
         }),
       }
     );
@@ -75,18 +112,20 @@ async function refreshToken(token) {
       return null;
     }
 
+    // Preserve existing display info
+    const stored = await chrome.storage.local.get(AUTH_STORAGE_KEY);
+    const existing = stored[AUTH_STORAGE_KEY] || {};
+
     const authData = {
+      ...existing,
       token: data.id_token,
-      refreshToken: data.refresh_token,
+      refreshToken: data.refresh_token, // Firebase may rotate refresh tokens
       uid: data.user_id,
-      email: "dodgehellcatansh@gmail.com",
-      displayName: "ansh yadav",
-      photoURL: "",
       expiresAt: Date.now() + parseInt(data.expires_in) * 1000,
     };
 
     await chrome.storage.local.set({ [AUTH_STORAGE_KEY]: authData });
-    console.log("[FlowPulse] Token refreshed, expires in", data.expires_in, "seconds");
+    console.log("[FlowPulse] Token refreshed, expires in", data.expires_in, "s");
     return authData;
   } catch (err) {
     console.error("[FlowPulse] Token refresh failed:", err);

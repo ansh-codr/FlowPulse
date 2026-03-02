@@ -37,42 +37,65 @@ export async function getUserId() {
 }
 
 /**
- * Write activity logs to Firestore via REST API (batched)
+ * Write activity logs to Firestore via REST API.
+ * Uses individual createDocument calls (parallel) since batchWrite
+ * has permission issues with security rules.
  */
 export async function writeActivityLogs(uid, logs) {
   const token = await getAuthToken();
   if (!token || !uid || logs.length === 0) return false;
 
   try {
-    // Use batch commit via REST
-    const writes = logs.map((log) => ({
-      update: {
-        name: `projects/${FIREBASE_CONFIG.projectId}/databases/(default)/documents/users/${uid}/activityLogs/${log.id}`,
-        fields: {
-          url: { stringValue: log.url },
-          domain: { stringValue: log.domain },
-          title: { stringValue: log.title },
-          category: { stringValue: log.category },
-          startTime: { timestampValue: log.startTime },
-          endTime: { timestampValue: log.endTime },
-          duration: { integerValue: String(log.duration) },
-        },
-      },
-    }));
+    const BASE = `https://firestore.googleapis.com/v1/projects/${FIREBASE_CONFIG.projectId}/databases/(default)/documents`;
 
-    const response = await fetch(
-      `https://firestore.googleapis.com/v1/projects/${FIREBASE_CONFIG.projectId}/databases/(default)/documents:batchWrite`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ writes }),
-      }
+    // Parallel individual creates — each succeeds/fails independently
+    const results = await Promise.allSettled(
+      logs.map(async (log) => {
+        const response = await fetch(
+          `${BASE}/users/${uid}/activityLogs?documentId=${encodeURIComponent(log.id)}`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              fields: {
+                url: { stringValue: log.url },
+                domain: { stringValue: log.domain },
+                title: { stringValue: log.title || "" },
+                category: { stringValue: log.category },
+                startTime: { timestampValue: log.startTime },
+                endTime: { timestampValue: log.endTime },
+                duration: { integerValue: String(log.duration) },
+              },
+            }),
+          }
+        );
+        if (!response.ok) {
+          // 409 CONFLICT = doc already exists, that's fine (duplicate)
+          if (response.status === 409) return true;
+          const err = await response.json().catch(() => ({}));
+          throw new Error(`${response.status}: ${JSON.stringify(err)}`);
+        }
+        return true;
+      })
     );
 
-    return response.ok;
+    const successes = results.filter((r) => r.status === "fulfilled").length;
+    const failures = results.filter((r) => r.status === "rejected");
+    if (failures.length > 0) {
+      console.warn(
+        "[FlowPulse] Write:",
+        successes,
+        "ok,",
+        failures.length,
+        "failed"
+      );
+    }
+
+    // Consider success if most writes went through
+    return successes > logs.length / 2;
   } catch (err) {
     console.error("[FlowPulse] Firestore write error:", err);
     return false;

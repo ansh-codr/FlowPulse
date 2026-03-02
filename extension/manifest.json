@@ -14,7 +14,8 @@
   "host_permissions": [
     "https://*.firebaseio.com/*",
     "https://*.googleapis.com/*",
-    "https://firestore.googleapis.com/*"
+    "https://firestore.googleapis.com/*",
+    "https://securetoken.googleapis.com/*"
   ],
   "background": {
     "service_worker": "background.js",
@@ -33,6 +34,17 @@
     {
       "matches": ["<all_urls>"],
       "js": ["content.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://fllowpulse.netlify.app/*", "http://localhost:5173/*"],
+      "js": ["content-dashboard-main.js"],
+      "world": "MAIN",
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://fllowpulse.netlify.app/*", "http://localhost:5173/*"],
+      "js": ["content-dashboard.js"],
       "run_at": "document_idle"
     }
   ],

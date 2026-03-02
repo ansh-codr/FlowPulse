@@ -1,4 +1,4 @@
-import { signIn, signOut, getAuth } from "./lib/auth.js";
+import { signIn, signOut, getAuth, isSignedIn } from "./lib/auth.js";
 
 const RADIUS = 65;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
@@ -56,16 +56,9 @@ async function checkAuth() {
 }
 
 /* ── Button handlers ────────────────────────────────── */
-$("signInBtn").addEventListener("click", async () => {
-  $("signInBtn").textContent = "Signing in…";
-  try {
-    await signIn();
-    chrome.runtime.sendMessage({ type: "FLOWPULSE_AUTH_CHANGED" });
-    checkAuth();
-  } catch (e) {
-    $("signInBtn").textContent = "Sign in with Google";
-    console.error("Sign-in failed", e);
-  }
+$("signInBtn").addEventListener("click", () => {
+  signIn(); // Opens dashboard in a new tab
+  window.close(); // Close popup — auth will be picked up automatically
 });
 
 $("signOutBtn").addEventListener("click", async () => {
@@ -88,6 +81,7 @@ $("openDashboard").addEventListener("click", () => {
 /* ── Live updates ───────────────────────────────────── */
 chrome.storage.onChanged.addListener((changes) => {
   if (changes.summary) hydrate();
+  if (changes.flowpulse_auth) checkAuth(); // Auto-update when auth arrives from dashboard
 });
 
 /* ── Init ───────────────────────────────────────────── */

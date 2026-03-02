@@ -7,7 +7,7 @@
 
 import { classifyActivity, extractDomain } from "./lib/classifier.js";
 import { getUserId, writeActivityLogs, getUserSettings } from "./lib/firebase.js";
-import { getAuth } from "./lib/auth.js";
+import { getAuth, storeAuth } from "./lib/auth.js";
 
 /* ── State ────────────────────────────────────────────────────────────────── */
 
@@ -40,6 +40,15 @@ chrome.runtime.onStartup.addListener(() => {
   loadSettings();
   restoreQueue();
 });
+
+// Also ensure alarm exists when service worker wakes up (belt and suspenders)
+chrome.alarms.get("flowpulse-flush", (alarm) => {
+  if (!alarm) {
+    chrome.alarms.create("flowpulse-flush", { periodInMinutes: 0.5 });
+    console.log("[FlowPulse] Re-created flush alarm");
+  }
+});
+restoreQueue();
 
 /* ── Settings sync ────────────────────────────────────────────────────────── */
 
@@ -284,6 +293,21 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     case "FLOWPULSE_AUTH_CHANGED":
       loadSettings();
       flushQueue();
+      sendResponse({ ok: true });
+      break;
+
+    case "FLOWPULSE_DASHBOARD_AUTH":
+      // Auth received from dashboard content script
+      storeAuth(message).then(() => {
+        console.log("[FlowPulse] Auth received from dashboard, flushing queue...");
+        loadSettings();
+        flushQueue();
+      });
+      sendResponse({ ok: true });
+      break;
+
+    case "FLOWPULSE_DASHBOARD_NO_AUTH":
+      // User not signed in on dashboard - ignore
       sendResponse({ ok: true });
       break;
 
