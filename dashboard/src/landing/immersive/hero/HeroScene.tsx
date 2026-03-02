@@ -1,215 +1,175 @@
 import { useCallback, useRef } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { Link } from "react-router-dom";
-import heroBg from "../../../assets/videos/2026-03-02T04-08-39_ultra_cinematic_watermarked.mp4";
+import redOrb from "../../../assets/redorb.mp4";
+
+// ─── Color constants (strict brand palette) ──────────────────────────
+const ACCENT = "#527FB0";
+const HIGHLIGHT = "#7C9FC9";
+const DEEP = "#011023";
 
 export function HeroScene() {
     const containerRef = useRef<HTMLDivElement>(null);
-    const videoRef = useRef<HTMLVideoElement>(null);
 
-    // Mouse tracking for subtle text parallax
+    // Parallax on mouse move
     const rawX = useMotionValue(0);
     const rawY = useMotionValue(0);
-    const springX = useSpring(rawX, { stiffness: 40, damping: 22 });
-    const springY = useSpring(rawY, { stiffness: 40, damping: 22 });
+    const springX = useSpring(rawX, { stiffness: 35, damping: 20 });
+    const springY = useSpring(rawY, { stiffness: 35, damping: 20 });
 
-    // Two depth layers on text
-    const textY1 = useTransform(springY, [-300, 300], [-14, 14]);
-    const textX1 = useTransform(springX, [-300, 300], [-10, 10]);
-    const textY2 = useTransform(springY, [-300, 300], [9, -9]);
-    const textX2 = useTransform(springX, [-300, 300], [6, -6]);
+    // Two depth layers
+    const tx1 = useTransform(springX, [-400, 400], [-16, 16]);
+    const ty1 = useTransform(springY, [-400, 400], [-12, 12]);
+    const tx2 = useTransform(springX, [-400, 400], [10, -10]);
+    const ty2 = useTransform(springY, [-400, 400], [7, -7]);
 
-    const handleMouseMove = useCallback(
-        (e: React.MouseEvent) => {
-            const rect = containerRef.current?.getBoundingClientRect();
-            if (!rect) return;
-            const cx = e.clientX - rect.left - rect.width / 2;
-            const cy = e.clientY - rect.top - rect.height / 2;
-            rawX.set(cx);
-            rawY.set(cy);
-        },
-        [rawX, rawY]
-    );
-
-    const handleMouseLeave = useCallback(() => {
-        rawX.set(0);
-        rawY.set(0);
+    const handleMouseMove = useCallback((e: React.MouseEvent) => {
+        const rect = containerRef.current?.getBoundingClientRect();
+        if (!rect) return;
+        rawX.set(e.clientX - rect.left - rect.width / 2);
+        rawY.set(e.clientY - rect.top - rect.height / 2);
     }, [rawX, rawY]);
+
+    const handleMouseLeave = useCallback(() => { rawX.set(0); rawY.set(0); }, [rawX, rawY]);
 
     return (
         <section
             id="hero"
             ref={containerRef}
-            className="relative flex h-screen min-h-[640px] flex-col items-center justify-center overflow-hidden bg-deep"
+            className="relative flex h-screen min-h-[700px] flex-col items-center justify-center overflow-hidden"
+            style={{ background: DEEP }}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
         >
-            {/* ─── Video Background ─────────────────────────────────────── */}
+            {/* ── Red Orb Video Background ─────────────────────────────── */}
             <div className="absolute inset-0 z-0 overflow-hidden">
                 <video
-                    ref={videoRef}
-                    src={heroBg}
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    preload="auto"
+                    src={redOrb}
+                    autoPlay muted loop playsInline preload="auto"
                     className="h-full w-full object-cover"
                     style={{
-                        // Per spec: global_brightness -15, contrast_boost +5
-                        filter: "brightness(0.62) contrast(1.05) saturate(1.1)",
-                        // Slow cinematic pan: left-to-right via transform animation
+                        filter: "brightness(0.55) contrast(1.1) saturate(1.3) hue-rotate(180deg)",
+                        transform: "scale(1.05)",
                         willChange: "transform",
-                        transform: "scale(1.08)",
-                        animation: "heroPan 40s ease-in-out infinite alternate",
                     }}
                 />
             </div>
 
-            {/* ─── Watermark kill strips ─────────────────────────────────
-                Luma adds watermark top-right. Covered with a dark gradient
-                that blends with the top vignette. Also a small bottom-right
-                strip as a belt-and-suspenders measure.
-            */}
-            {/* Top-right cover — main Luma logo placement */}
-            <div
-                className="pointer-events-none absolute right-0 top-0 z-[5]"
-                style={{
-                    width: "220px",
-                    height: "64px",
-                    background: "linear-gradient(225deg, rgba(0,0,0,1) 30%, rgba(0,0,0,0.9) 60%, transparent 100%)",
-                }}
-            />
-            {/* Bottom-right cover — secondary */}
-            <div
-                className="pointer-events-none absolute bottom-0 right-0 z-[5]"
-                style={{
-                    width: "180px",
-                    height: "48px",
-                    background: "linear-gradient(135deg, transparent 0%, rgba(0,0,0,0.92) 55%, #000 100%)",
-                }}
-            />
+            {/* ── Overlay Stack ─────────────────────────────────────────── */}
+            {/* Base tint — deep brand color */}
+            <div className="pointer-events-none absolute inset-0 z-[1]"
+                style={{ background: `rgba(1,16,35,0.35)` }} />
 
-            {/* ─── Overlay stack ─────────────────────────────────────────
-                Layer 1: dark base tint (opacity 0.30 per spec)
-                Layer 2: vignette + top/bottom safe-zone gradients
-                Layer 3: radial centre highlight so text area stays bright
-            */}
+            {/* Top gradient */}
+            <div className="pointer-events-none absolute inset-x-0 top-0 z-[2]"
+                style={{ height: "40%", background: `linear-gradient(to bottom, rgba(1,16,35,0.90) 0%, transparent 100%)` }} />
 
-            {/* Base dark overlay - background_dark_overlay_opacity: 0.30 */}
-            <div
-                className="pointer-events-none absolute inset-0 z-[1]"
-                style={{ background: "rgba(1,16,35,0.30)" }}
-            />
+            {/* Bottom gradient */}
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[2]"
+                style={{ height: "50%", background: `linear-gradient(to top, rgba(1,16,35,0.97) 0%, rgba(1,16,35,0.50) 60%, transparent 100%)` }} />
 
-            {/* Top gradient: dark_gradient_top 0.35 */}
-            <div
-                className="pointer-events-none absolute inset-x-0 top-0 z-[2]"
-                style={{
-                    height: "38%",
-                    background: "linear-gradient(to bottom, rgba(0,0,0,0.80) 0%, transparent 100%)",
-                }}
-            />
+            {/* Radial vignette */}
+            <div className="pointer-events-none absolute inset-0 z-[2]"
+                style={{ background: "radial-gradient(ellipse at 50% 50%, transparent 35%, rgba(1,16,35,0.65) 100%)" }} />
 
-            {/* Bottom vignette: dark_gradient_bottom 0.45 */}
-            <div
-                className="pointer-events-none absolute inset-x-0 bottom-0 z-[2]"
-                style={{
-                    height: "48%",
-                    background: "linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.45) 55%, transparent 100%)",
-                }}
-            />
+            {/* Subtle accent glow around orb center */}
+            <div className="pointer-events-none absolute inset-0 z-[2]"
+                style={{ background: `radial-gradient(ellipse 40% 40% at 50% 50%, rgba(82,127,176,0.08) 0%, transparent 70%)` }} />
 
-            {/* Side vignette (vignette_strength 0.25) */}
-            <div
-                className="pointer-events-none absolute inset-0 z-[2]"
-                style={{
-                    background: "radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0,0,0,0.55) 100%)",
-                }}
-            />
+            {/* ── Text Content ──────────────────────────────────────────── */}
+            <div className="relative z-10 text-center px-6 select-none">
 
-            {/* ─── Text Content ─────────────────────────────────────────── */}
-            <div className="relative z-10 text-center px-4">
-                {/* UNDERSTAND — bold, white, layer 1 */}
-                <motion.div style={{ y: textY1, x: textX1 }}>
+                {/* Eyebrow label */}
+                <motion.div
+                    className="mb-6 inline-flex items-center gap-2 rounded-full border px-4 py-1.5"
+                    style={{ borderColor: `${ACCENT}55`, background: `rgba(5,37,88,0.6)` }}
+                    initial={{ opacity: 0, y: -16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1, duration: 0.7 }}
+                >
+                    <span className="h-1.5 w-1.5 rounded-full animate-pulse" style={{ background: HIGHLIGHT }} />
+                    <span className="text-[10px] font-bold uppercase tracking-[0.45em]" style={{ color: HIGHLIGHT }}>
+                        Productivity Intelligence
+                    </span>
+                </motion.div>
+
+                {/* FLOW. — giant, ultra-bold */}
+                <motion.div style={{ x: tx1, y: ty1 }}>
                     <motion.h1
-                        className="font-display font-black leading-none tracking-[-0.03em] text-white drop-shadow-[0_4px_32px_rgba(0,0,0,0.9)]"
-                        style={{ fontSize: "clamp(58px, 10.5vw, 128px)" }}
-                        initial={{ opacity: 0, y: 50 }}
+                        className="font-display font-black leading-[0.88] tracking-[-0.04em] text-white"
+                        style={{ fontSize: "clamp(72px, 14vw, 180px)", textShadow: `0 0 120px rgba(124,159,201,0.12)` }}
+                        initial={{ opacity: 0, y: 60 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+                        transition={{ delay: 0.2, duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
                     >
-                        UNDERSTAND
+                        FLOW.
                     </motion.h1>
                 </motion.div>
 
-                {/* YOUR FOCUS — thin, gradient, layer 2 */}
-                <motion.div style={{ y: textY2, x: textX2 }}>
-                    <motion.h1
-                        className="font-display font-thin leading-none tracking-[0.07em] drop-shadow-[0_4px_40px_rgba(124,159,201,0.25)]"
+                {/* INTELLIGENCE — thin, tracking, gradient */}
+                <motion.div style={{ x: tx2, y: ty2 }}>
+                    <motion.h2
+                        className="font-display font-extralight leading-none tracking-[0.18em]"
                         style={{
-                            fontSize: "clamp(58px, 10.5vw, 128px)",
-                            background: "linear-gradient(135deg, #7C9FC9 0%, #527FB0 55%, #7C9FC9 100%)",
+                            fontSize: "clamp(20px, 4.5vw, 58px)",
+                            background: `linear-gradient(90deg, ${HIGHLIGHT} 0%, ${ACCENT} 100%)`,
                             WebkitBackgroundClip: "text",
                             WebkitTextFillColor: "transparent",
+                            letterSpacing: "0.18em",
                         }}
-                        initial={{ opacity: 0, y: 50 }}
+                        initial={{ opacity: 0, y: 40 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.22, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+                        transition={{ delay: 0.35, duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
                     >
-                        YOUR FOCUS
-                    </motion.h1>
+                        INTELLIGENCE
+                    </motion.h2>
                 </motion.div>
 
-                {/* Sub-line */}
+                {/* Sub-copy */}
                 <motion.p
-                    className="mt-6 text-[11px] uppercase tracking-[0.6em] text-white/40"
+                    className="mt-7 text-sm font-light leading-relaxed max-w-md mx-auto"
+                    style={{ color: `${HIGHLIGHT}99`, letterSpacing: "0.03em" }}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.6, duration: 0.8 }}
-                    style={{ textShadow: "0 2px 12px rgba(0,0,0,0.8)" }}
                 >
-                    Productivity Intelligence &nbsp;·&nbsp; Cross-Device &nbsp;·&nbsp; Real-Time
+                    Cross-device productivity tracking for students<br />who mean business. Real-time · Private · Free.
                 </motion.p>
 
                 {/* CTAs */}
                 <motion.div
-                    className="mt-10 flex justify-center gap-4"
-                    initial={{ opacity: 0, y: 20 }}
+                    className="mt-10 flex flex-wrap justify-center gap-4"
+                    initial={{ opacity: 0, y: 24 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.78, duration: 0.6 }}
+                    transition={{ delay: 0.8, duration: 0.6 }}
                 >
-                    <Link
-                        to="/login"
-                        className="group relative overflow-hidden rounded-full px-8 py-3.5 text-sm font-bold uppercase tracking-[0.15em] text-black"
-                        style={{ background: "linear-gradient(135deg, #7C9FC9, #527FB0)" }}
+                    <Link to="/login"
+                        className="group relative overflow-hidden rounded-full px-9 py-4 text-sm font-bold uppercase tracking-[0.14em] text-white"
+                        style={{ background: `linear-gradient(135deg, ${ACCENT}, ${HIGHLIGHT})` }}
                     >
-                        <span className="absolute inset-0 -translate-x-full bg-white/20 transition-transform duration-500 skew-x-12 group-hover:translate-x-full" />
+                        <span className="absolute inset-0 -translate-x-full bg-white/15 skew-x-12 transition-transform duration-500 group-hover:translate-x-full" />
                         Get Started
                     </Link>
-                    <a
-                        href="#pinned"
-                        className="rounded-full border border-white/25 px-8 py-3.5 text-sm font-medium uppercase tracking-[0.15em] text-white/65 backdrop-blur-sm transition hover:border-white/50 hover:text-white"
-                        style={{ background: "rgba(0,0,0,0.25)" }}
+                    <a href="#manifesto"
+                        className="rounded-full border px-9 py-4 text-sm font-medium uppercase tracking-[0.14em] text-white/60 backdrop-blur-sm transition-all hover:text-white hover:border-white/40"
+                        style={{ borderColor: `${ACCENT}55`, background: "rgba(1,16,35,0.4)" }}
                     >
-                        Explore ↓
+                        See How It Works ↓
                     </a>
                 </motion.div>
             </div>
 
-            {/* ─── Scroll indicator ──────────────────────────────────────── */}
+            {/* ── Scroll indicator ─────────────────────────────────────── */}
             <motion.div
                 className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 1.2, duration: 0.6 }}
+                transition={{ delay: 1.3, duration: 0.6 }}
             >
-                <span className="text-[9px] uppercase tracking-[0.5em] text-white/25"
-                    style={{ textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}>
-                    Scroll
-                </span>
+                <span className="text-[9px] uppercase tracking-[0.5em]" style={{ color: `${ACCENT}60` }}>Scroll</span>
                 <motion.div
-                    className="h-8 w-px bg-gradient-to-b from-white/35 to-transparent"
+                    className="h-8 w-px"
+                    style={{ background: `linear-gradient(to bottom, ${ACCENT}55, transparent)` }}
                     animate={{ scaleY: [1, 0.4, 1], opacity: [0.5, 0.15, 0.5] }}
                     transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
                 />
