@@ -9,54 +9,55 @@
     <div class="hud">
       <!-- Auth section -->
       <div id="authSection" style="display:none;">
-        <header>
+        <div class="auth-card">
+          <div class="logo-mark">FP</div>
           <h1>FlowPulse</h1>
-          <p class="eyebrow">Sign in via dashboard to start</p>
-        </header>
-        <footer>
-          <button id="signInBtn">Sign In via Dashboard</button>
-        </footer>
+          <p class="subtitle">Productivity Intelligence</p>
+          <p class="auth-desc">Sign in on the dashboard to start tracking your focus automatically.</p>
+          <button id="signInBtn">Open Dashboard to Sign In</button>
+        </div>
       </div>
 
       <!-- Main dashboard section -->
       <div id="mainSection" style="display:none;">
-        <header>
-          <div class="user-row">
-            <img id="userAvatar" class="avatar" src="" alt="" />
-            <div>
-              <p class="eyebrow">Today</p>
-              <h1>FlowPulse</h1>
-            </div>
+        <div class="top-bar">
+          <div class="brand">
+            <div class="brand-dot"></div>
+            <span class="brand-name">FlowPulse</span>
           </div>
-        </header>
-        <section class="stats">
-          <div class="focus">
-            <div class="ring">
-              <svg viewBox="0 0 160 160"></svg>
-              <div class="ring-value" id="focusValue">0%</div>
-              <p>Focus</p>
-            </div>
+          <div class="sync-badge" id="syncBadge" title="Auto-syncing">
+            <span class="sync-dot"></span>
+            <span>Live</span>
           </div>
-          <div class="stat-grid">
-            <article>
-              <p>Time Active</p>
-              <strong id="activeMinutes">0m</strong>
-            </article>
-            <article>
-              <p>Distractions</p>
-              <strong id="distractions">0</strong>
-            </article>
-            <article>
-              <p>Top Domain</p>
-              <strong id="topChannel">—</strong>
-            </article>
+        </div>
+
+        <div class="focus-hero">
+          <div class="ring">
+            <svg viewBox="0 0 160 160"></svg>
+            <div class="ring-value" id="focusValue">0%</div>
           </div>
-        </section>
-        <footer>
-          <button id="syncBtn">Sync Now</button>
+          <span class="focus-label">Focus Score</span>
+        </div>
+
+        <div class="stat-row">
+          <div class="stat-card">
+            <span class="stat-value" id="activeMinutes">0m</span>
+            <span class="stat-label">Active</span>
+          </div>
+          <div class="stat-card accent">
+            <span class="stat-value" id="distractions">0</span>
+            <span class="stat-label">Distractions</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value" id="topChannel">—</span>
+            <span class="stat-label">Top Site</span>
+          </div>
+        </div>
+
+        <div class="actions">
           <button id="openDashboard">Open Dashboard</button>
-          <button id="signOutBtn" class="secondary">Sign Out</button>
-        </footer>
+          <button id="signOutBtn" class="ghost">Sign Out</button>
+        </div>
       </div>
     </div>
     <script type="module" src="popup.js"></script>

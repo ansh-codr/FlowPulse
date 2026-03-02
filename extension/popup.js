@@ -1,9 +1,9 @@
-import { signIn, signOut, getAuth, isSignedIn } from "./lib/auth.js";
+import { signIn, signOut, getAuth } from "./lib/auth.js";
 
-const RADIUS = 65;
+const RADIUS = 52;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
-const $  = (id) => document.getElementById(id);
+const $ = (id) => document.getElementById(id);
 const authSection = $("authSection");
 const mainSection = $("mainSection");
 
@@ -13,9 +13,9 @@ function drawRing(percent) {
   if (!svg) return;
   const offset = CIRCUMFERENCE - (percent / 100) * CIRCUMFERENCE;
   svg.innerHTML = `
-    <circle cx="80" cy="80" r="${RADIUS}" stroke="rgba(255,255,255,0.08)" stroke-width="10" fill="transparent"/>
+    <circle cx="80" cy="80" r="${RADIUS}" stroke="rgba(255,255,255,0.06)" stroke-width="8" fill="transparent"/>
     <circle cx="80" cy="80" r="${RADIUS}"
-      stroke="url(#grad)" stroke-width="10" stroke-linecap="round"
+      stroke="url(#grad)" stroke-width="8" stroke-linecap="round"
       fill="transparent"
       stroke-dasharray="${CIRCUMFERENCE}"
       stroke-dashoffset="${offset}"
@@ -32,10 +32,10 @@ function drawRing(percent) {
 async function hydrate() {
   const { summary } = await chrome.storage.local.get("summary");
   const data = summary ?? { focus: 0, activeMinutes: 0, distractions: 0, topDomain: "—" };
-  $("focusValue").textContent   = `${data.focus}%`;
+  $("focusValue").textContent    = `${data.focus}%`;
   $("activeMinutes").textContent = `${data.activeMinutes}m`;
   $("distractions").textContent  = `${data.distractions}`;
-  $("topChannel").textContent    = data.topDomain || "—";
+  $("topChannel").textContent    = data.topDomain || data.topChannel || "—";
   drawRing(data.focus);
 }
 
@@ -44,13 +44,10 @@ async function checkAuth() {
   const auth = await getAuth();
   if (auth) {
     authSection.style.display = "none";
-    mainSection.style.display = "flex";
-    const avatar = $("userAvatar");
-    if (auth.photoUrl) { avatar.src = auth.photoUrl; avatar.style.display = "block"; }
-    else { avatar.style.display = "none"; }
+    mainSection.style.display = "block";
     hydrate();
   } else {
-    authSection.style.display = "flex";
+    authSection.style.display = "block";
     mainSection.style.display = "none";
   }
 }
@@ -58,20 +55,13 @@ async function checkAuth() {
 /* ── Button handlers ────────────────────────────────── */
 $("signInBtn").addEventListener("click", () => {
   signIn(); // Opens dashboard in a new tab
-  window.close(); // Close popup — auth will be picked up automatically
+  window.close();
 });
 
 $("signOutBtn").addEventListener("click", async () => {
   await signOut();
   chrome.runtime.sendMessage({ type: "FLOWPULSE_AUTH_CHANGED" });
   checkAuth();
-});
-
-$("syncBtn").addEventListener("click", () => {
-  $("syncBtn").textContent = "Syncing…";
-  chrome.runtime.sendMessage({ type: "FLOWPULSE_SYNC_NOW" }, () => {
-    setTimeout(() => { $("syncBtn").textContent = "Sync Now"; }, 1200);
-  });
 });
 
 $("openDashboard").addEventListener("click", () => {
@@ -81,7 +71,7 @@ $("openDashboard").addEventListener("click", () => {
 /* ── Live updates ───────────────────────────────────── */
 chrome.storage.onChanged.addListener((changes) => {
   if (changes.summary) hydrate();
-  if (changes.flowpulse_auth) checkAuth(); // Auto-update when auth arrives from dashboard
+  if (changes.flowpulse_auth) checkAuth();
 });
 
 /* ── Init ───────────────────────────────────────────── */
