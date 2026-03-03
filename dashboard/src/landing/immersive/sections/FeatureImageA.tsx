@@ -1,14 +1,10 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
-import asteroid1 from "../../../assets/dxsbond-asteroid-2.jpg";
-
-const ACCENT = "#527FB0";
-const HIGHLIGHT = "#7C9FC9";
-const DEEP = "#011023";
-const SURFACE = "#052558";
+import asteroid1 from "../../../assets/Images/GreenNature.jpg";
+import { GlassPanel, ScrollReveal } from "../AnimationWrappers";
+import { ACCENT, HIGHLIGHT, DEEP, SURFACE, EASE_SMOOTH, GPU_STYLE } from "../motionConfig";
 
 // ── Circular Focus Heatmap ────────────────────────────────────────────
-// 24 segments arranged in a clock face. Each segment's arc = focus %.
 const HOURS = [
     { h: "6am", v: 0.15 }, { h: "7am", v: 0.30 }, { h: "8am", v: 0.65 },
     { h: "9am", v: 0.82 }, { h: "10am", v: 0.91 }, { h: "11am", v: 0.78 },
@@ -24,7 +20,7 @@ function CircularHeatmap({ revealed }: { revealed: boolean }) {
     const cx = 160; const cy = 160;
     const total = HOURS.length;
     const outerR = 130; const innerR = 60;
-    const gap = 0.08; // radians gap between segments
+    const gap = 0.08;
 
     return (
         <div className="relative flex items-center justify-center">
@@ -36,11 +32,9 @@ function CircularHeatmap({ revealed }: { revealed: boolean }) {
                     </radialGradient>
                 </defs>
 
-                {/* Central glow */}
                 <circle cx={cx} cy={cy} r={innerR} fill="url(#orbGlow)" />
                 <circle cx={cx} cy={cy} r={innerR * 0.7} fill={SURFACE} opacity={0.8} />
 
-                {/* Centre label */}
                 <text x={cx} y={cy - 6} textAnchor="middle" fontSize="11" fill={HIGHLIGHT} fontFamily="monospace" opacity={0.9}>FOCUS</text>
                 <text x={cx} y={cy + 12} textAnchor="middle" fontSize="9" fill={ACCENT} fontFamily="monospace" opacity={0.7}>CLOCK</text>
 
@@ -59,13 +53,11 @@ function CircularHeatmap({ revealed }: { revealed: boolean }) {
                     const x2i = cx + innerR * Math.cos(endAngle);
                     const y2i = cy + innerR * Math.sin(endAngle);
 
-                    // outer arc at maxR
                     const x1m = cx + maxR * Math.cos(startAngle);
                     const y1m = cy + maxR * Math.sin(startAngle);
                     const x2m = cx + maxR * Math.cos(endAngle);
                     const y2m = cy + maxR * Math.sin(endAngle);
 
-                    // Full outer arc (ring guide)
                     const ringPath = [
                         `M ${x1o} ${y1o}`,
                         `A ${outerR} ${outerR} 0 0 1 ${x2o} ${y2o}`,
@@ -74,7 +66,6 @@ function CircularHeatmap({ revealed }: { revealed: boolean }) {
                         "Z"
                     ].join(" ");
 
-                    // Value arc
                     const valuePath = [
                         `M ${x1m} ${y1m}`,
                         `A ${maxR} ${maxR} 0 0 1 ${x2m} ${y2m}`,
@@ -83,21 +74,14 @@ function CircularHeatmap({ revealed }: { revealed: boolean }) {
                         "Z"
                     ].join(" ");
 
-                    
-
-                    // opacity interpolation: low focus = accent, high = highlight
                     const fillColor = hour.v > 0.7 ? HIGHLIGHT : ACCENT;
-                    const opacity = revealed ? 0.15 + hour.v * 0.5 : 0;
 
                     return (
                         <g key={i}>
-                            {/* Background ring segment */}
                             <path d={ringPath} fill={SURFACE} opacity={0.3} />
-                            {/* Value arc */}
                             <motion.path
                                 d={valuePath}
                                 fill={fillColor}
-                                opacity={opacity}
                                 initial={{ opacity: 0, scale: 0.6 }}
                                 animate={revealed ? { opacity: 0.15 + hour.v * 0.5, scale: 1 } : { opacity: 0, scale: 0.6 }}
                                 transition={{ delay: i * 0.03, duration: 0.7, ease: "easeOut" }}
@@ -107,7 +91,6 @@ function CircularHeatmap({ revealed }: { revealed: boolean }) {
                     );
                 })}
 
-                {/* Hour labels at 3h intervals */}
                 {[0, 6, 12, 18].map((idx) => {
                     const angle = (idx / total) * 2 * Math.PI - Math.PI / 2;
                     const lx = cx + (outerR + 18) * Math.cos(angle);
@@ -123,25 +106,27 @@ function CircularHeatmap({ revealed }: { revealed: boolean }) {
         </div>
     );
 }
-// Silence TS unused var
 
 export function FeatureImageA() {
     const ref = useRef<HTMLDivElement>(null);
     const isInView = useInView(ref, { once: true, amount: 0.3 });
     const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
 
-    // Parallax: image moves at 0.4× scroll speed
-    const imgY = useTransform(scrollYProgress, [0, 1], ["-8%", "8%"]);
+    // Multi-speed parallax
+    const imgY = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"]);
+    const contentY = useTransform(scrollYProgress, [0, 1], ["5%", "-5%"]);
+    const heatmapScale = useTransform(scrollYProgress, [0.2, 0.6], [0.85, 1]);
 
     return (
         <section ref={ref} className="relative overflow-hidden" style={{ minHeight: "100vh" }}>
-            {/* Parallax image */}
-            <motion.div className="absolute inset-0 z-0" style={{ y: imgY }}>
+            {/* Parallax image (bg layer — slowest) */}
+            <motion.div className="absolute inset-0 z-0" style={{ y: imgY, ...GPU_STYLE }}>
                 <img
                     src={asteroid1}
                     alt=""
-                    className="h-[115%] w-full object-cover object-center"
-                    style={{ marginTop: "-7.5%" }}
+                    className="h-[120%] w-full object-cover object-center"
+                    style={{ marginTop: "-10%" }}
+                    loading="lazy"
                 />
             </motion.div>
 
@@ -152,16 +137,14 @@ export function FeatureImageA() {
             <div className="pointer-events-none absolute inset-y-0 left-0 z-[2] w-64"
                 style={{ background: `linear-gradient(to right, rgba(1,16,35,0.9), transparent)` }} />
 
-            {/* Content */}
-            <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-16 px-8 py-32 lg:grid-cols-2 lg:items-center">
-
+            {/* Content (mid layer) */}
+            <motion.div
+                className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-16 px-8 py-32 lg:grid-cols-2 lg:items-center"
+                style={{ y: contentY, ...GPU_STYLE }}
+            >
                 {/* Left — copy */}
                 <div>
-                    <motion.div
-                        initial={{ opacity: 0, x: -40 }}
-                        animate={isInView ? { opacity: 1, x: 0 } : {}}
-                        transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-                    >
+                    <ScrollReveal direction="left" distance={50} duration={0.9}>
                         {/* Large outline number */}
                         <div
                             className="font-display font-black leading-none select-none mb-4"
@@ -190,21 +173,30 @@ export function FeatureImageA() {
                         </p>
 
                         {/* Feature pills */}
-                        {["Chrome Extension", "Screen-Time API", "On-Device Processing"].map((label) => (
-                            <div key={label} className="mb-2 flex items-center gap-3">
-                                <span className="h-1.5 w-1.5 rounded-full flex-shrink-0" style={{ background: HIGHLIGHT }} />
-                                <span className="text-sm" style={{ color: `${HIGHLIGHT}70` }}>{label}</span>
+                        <GlassPanel className="inline-block !rounded-xl" intensity="light" style={{ padding: 0 }}>
+                            <div className="px-5 py-4 space-y-2">
+                                {["Chrome Extension", "Screen-Time API", "On-Device Processing"].map((label) => (
+                                    <div key={label} className="flex items-center gap-3">
+                                        <span className="h-1.5 w-1.5 rounded-full flex-shrink-0"
+                                            style={{
+                                                background: HIGHLIGHT,
+                                                boxShadow: `0 0 6px ${HIGHLIGHT}60`,
+                                            }} />
+                                        <span className="text-sm" style={{ color: `${HIGHLIGHT}70` }}>{label}</span>
+                                    </div>
+                                ))}
                             </div>
-                        ))}
-                    </motion.div>
+                        </GlassPanel>
+                    </ScrollReveal>
                 </div>
 
-                {/* Right — Circular Heatmap */}
+                {/* Right — Circular Heatmap with depth-based scale */}
                 <motion.div
                     className="flex items-center justify-center"
                     initial={{ opacity: 0, scale: 0.85 }}
                     animate={isInView ? { opacity: 1, scale: 1 } : {}}
-                    transition={{ delay: 0.2, duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
+                    transition={{ delay: 0.2, duration: 1.0, ease: EASE_SMOOTH as unknown as number[] }}
+                    style={{ scale: heatmapScale, ...GPU_STYLE }}
                 >
                     <div className="relative">
                         {/* Glow ring behind SVG */}
@@ -225,7 +217,7 @@ export function FeatureImageA() {
                         </div>
                     </div>
                 </motion.div>
-            </div>
+            </motion.div>
         </section>
     );
 }

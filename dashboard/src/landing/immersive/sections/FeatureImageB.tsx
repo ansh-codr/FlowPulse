@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import asteroid2 from "../../../assets/dxsbond-asteroid2-2.jpg";
+import asteroid2 from "../../../assets/Images/GreenNature2.jpg";
 
 const ACCENT = "#527FB0";
 const HIGHLIGHT = "#7C9FC9";

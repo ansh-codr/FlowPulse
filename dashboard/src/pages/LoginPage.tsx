@@ -9,13 +9,13 @@ const ACCENT = "#527FB0";
 const LIGHT = "#7C9FC9";
 
 // ── frame imports ─────────────────────────────────────────────────────────────
-import frame01 from "../assets/robin-julian-lee-render-pose-01-resize.jpg";
-import frame02 from "../assets/robin-julian-lee-render-pose-02-resize.jpg";
-import frame03 from "../assets/robin-julian-lee-render-pose-03-final.jpg";
-import frame04 from "../assets/robin-julian-lee-render-pose-04-resize.jpg";
-import frame05 from "../assets/robin-julian-lee-render-pose-05-resize.jpg";
-import frame06 from "../assets/robin-julian-lee-pose-06-a.jpg";
-import frame07 from "../assets/robin-julian-lee-render-pose-07-resize.jpg";
+import frame01 from "../assets/Images/robin-julian-lee-render-pose-01-resize.jpg";
+import frame02 from "../assets/Images/robin-julian-lee-render-pose-02-resize.jpg";
+import frame03 from "../assets/Images/robin-julian-lee-render-pose-03-final.jpg";
+import frame04 from "../assets/Images/robin-julian-lee-render-pose-04-resize.jpg";
+import frame05 from "../assets/Images/robin-julian-lee-render-pose-05-resize.jpg";
+import frame06 from "../assets/Images/robin-julian-lee-pose-06-a.jpg";
+import frame07 from "../assets/Images/robin-julian-lee-render-pose-07-resize.jpg";
 
 const FRAMES = [frame01, frame02, frame03, frame04, frame05, frame06, frame07];
 

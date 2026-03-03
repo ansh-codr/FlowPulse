@@ -2,7 +2,7 @@ import { useCallback, useRef } from "react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 import { useAuth } from "../../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import asteroid2 from "../../../assets/dxsbond-asteroid2-2.jpg";
+import asteroid2 from "../../../assets/Images/GreenNature2.jpg";
 
 const ACCENT = "#527FB0";
 const HIGHLIGHT = "#7C9FC9";

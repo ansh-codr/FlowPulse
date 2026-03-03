@@ -78,7 +78,24 @@ const nav = [
 
 export function DashboardLayout() {
   const { user, signOut } = useAuth();
+  const { detected: extensionDetected } = useExtensionDetect();
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [bannerDismissed, setBannerDismissed] = useState(false);
+
+  // Persist dismissal for 24 hours so the banner doesn't nag
+  useEffect(() => {
+    const ts = localStorage.getItem("fp_ext_banner_dismissed");
+    if (ts && Date.now() - Number(ts) < 24 * 60 * 60 * 1000) {
+      setBannerDismissed(true);
+    }
+  }, []);
+
+  function dismissBanner() {
+    setBannerDismissed(true);
+    localStorage.setItem("fp_ext_banner_dismissed", String(Date.now()));
+  }
+
+  const showExtensionBanner = extensionDetected === false && !bannerDismissed;
 
   async function handleSignOut() {
     setIsSigningOut(true);
@@ -186,6 +203,51 @@ export function DashboardLayout() {
           <div className="absolute right-1/3 top-1/2 h-64 w-64 animate-orb-drift-3 rounded-full bg-neon/[0.08] blur-3xl" />
         </div>
         <section className="relative z-10 min-h-screen p-8">
+          {/* Extension not detected banner */}
+          <AnimatePresence>
+            {showExtensionBanner && (
+              <motion.div
+                initial={{ opacity: 0, y: -12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                className="mb-6 flex items-center gap-4 rounded-2xl px-5 py-4"
+                style={{
+                  background: "linear-gradient(135deg, rgba(88,240,255,0.08), rgba(109,109,255,0.06))",
+                  border: "1px solid rgba(88,240,255,0.18)",
+                }}
+              >
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-neon/10">
+                  <svg className="h-5 w-5 text-neon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-white">Chrome Extension Not Detected</p>
+                  <p className="text-xs text-white/40">Install the FlowPulse extension to start tracking your productivity in real-time.</p>
+                </div>
+                <a
+                  href="/extension"
+                  className="flex-shrink-0 rounded-xl px-4 py-2 text-xs font-semibold text-white transition"
+                  style={{
+                    background: "linear-gradient(135deg, rgba(88,240,255,0.25), rgba(109,109,255,0.2))",
+                    border: "1px solid rgba(88,240,255,0.3)",
+                  }}
+                >
+                  Install Extension
+                </a>
+                <button
+                  onClick={dismissBanner}
+                  className="flex-shrink-0 rounded-lg p-1.5 text-white/30 transition hover:bg-white/[0.06] hover:text-white/60"
+                  aria-label="Dismiss"
+                >
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                    <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           <AnimatePresence mode="wait">
             <Outlet />
           </AnimatePresence>

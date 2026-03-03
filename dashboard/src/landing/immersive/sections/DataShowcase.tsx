@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
-import cinemaVideo from "../../../assets/videos/2026-03-02T04-08-39_ultra_cinematic_watermarked.mp4";
+import cinemaVideo from "../../../assets/videos/robin-julian-lee-pose-Video.mp4";
 
 const ACCENT = "#527FB0";
 const HIGHLIGHT = "#7C9FC9";

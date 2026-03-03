@@ -45,14 +45,14 @@ const db = admin.firestore();
  */
 exports.generateNudges = functions.firestore
     .document("users/{userId}/dailyStats/{dateId}")
-    .onWrite(async (change, context) => {
+    .onCreate(async (snapshot, context) => {
     const { userId, dateId } = context.params;
-    const data = change.after.data();
+    const data = snapshot.data();
     if (!data)
-        return; // deleted
+        return;
     const nudges = [];
     // ── Break nudge: too many hours without pause ──
-    if (data.totalSec > 6 * 3600 && data.deepBlocks < 2) {
+    if (data.totalDuration > 6 * 3600 && data.deepBlocks < 2) {
         nudges.push({
             type: "break",
             message: "You've been active for over 6 hours today. Take a short walk — your brain will thank you!",
@@ -60,8 +60,8 @@ exports.generateNudges = functions.firestore
         });
     }
     // ── Refocus nudge: high distraction ratio ──
-    if (data.totalSec > 1800) {
-        const distractionRatio = data.distractionSec / data.totalSec;
+    if (data.totalDuration > 1800) {
+        const distractionRatio = data.distractionTime / data.totalDuration;
         if (distractionRatio > 0.4) {
             nudges.push({
                 type: "refocus",
@@ -77,9 +77,8 @@ exports.generateNudges = functions.firestore
             });
         }
     }
-    // ── Sleep warning: activity logged very late ──
-    // If dateId indicates data and totalSec > 8 hours, user was on screens a LOT
-    if (data.totalSec > 8 * 3600) {
+    // ── Sleep warning: excessive screen time ──
+    if (data.totalDuration > 8 * 3600) {
         nudges.push({
             type: "sleep_warning",
             message: "Over 8 hours of screen time today — consider winding down early tonight.",
