@@ -1,11 +1,8 @@
 import { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import asteroid2 from "../../../assets/Images/GreenNature2.jpg";
-
-const ACCENT = "#527FB0";
-const HIGHLIGHT = "#7C9FC9";
-const DEEP = "#011023";
-const SURFACE = "#052558";
+import { GlassPanel, ScrollReveal } from "../AnimationWrappers";
+import { ACCENT, HIGHLIGHT, DEEP, SURFACE, EASE_SMOOTH, GPU_STYLE } from "../motionConfig";
 
 const LEADERBOARD = [
     { rank: 1, name: "Aryan S.", score: 94, hours: "8.2h" },
@@ -15,15 +12,12 @@ const LEADERBOARD = [
     { rank: 5, name: "Rohan V.", score: 71, hours: "5.3h" },
 ];
 
-// ── Radial Pulse Leaderboard ──────────────────────────────────────────
+// ── Radial Pulse Leaderboard (with ranking change motion) ─────
 function RadialLeaderboard() {
     const [active, setActive] = useState(0);
     const cx = 160; const cy = 155;
-
-    // radius per rank: rank 1 closest, rank 5 furthest
     const radii = [52, 82, 108, 130, 148];
     const total = LEADERBOARD.length;
-    // angles spaced evenly
     const angles = LEADERBOARD.map((_, i) => (i / total) * 2 * Math.PI - Math.PI / 2);
 
     useEffect(() => {
@@ -84,11 +78,19 @@ function RadialLeaderboard() {
                                     transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
                                 />
                             )}
-                            {/* Node circle */}
-                            <circle cx={nx} cy={ny} r={isActive ? 14 : 10}
-                                fill={SURFACE} stroke={isActive ? HIGHLIGHT : ACCENT}
+                            {/* Node circle with elevation transition */}
+                            <motion.circle
+                                cx={nx} cy={ny}
+                                r={isActive ? 14 : 10}
+                                fill={SURFACE}
+                                stroke={isActive ? HIGHLIGHT : ACCENT}
                                 strokeWidth={isActive ? 2 : 1}
-                                style={{ transition: "all 0.4s ease" }}
+                                animate={{
+                                    r: isActive ? 14 : 10,
+                                    strokeWidth: isActive ? 2 : 1,
+                                }}
+                                transition={{ duration: 0.4, ease: "easeOut" }}
+                                style={{ filter: isActive ? `drop-shadow(0 0 8px ${HIGHLIGHT}40)` : "none" }}
                             />
                             {/* Rank number */}
                             <text x={nx} y={ny + 4} textAnchor="middle"
@@ -113,15 +115,22 @@ function RadialLeaderboard() {
                 })}
             </svg>
 
-            {/* Active entry info box */}
+            {/* Active entry info box — glass morphism */}
             <AnimatePresence mode="wait">
                 <motion.div
                     key={active}
                     className="absolute bottom-0 left-1/2 -translate-x-1/2 rounded-xl px-5 py-3 text-center"
-                    style={{ background: `${SURFACE}DD`, border: `1px solid ${ACCENT}40`, minWidth: "160px" }}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -8 }}
+                    style={{
+                        background: `rgba(5,37,88,0.85)`,
+                        border: `1px solid ${ACCENT}40`,
+                        backdropFilter: "blur(12px)",
+                        WebkitBackdropFilter: "blur(12px)",
+                        boxShadow: `0 4px 24px rgba(1,16,35,0.5)`,
+                        minWidth: "160px",
+                    }}
+                    initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -8, scale: 0.95 }}
                     transition={{ duration: 0.35 }}
                 >
                     <div className="font-display text-2xl font-black" style={{ color: HIGHLIGHT }}>
@@ -139,17 +148,19 @@ function RadialLeaderboard() {
 export function FeatureImageB() {
     const ref = useRef<HTMLDivElement>(null);
     const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-    const imgY = useTransform(scrollYProgress, [0, 1], ["-8%", "8%"]);
+    const imgY = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"]);
+    const contentY = useTransform(scrollYProgress, [0, 1], ["5%", "-5%"]);
 
     return (
         <section ref={ref} className="relative overflow-hidden" style={{ minHeight: "100vh" }}>
             {/* Parallax image */}
-            <motion.div className="absolute inset-0 z-0" style={{ y: imgY }}>
+            <motion.div className="absolute inset-0 z-0" style={{ y: imgY, ...GPU_STYLE }}>
                 <img
                     src={asteroid2}
                     alt=""
-                    className="h-[115%] w-full object-cover object-center"
-                    style={{ marginTop: "-7.5%" }}
+                    className="h-[120%] w-full object-cover object-center"
+                    style={{ marginTop: "-10%" }}
+                    loading="lazy"
                 />
             </motion.div>
 
@@ -161,31 +172,22 @@ export function FeatureImageB() {
             <div className="pointer-events-none absolute inset-y-0 right-0 z-[2] w-64"
                 style={{ background: `linear-gradient(to left, rgba(1,16,35,0.9), transparent)` }} />
 
-            {/* Content — image right, text left (mirrored from A) */}
-            <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-16 px-8 py-32 lg:grid-cols-2 lg:items-center">
-
+            {/* Content — mirrored layout */}
+            <motion.div
+                className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-16 px-8 py-32 lg:grid-cols-2 lg:items-center"
+                style={{ y: contentY, ...GPU_STYLE }}
+            >
                 {/* Left — Radial Leaderboard */}
-                <motion.div
-                    className="flex items-center justify-center"
-                    initial={{ opacity: 0, scale: 0.85 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true, amount: 0.3 }}
-                    transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
-                >
-                    <div className="relative">
+                <ScrollReveal direction="scale" delay={0.15} duration={1.0}>
+                    <div className="relative flex items-center justify-center">
                         <div className="absolute inset-0 rounded-full"
                             style={{ boxShadow: `0 0 80px 20px rgba(82,127,176,0.12)` }} />
                         <RadialLeaderboard />
                     </div>
-                </motion.div>
+                </ScrollReveal>
 
                 {/* Right — copy */}
-                <motion.div
-                    initial={{ opacity: 0, x: 40 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true, amount: 0.3 }}
-                    transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-                >
+                <ScrollReveal direction="right" delay={0.1} distance={50}>
                     <div
                         className="font-display font-black leading-none select-none mb-4"
                         style={{
@@ -212,14 +214,22 @@ export function FeatureImageB() {
                         Anonymous leaderboards update every minute. See where you rank in your cohort — and watch your position climb as your focus deepens.
                     </p>
 
-                    {["Live rank updates", "Anonymous by default", "Cohort-based scoring"].map((label) => (
-                        <div key={label} className="mb-2 flex items-center gap-3">
-                            <span className="h-1.5 w-1.5 rounded-full flex-shrink-0" style={{ background: HIGHLIGHT }} />
-                            <span className="text-sm" style={{ color: `${HIGHLIGHT}70` }}>{label}</span>
+                    <GlassPanel className="inline-block !rounded-xl" intensity="light" style={{ padding: 0 }}>
+                        <div className="px-5 py-4 space-y-2">
+                            {["Live rank updates", "Anonymous by default", "Cohort-based scoring"].map((label) => (
+                                <div key={label} className="flex items-center gap-3">
+                                    <span className="h-1.5 w-1.5 rounded-full flex-shrink-0"
+                                        style={{
+                                            background: HIGHLIGHT,
+                                            boxShadow: `0 0 6px ${HIGHLIGHT}60`,
+                                        }} />
+                                    <span className="text-sm" style={{ color: `${HIGHLIGHT}70` }}>{label}</span>
+                                </div>
+                            ))}
                         </div>
-                    ))}
-                </motion.div>
-            </div>
+                    </GlassPanel>
+                </ScrollReveal>
+            </motion.div>
         </section>
     );
 }
