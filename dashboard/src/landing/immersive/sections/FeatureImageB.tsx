@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import asteroid2 from "../../../assets/Images/GreenNature2.jpg";
 import { GlassPanel, ScrollReveal } from "../AnimationWrappers";
-import { ACCENT, HIGHLIGHT, DEEP, SURFACE, EASE_SMOOTH, GPU_STYLE } from "../motionConfig";
+import { ACCENT, HIGHLIGHT, DEEP, SURFACE, GPU_STYLE } from "../motionConfig";
 
 const LEADERBOARD = [
     { rank: 1, name: "Aryan S.", score: 94, hours: "8.2h" },

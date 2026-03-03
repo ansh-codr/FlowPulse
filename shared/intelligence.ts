@@ -514,7 +514,7 @@ export interface WeekdayPattern {
  */
 export function generatePredictiveInsights(
   weeklyStats: DailyStats[],
-  currentHour: number = new Date().getHours()
+  _currentHour: number = new Date().getHours()
 ): PredictiveInsights {
   const hasEnoughData = weeklyStats.length >= 14;
 

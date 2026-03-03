@@ -3,7 +3,7 @@
  * ────────────────────────────────────────
  * ScrollReveal, ParallaxLayer, GlassPanel, TiltCard
  */
-import { useRef, useState, useEffect, useCallback, type ReactNode } from "react";
+import { useRef, useState, useCallback, type ReactNode } from "react";
 import { motion, useScroll, useTransform, useSpring, useMotionValue, useInView } from "framer-motion";
 import { EASE_SMOOTH, HOVER, GLASS, GPU_STYLE, isMobile, prefersReducedMotion } from "./motionConfig";
 
