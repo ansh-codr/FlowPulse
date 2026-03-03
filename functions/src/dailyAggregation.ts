@@ -237,6 +237,14 @@ export const dailyAggregation = functions.pubsub
           peakHour,
           contextSwitches,
           domainBreakdown,
+          // Level 1: Session Intelligence
+          microDistractions,
+          // Level 2: Distraction Pattern Analysis
+          rapidSwitchBursts,
+          socialMediaLoops,
+          dopamineCycles,
+          distractionHeatmap,
+          peakDistractionHours,
           updatedAt: new Date().toISOString(),
           createdAt: admin.firestore.FieldValue.serverTimestamp(),
         },
