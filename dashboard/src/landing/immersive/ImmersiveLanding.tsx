@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { Loader } from "./Loader";
 import { HeroScene } from "./hero/HeroScene";
 import { ManifestoStrip } from "./sections/ManifestoStrip";
+import { PinnedSection } from "./sections/PinnedSection";
 import { FeatureImageA } from "./sections/FeatureImageA";
 import { FeatureCards } from "./sections/FeatureCards";
 import { FeatureImageB } from "./sections/FeatureImageB";
@@ -9,10 +10,7 @@ import { DataShowcase } from "./sections/DataShowcase";
 import { StatsStrip } from "./sections/StatsStrip";
 import { CTAFinal } from "./sections/CTAFinal";
 import { NavBar } from "../NavBar";
-
-const ACCENT = "#527FB0";
-const HIGHLIGHT = "#7C9FC9";
-const DEEP = "#011023";
+import { ACCENT, HIGHLIGHT, DEEP } from "./motionConfig";
 
 export function ImmersiveLanding() {
     const [loaderDone, setLoaderDone] = useState(false);
@@ -33,34 +31,37 @@ export function ImmersiveLanding() {
             {/* Cinematic loader */}
             <Loader onComplete={onLoaderComplete} />
 
-            {/* Main content */}
+            {/* Main content — revealed after loader */}
             {loaderDone && (
                 <>
                     {/* Sticky nav */}
                     <NavBar />
 
-                    {/* 1. Hero — redorb.mp4 */}
+                    {/* 1. Hero — redorb.mp4 + 3D canvas + depth layers */}
                     <HeroScene />
 
                     {/* 2. Manifesto marquee strip */}
                     <ManifestoStrip />
 
-                    {/* 3. Feature A — asteroid-1 + circular heatmap */}
+                    {/* 3. Feature A — nature image + circular heatmap */}
                     <FeatureImageA />
 
-                    {/* 4. How It Works — 3-card sticky */}
+                    {/* 4. Pinned Scroll — 3 panels with GSAP scroll trigger */}
+                    <PinnedSection />
+
+                    {/* 5. How It Works — 3-card with tilt + glass */}
                     <FeatureCards />
 
-                    {/* 5. Feature B — asteroid-2 + radial leaderboard */}
+                    {/* 6. Feature B — nature image + radial leaderboard */}
                     <FeatureImageB />
 
-                    {/* 6. Data showcase — wave chart + leaderboard */}
+                    {/* 7. Data showcase — wave chart + focus ring + leaderboard */}
                     <DataShowcase />
 
-                    {/* 7. Stats proof strip */}
+                    {/* 8. Stats proof strip */}
                     <StatsStrip />
 
-                    {/* 8. Dramatic CTA */}
+                    {/* 9. Dramatic CTA — spotlight + magnetic */}
                     <CTAFinal />
 
                     {/* Footer */}

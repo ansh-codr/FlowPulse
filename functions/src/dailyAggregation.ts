@@ -194,7 +194,6 @@ export const dailyAggregation = functions.pubsub
         .sort((a, b) => b.ratio - a.ratio)
         .slice(0, 3)
         .map(h => h.hour);
-      }
 
       // Focus score: productive% weighted, penalise distractions
       const focusScore = totalDuration > 0
