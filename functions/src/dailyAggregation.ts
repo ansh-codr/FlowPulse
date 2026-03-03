@@ -65,10 +65,91 @@ export const dailyAggregation = functions.pubsub
 
       const logDocs = logsSnap.docs.map(d => d.data() as ActivityLog);
 
+      // Sort logs chronologically for pattern detection
+      const sortedLogs = [...logDocs].sort(
+        (a, b) => a.startTime.toMillis() - b.startTime.toMillis()
+      );
+
+      // Count micro-distractions (rapid switches < 2 min)
+      let microDistractions = 0;
+      for (let i = 1; i < sortedLogs.length; i++) {
+        const prevEnd = sortedLogs[i - 1].endTime?.toMillis() ?? sortedLogs[i - 1].startTime.toMillis() + sortedLogs[i - 1].duration * 1000;
+        const currStart = sortedLogs[i].startTime.toMillis();
+        const gap = (currStart - prevEnd) / 1000;
+
+        if (
+          sortedLogs[i].duration < 120 && // < 2 min duration
+          gap < 5 &&                       // < 5 sec gap
+          sortedLogs[i].domain !== sortedLogs[i - 1].domain
+        ) {
+          microDistractions++;
+        }
+      }
+
+      // Detect rapid-switch bursts (4+ switches in 2 min window)
+      let rapidSwitchBursts = 0;
+      const windowMs = 2 * 60 * 1000;
+      for (let i = 0; i < sortedLogs.length; i++) {
+        const windowStart = sortedLogs[i].startTime.toMillis();
+        const windowEnd = windowStart + windowMs;
+
+        let switchCount = 0;
+        let j = i + 1;
+        while (j < sortedLogs.length && sortedLogs[j].startTime.toMillis() <= windowEnd) {
+          if (sortedLogs[j].domain !== sortedLogs[j - 1].domain) {
+            switchCount++;
+          }
+          j++;
+        }
+
+        if (switchCount >= 4) {
+          rapidSwitchBursts++;
+          i = j - 1; // Skip ahead to avoid counting overlapping bursts
+        }
+      }
+
+      // Detect social media loops (3+ visits to same social platform)
+      const socialMediaVisits = new Map<string, number>();
+      for (const log of sortedLogs) {
+        const platform = SOCIAL_MEDIA_DOMAINS.find(d => log.domain.includes(d));
+        if (platform) {
+          socialMediaVisits.set(platform, (socialMediaVisits.get(platform) ?? 0) + 1);
+        }
+      }
+      const socialMediaLoops = [...socialMediaVisits.entries()]
+        .filter(([, count]) => count >= 3)
+        .map(([platform, count]) => ({ platform, visits: count }));
+
+      // Detect dopamine cycles (productive → distraction < 5min → productive)
+      let dopamineCycles = 0;
+      for (let i = 0; i < sortedLogs.length - 2; i++) {
+        if (
+          sortedLogs[i].category === "productive" &&
+          sortedLogs[i + 1].category === "distraction" &&
+          sortedLogs[i + 1].duration < 300 &&
+          sortedLogs[i + 2].category === "productive" &&
+          SOCIAL_MEDIA_DOMAINS.some(d => sortedLogs[i + 1].domain.includes(d))
+        ) {
+          dopamineCycles++;
+        }
+      }
+
+      // Hourly distraction heatmap
+      const hourlyDistractionMap = new Map<number, { distraction: number; total: number }>();
+      for (let h = 0; h < 24; h++) {
+        hourlyDistractionMap.set(h, { distraction: 0, total: 0 });
+      }
+
       for (let i = 0; i < logDocs.length; i++) {
         const log = logDocs[i];
         const dur = log.duration || 0;
         totalDuration += dur;
+
+        const h = log.startTime.toMillis ? new Date(log.startTime.toMillis()).getHours() : 12;
+        
+        // Track hourly distraction data
+        const hourlyData = hourlyDistractionMap.get(h)!;
+        hourlyData.total += dur;
 
         switch (log.category) {
           case "productive":
@@ -76,6 +157,7 @@ export const dailyAggregation = functions.pubsub
             break;
           case "distraction":
             distractionTime += dur;
+            hourlyData.distraction += dur;
             break;
           default:
             neutralTime += dur;
@@ -92,10 +174,26 @@ export const dailyAggregation = functions.pubsub
           });
         }
 
-        const h = log.startTime.toMillis ? new Date(log.startTime.toMillis()).getHours() : 12;
         hourBuckets.set(h, (hourBuckets.get(h) ?? 0) + dur);
 
         if (i > 0 && logDocs[i].domain !== logDocs[i - 1].domain) contextSwitches++;
+      }
+
+      // Build hourly distraction heatmap
+      const distractionHeatmap = [...hourlyDistractionMap.entries()]
+        .map(([hour, data]) => ({
+          hour,
+          distractionSeconds: data.distraction,
+          ratio: data.total > 0 ? data.distraction / data.total : 0,
+        }))
+        .sort((a, b) => a.hour - b.hour);
+
+      // Peak distraction hours (top 3)
+      const peakDistractionHours = [...distractionHeatmap]
+        .filter(h => h.distractionSeconds > 0)
+        .sort((a, b) => b.ratio - a.ratio)
+        .slice(0, 3)
+        .map(h => h.hour);
       }
 
       // Focus score: productive% weighted, penalise distractions

@@ -1,9 +1,6 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-
-const ACCENT = "#527FB0";
-const HIGHLIGHT = "#7C9FC9";
-const SURFACE = "#052558";
+import { ACCENT, HIGHLIGHT, SURFACE, GPU_STYLE } from "../motionConfig";
 
 const WORDS = ["UNDERSTAND", "·", "CLASSIFY", "·", "FOCUS", "·", "PERFORM", "·", "REPEAT", "·"];
 
@@ -11,8 +8,9 @@ export function ManifestoStrip() {
     const ref = useRef<HTMLDivElement>(null);
     const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
 
-    // Scroll drives the marquee offset
-    const x = useTransform(scrollYProgress, [0, 1], ["0%", "-18%"]);
+    // Scroll drives the marquee offset — increased range for smoother motion
+    const x = useTransform(scrollYProgress, [0, 1], ["0%", "-25%"]);
+    const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0.3, 1, 1, 0.3]);
 
     return (
         <div
@@ -32,18 +30,24 @@ export function ManifestoStrip() {
                 }}
             />
 
+            {/* Gradient edges for infinite feel */}
+            <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24"
+                style={{ background: `linear-gradient(to right, ${SURFACE}, transparent)` }} />
+            <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24"
+                style={{ background: `linear-gradient(to left, ${SURFACE}, transparent)` }} />
+
             <motion.div
-                className="flex whitespace-nowrap gap-12 will-change-transform"
-                style={{ x }}
+                className="flex whitespace-nowrap gap-12"
+                style={{ x, opacity, ...GPU_STYLE }}
             >
-                {[0, 1].map((i) => (
+                {[0, 1, 2].map((i) => (
                     <div key={i} className="flex shrink-0 items-center gap-10">
                         {WORDS.concat(WORDS).map((word, idx) =>
                             word === "·" ? (
-                                <span key={idx} className="text-2xl" style={{ color: `${ACCENT}50` }}>·</span>
+                                <span key={`${i}-${idx}`} className="text-2xl" style={{ color: `${ACCENT}50` }}>·</span>
                             ) : (
                                 <span
-                                    key={idx}
+                                    key={`${i}-${idx}`}
                                     className="font-display text-[13px] font-black uppercase tracking-[0.5em]"
                                     style={{ color: HIGHLIGHT }}
                                 >
