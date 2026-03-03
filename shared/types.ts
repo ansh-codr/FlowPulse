@@ -59,6 +59,15 @@ export interface DailyStats {
   focusScore: number;         // 0-100
   contextSwitches: number;
   domainBreakdown: Record<string, number>; // domain → seconds
+  // Level 1: Session Intelligence
+  deepBlocks?: number;
+  microDistractions?: number;
+  // Level 2: Distraction Pattern Analysis
+  rapidSwitchBursts?: number;
+  socialMediaLoops?: Array<{ platform: string; visits: number }>;
+  dopamineCycles?: number;
+  distractionHeatmap?: Array<{ hour: number; distractionSeconds: number; ratio: number }>;
+  peakDistractionHours?: number[];
   updatedAt: string; // ISO timestamp
 }
 
@@ -71,10 +80,13 @@ export interface DomainStat {
 /** users/{uid}/nudges/{docId} */
 export interface Nudge {
   id?: string;
-  type: "break" | "refocus" | "low_movement" | "sleep_warning";
+  type: "break" | "refocus" | "low_movement" | "sleep_warning" | 
+        "rapid_switch" | "social_media_loop" | "dopamine_cycle" |
+        "context_switch" | "peak_distraction" | "deep_work_celebration";
   message: string;
   timestamp: string; // ISO
   dismissed: boolean;
+  priority?: "low" | "medium" | "high";
 }
 
 /** leaderboard/{weekId}/entries/{entryId} */
@@ -84,6 +96,8 @@ export interface LeaderboardEntry {
   avgFocusScore: number;
   deepWorkBlocks: number;
   percentile: number; // 0-100
+  currentStreak?: number;  // Days with score > 60
+  improvementPercent?: number | null;  // vs. previous week
   userId: string; // hidden from client reads (only used server-side)
 }
 

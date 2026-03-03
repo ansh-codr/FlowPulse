@@ -195,7 +195,7 @@ export function FeatureCards() {
                     style={{ fontSize: "clamp(36px, 6vw, 72px)", lineHeight: 0.9 }}
                     initial={{ opacity: 0, y: 30 }}
                     animate={isInView ? { opacity: 1, y: 0 } : {}}
-                    transition={{ delay: 0.1, duration: 0.8, ease: EASE_SMOOTH as unknown as number[] }}
+                    transition={{ delay: 0.1, duration: 0.8, ease: EASE_SMOOTH }}
                 >
                     Three Steps.<br />
                     <span style={{
@@ -217,7 +217,7 @@ export function FeatureCards() {
                         transition={{
                             delay: 0.2 + i * 0.15,
                             duration: 0.9,
-                            ease: EASE_SMOOTH as unknown as number[],
+                            ease: EASE_SMOOTH,
                         }}
                     >
                         <TiltCard

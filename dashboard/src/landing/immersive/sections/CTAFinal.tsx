@@ -113,7 +113,7 @@ export function CTAFinal() {
                     initial={{ opacity: 0, y: 50 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    transition={{ delay: 0.1, duration: 1.0, ease: EASE_SMOOTH as [number, number, number, number] }}
+                    transition={{ delay: 0.1, duration: 1.0, ease: EASE_SMOOTH }}
                 >
                     START YOUR
                 </motion.h2>
@@ -130,7 +130,7 @@ export function CTAFinal() {
                     initial={{ opacity: 0, y: 50 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    transition={{ delay: 0.2, duration: 1.0, ease: EASE_SMOOTH as [number, number, number, number] }}
+                    transition={{ delay: 0.2, duration: 1.0, ease: EASE_SMOOTH }}
                 >
                     FLOW.
                 </motion.h2>

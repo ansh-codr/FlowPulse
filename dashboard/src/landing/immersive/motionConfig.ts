@@ -11,11 +11,11 @@ export const HIGHLIGHT = "#7C9FC9";
 export const DEEP = "#011023";
 export const SURFACE = "#052558";
 
-// ─── Easing Curves ────────────────────────────────────────────
-export const EASE_SMOOTH = [0.16, 1, 0.3, 1] as const;      // primary smooth reveal
-export const EASE_EXPO_OUT = [0.22, 1, 0.36, 1] as const;    // dramatic, cinematic
+// ─── Easing Curves (typed as Framer Motion BezierDefinition) ──
+export const EASE_SMOOTH: [number, number, number, number] = [0.16, 1, 0.3, 1];
+export const EASE_EXPO_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
 export const EASE_POWER3_OUT = "power3.out";                   // GSAP equivalent
-export const EASE_SUBTLE = [0.4, 0, 0.2, 1] as const;        // micro-interactions
+export const EASE_SUBTLE: [number, number, number, number] = [0.4, 0, 0.2, 1];
 
 // ─── Timing (ms) ──────────────────────────────────────────────
 export const TIMING = {

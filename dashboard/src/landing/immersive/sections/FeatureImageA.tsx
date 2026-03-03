@@ -195,7 +195,7 @@ export function FeatureImageA() {
                     className="flex items-center justify-center"
                     initial={{ opacity: 0, scale: 0.85 }}
                     animate={isInView ? { opacity: 1, scale: 1 } : {}}
-                    transition={{ delay: 0.2, duration: 1.0, ease: EASE_SMOOTH as unknown as number[] }}
+                    transition={{ delay: 0.2, duration: 1.0, ease: EASE_SMOOTH }}
                     style={{ scale: heatmapScale, ...GPU_STYLE }}
                 >
                     <div className="relative">

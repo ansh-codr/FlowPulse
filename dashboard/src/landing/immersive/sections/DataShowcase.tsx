@@ -283,7 +283,7 @@ export function DataShowcase() {
                     <motion.div className="lg:col-span-7"
                         initial={{ opacity: 0, x: -30 }}
                         animate={sInView ? { opacity: 1, x: 0 } : {}}
-                        transition={{ delay: 0.15, duration: 0.8, ease: EASE_SMOOTH as unknown as number[] }}>
+                        transition={{ delay: 0.15, duration: 0.8, ease: EASE_SMOOTH }}>
                         <WaveChart />
                     </motion.div>
 
@@ -326,7 +326,7 @@ export function DataShowcase() {
                                                 }}
                                                 initial={{ opacity: 0, x: 20 }}
                                                 animate={sInView ? { opacity: 1, x: 0 } : {}}
-                                                transition={{ delay: 0.4 + i * 0.08, duration: 0.5, ease: EASE_SMOOTH as unknown as number[] }}
+                                                transition={{ delay: 0.4 + i * 0.08, duration: 0.5, ease: EASE_SMOOTH }}
                                             >
                                                 <span className="font-display text-sm font-bold w-5 text-center"
                                                     style={{ color: entry.rank === 1 ? HIGHLIGHT : `${ACCENT}80` }}>

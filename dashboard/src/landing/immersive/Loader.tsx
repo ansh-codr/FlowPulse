@@ -93,7 +93,7 @@ export function Loader({ onComplete }: LoaderProps) {
                     style={{ background: "#011023" }}
                     initial={{ opacity: 1 }}
                     exit={{ opacity: 0, scale: 1.08, filter: "blur(12px)" }}
-                    transition={{ duration: 0.65, ease: EASE_EXPO_OUT as unknown as number[] }}
+                    transition={{ duration: 0.65, ease: EASE_EXPO_OUT }}
                     onClick={handleSkip}
                 >
                     {/* Film grain overlay */}
@@ -177,7 +177,7 @@ export function Loader({ onComplete }: LoaderProps) {
                                 className="absolute inset-0 flex items-center justify-center"
                                 initial={{ opacity: 0, scale: 0.6 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                transition={{ duration: 0.6, ease: EASE_EXPO_OUT as unknown as number[] }}
+                                transition={{ duration: 0.6, ease: EASE_EXPO_OUT }}
                             >
                                 <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
                                     <defs>

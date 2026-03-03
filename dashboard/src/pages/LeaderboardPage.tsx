@@ -87,9 +87,9 @@ export function LeaderboardPage() {
         ) : (
           <div className="space-y-2">
             {/* Header */}
-            <div className="grid grid-cols-[56px_1fr_80px_90px_70px] gap-2 border-b border-white/[0.06] pb-2.5 text-[10px] uppercase tracking-[0.3em] text-white/30">
+            <div className="grid grid-cols-[56px_1fr_70px_70px_60px_70px] gap-2 border-b border-white/[0.06] pb-2.5 text-[10px] uppercase tracking-[0.3em] text-white/30">
               <span>Rank</span><span>Player</span><span className="text-right">Focus</span>
-              <span className="text-right">Deep Blks</span><span className="text-right">%ile</span>
+              <span className="text-right">Streak</span><span className="text-right">Δ Wk</span><span className="text-right">%ile</span>
             </div>
 
             {entries.map((entry, i) => {
@@ -97,10 +97,11 @@ export function LeaderboardPage() {
                 entry.rank === 1 ? "#f5c842" :
                   entry.rank === 2 ? "#a0aec0" :
                     entry.rank === 3 ? "#b7791f" : "rgba(255,255,255,0.4)";
+              const improvement = entry.improvementPercent;
               return (
                 <motion.div
                   key={entry.rank}
-                  className="grid grid-cols-[56px_1fr_80px_90px_70px] items-center gap-2 rounded-xl border border-white/[0.05] bg-white/[0.03] px-3 py-3 text-sm"
+                  className="grid grid-cols-[56px_1fr_70px_70px_60px_70px] items-center gap-2 rounded-xl border border-white/[0.05] bg-white/[0.03] px-3 py-3 text-sm"
                   style={entry.rank <= 3 ? { borderLeft: `2px solid ${rankColor}` } : {}}
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -111,7 +112,15 @@ export function LeaderboardPage() {
                   </span>
                   <span className="font-semibold text-white">{entry.anonymousNickname}</span>
                   <span className="text-right font-bold text-neon">{entry.avgFocusScore.toFixed(0)}</span>
-                  <span className="text-right text-white/70">{entry.deepWorkBlocks}</span>
+                  <span className="text-right text-amber-400">
+                    {entry.currentStreak ? `🔥${entry.currentStreak}d` : "—"}
+                  </span>
+                  <span className={`text-right text-xs ${
+                    improvement && improvement > 0 ? "text-emerald-400" :
+                    improvement && improvement < 0 ? "text-rose-400" : "text-white/40"
+                  }`}>
+                    {improvement != null ? `${improvement > 0 ? "+" : ""}${improvement}%` : "—"}
+                  </span>
                   <span className="text-right">
                     <span className="rounded-full bg-aurora/15 px-2 py-0.5 text-xs text-aurora">
                       {entry.percentile}%
@@ -127,7 +136,8 @@ export function LeaderboardPage() {
       <GlassCard title="How it works" subtitle="Ranking algorithm" accentColor="#9c6bff" delay={0.1}>
         <div className="space-y-3 text-sm leading-relaxed text-white/50">
           <p>Rankings use your <span className="text-neon font-medium">average daily focus score</span> over the past 7 days. Missing days count as zero.</p>
-          <p><span className="text-aurora font-medium">Deep work blocks</span> are 25+ min uninterrupted productive sessions — they boost your ranking significantly.</p>
+          <p><span className="text-amber-400 font-medium">🔥 Streaks</span> track consecutive days with focus score above 60 — build momentum!</p>
+          <p><span className="text-emerald-400 font-medium">Δ Week</span> shows improvement vs last week — celebrate your growth.</p>
           <p>All names are <span className="text-white/80 font-medium">auto-generated anonymous nicknames</span>. No one can identify you.</p>
         </div>
       </GlassCard>

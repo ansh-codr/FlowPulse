@@ -42,7 +42,7 @@ export function ScrollReveal({
             initial={initial}
             whileInView={animate}
             viewport={{ once, amount }}
-            transition={{ delay, duration, ease: EASE_SMOOTH as unknown as number[] }}
+            transition={{ delay, duration, ease: EASE_SMOOTH }}
         >
             {children}
         </motion.div>
@@ -227,7 +227,7 @@ export function StaggerItem({ children, className = "", style }: { children: Rea
             style={{ ...GPU_STYLE, ...style }}
             variants={{
                 hidden: { opacity: 0, y: 30 },
-                visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE_SMOOTH as unknown as number[] } },
+                visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE_SMOOTH } },
             }}
         >
             {children}

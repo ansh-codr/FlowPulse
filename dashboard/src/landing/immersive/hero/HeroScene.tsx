@@ -34,7 +34,7 @@ function FloatingPanel({
             transition={{
                 delay: delay + 0.8,
                 duration: 1.0,
-                ease: EASE_SMOOTH as unknown as number[],
+                ease: EASE_SMOOTH,
             }}
         >
             <div className="text-[9px] font-bold uppercase tracking-[0.4em] mb-1" style={{ color: ACCENT }}>
@@ -213,7 +213,7 @@ export function HeroScene() {
                         }}
                         initial={{ opacity: 0, y: 60 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2, duration: 1.0, ease: EASE_SMOOTH as unknown as number[] }}
+                        transition={{ delay: 0.2, duration: 1.0, ease: EASE_SMOOTH }}
                     >
                         FLOW.
                     </motion.h1>
@@ -232,7 +232,7 @@ export function HeroScene() {
                         }}
                         initial={{ opacity: 0, y: 40 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.35, duration: 1.0, ease: EASE_SMOOTH as unknown as number[] }}
+                        transition={{ delay: 0.35, duration: 1.0, ease: EASE_SMOOTH }}
                     >
                         INTELLIGENCE
                     </motion.h2>
