@@ -54,9 +54,19 @@ export const computeLeaderboard = functions.pubsub
       nickname: string;
       avgFocusScore: number;
       totalDeepBlocks: number;
+      currentStreak: number;
+      improvementPercent: number | null;
     }
 
     const scores: UserScore[] = [];
+
+    // Get dates for last 14 days (for improvement calculation)
+    const twoWeekDates: string[] = [];
+    for (let i = 0; i < 14; i++) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      twoWeekDates.push(d.toISOString().slice(0, 10));
+    }
 
     for (const userDoc of usersSnap.docs) {
       const uid = userDoc.id;
@@ -70,23 +80,59 @@ export const computeLeaderboard = functions.pubsub
       let daysWithData = 0;
       let totalDeep = 0;
 
-      for (const date of dates) {
+      // Track all stats for streak and improvement calculation
+      const allStats: { date: string; focusScore: number }[] = [];
+
+      for (const date of twoWeekDates) {
         const statsSnap = await db.doc(`users/${uid}/dailyStats/${date}`).get();
         if (statsSnap.exists) {
           const data = statsSnap.data()!;
-          totalScore += data.focusScore || 0;
-          totalDeep += data.deepBlocks || 0;
-          daysWithData++;
+          allStats.push({ date, focusScore: data.focusScore || 0 });
+          
+          // Only count last 7 days for current week average
+          if (dates.includes(date)) {
+            totalScore += data.focusScore || 0;
+            totalDeep += data.deepBlocks || 0;
+            daysWithData++;
+          }
         }
       }
 
       if (daysWithData === 0) continue;
+
+      // Calculate current streak (consecutive days with focusScore > 60)
+      let currentStreak = 0;
+      const sortedStats = [...allStats].sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
+      for (const stat of sortedStats) {
+        if (stat.focusScore > 60) {
+          currentStreak++;
+        } else {
+          break;
+        }
+      }
+
+      // Calculate improvement percentage (this week vs last week)
+      let improvementPercent: number | null = null;
+      const thisWeekStats = sortedStats.slice(0, 7);
+      const lastWeekStats = sortedStats.slice(7, 14);
+      
+      if (thisWeekStats.length >= 3 && lastWeekStats.length >= 3) {
+        const thisWeekAvg = thisWeekStats.reduce((s, d) => s + d.focusScore, 0) / thisWeekStats.length;
+        const lastWeekAvg = lastWeekStats.reduce((s, d) => s + d.focusScore, 0) / lastWeekStats.length;
+        if (lastWeekAvg > 0) {
+          improvementPercent = Math.round(((thisWeekAvg - lastWeekAvg) / lastWeekAvg) * 100);
+        }
+      }
 
       scores.push({
         uid,
         nickname: generateNickname(uid),
         avgFocusScore: Math.round(totalScore / daysWithData),
         totalDeepBlocks: totalDeep,
+        currentStreak,
+        improvementPercent,
       });
     }
 
@@ -115,6 +161,8 @@ export const computeLeaderboard = functions.pubsub
         anonymousNickname: entry.nickname,
         avgFocusScore: entry.avgFocusScore,
         deepWorkBlocks: entry.totalDeepBlocks,
+        currentStreak: entry.currentStreak,
+        improvementPercent: entry.improvementPercent,
         percentile,
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       });

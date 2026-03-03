@@ -2,6 +2,8 @@ import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { motion } from "framer-motion";
+import { GlassPanel } from "../AnimationWrappers";
+import { ACCENT, HIGHLIGHT, DEEP, GPU_STYLE } from "../motionConfig";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -11,10 +13,9 @@ const features = [
         eyebrow: "Activity Intelligence",
         headline: "Every App.\nEvery Minute.",
         body: "A silent Chrome extension tracks every tab, app, and domain in real-time. No browsing content is ever transmitted — only time-on-task metadata, processed on-device.",
-        accent: "#7C9FC9",
+        accent: HIGHLIGHT,
         visual: (
             <div className="relative h-64 w-full">
-                {/* Mock browser tabs */}
                 <div className="space-y-2">
                     {[
                         { label: "coursera.org/learn/machine-...", type: "focus", pct: 88 },
@@ -25,7 +26,12 @@ const features = [
                     ].map((tab, i) => (
                         <motion.div
                             key={tab.label}
-                            className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.04] px-4 py-2.5"
+                            className="flex items-center gap-3 rounded-xl px-4 py-2.5"
+                            style={{
+                                background: `rgba(5,37,88,0.6)`,
+                                border: `1px solid ${ACCENT}20`,
+                                backdropFilter: "blur(8px)",
+                            }}
                             initial={{ opacity: 0, x: -20 }}
                             whileInView={{ opacity: 1, x: 0 }}
                             transition={{ delay: i * 0.1 }}
@@ -34,12 +40,14 @@ const features = [
                             <span
                                 className="h-2 w-2 flex-shrink-0 rounded-full"
                                 style={{
-                                    background: tab.type === "focus" ? "#7C9FC9" : tab.type === "shallow" ? "#7C9FC9" : "#527FB0",
-                                    boxShadow: `0 0 8px ${tab.type === "focus" ? "#7C9FC9" : tab.type === "shallow" ? "#7C9FC9" : "#527FB0"}80`,
+                                    background: tab.type === "focus" ? HIGHLIGHT : tab.type === "shallow" ? ACCENT : `${ACCENT}88`,
+                                    boxShadow: `0 0 8px ${tab.type === "focus" ? HIGHLIGHT : ACCENT}60`,
                                 }}
                             />
                             <span className="flex-1 truncate font-mono text-xs text-white/40">{tab.label}</span>
-                            <span className="text-xs font-bold" style={{ color: tab.type === "focus" ? "#7C9FC9" : tab.type === "shallow" ? "#7C9FC9" : "#527FB0" }}>
+                            <span className="text-xs font-bold" style={{
+                                color: tab.type === "focus" ? HIGHLIGHT : tab.type === "shallow" ? ACCENT : `${ACCENT}80`
+                            }}>
                                 {tab.pct}%
                             </span>
                         </motion.div>
@@ -53,30 +61,42 @@ const features = [
         eyebrow: "Smart Classification",
         headline: "Intelligent\nBy Design.",
         body: "Every domain is classified into Focus, Shallow Work, or Distraction using a trained model. Override any classification and watch your score recalculate instantly.",
-        accent: "#527FB0",
+        accent: ACCENT,
         visual: (
             <div className="relative flex flex-wrap gap-3">
                 {[
-                    { label: "Focus", color: "#7C9FC9", apps: ["GitHub", "Notion", "Coursera", "VS Code"] },
-                    { label: "Shallow", color: "#7C9FC9", apps: ["Reddit", "Twitter/X", "HN"] },
-                    { label: "Distraction", color: "#527FB0", apps: ["Instagram", "TikTok", "YouTube"] },
+                    { label: "Focus", color: HIGHLIGHT, apps: ["GitHub", "Notion", "Coursera", "VS Code"] },
+                    { label: "Shallow", color: ACCENT, apps: ["Reddit", "Twitter/X", "HN"] },
+                    { label: "Distraction", color: `${ACCENT}88`, apps: ["Instagram", "TikTok", "YouTube"] },
                 ].map((group) => (
-                    <div key={group.label} className="flex-1 min-w-[140px] rounded-2xl border border-white/[0.06] bg-white/[0.03] p-4">
+                    <GlassPanel key={group.label} className="flex-1 min-w-[140px] p-4" intensity="light">
                         <div className="mb-3 flex items-center gap-2">
-                            <span className="h-2 w-2 rounded-full" style={{ background: group.color, boxShadow: `0 0 8px ${group.color}80` }} />
+                            <span className="h-2 w-2 rounded-full"
+                                style={{
+                                    background: group.color,
+                                    boxShadow: `0 0 8px ${group.color}60`
+                                }} />
                             <span className="text-[10px] uppercase tracking-[0.4em]" style={{ color: group.color }}>{group.label}</span>
                         </div>
                         {group.apps.map((app) => (
                             <motion.div
                                 key={app}
-                                className="mb-1.5 rounded-lg border border-white/[0.05] bg-white/[0.04] px-3 py-1.5 text-xs text-white/50"
-                                whileHover={{ x: 4, color: "rgba(255,255,255,0.9)" }}
+                                className="mb-1.5 rounded-lg px-3 py-1.5 text-xs text-white/50 transition-all duration-200"
+                                style={{
+                                    background: `${DEEP}80`,
+                                    border: `1px solid ${ACCENT}12`,
+                                }}
+                                whileHover={{
+                                    x: 4,
+                                    color: "rgba(255,255,255,0.9)",
+                                    borderColor: `${ACCENT}40`,
+                                }}
                                 transition={{ duration: 0.15 }}
                             >
                                 {app}
                             </motion.div>
                         ))}
-                    </div>
+                    </GlassPanel>
                 ))}
             </div>
         ),
@@ -86,20 +106,23 @@ const features = [
         eyebrow: "Focus Computation",
         headline: "Your Focus,\nQuantified.",
         body: "A real-time 0–100 score synthesizes session continuity, distraction frequency, streak length, and time-of-day patterns. Compete on the weekly leaderboard.",
-        accent: "#7C9FC9",
+        accent: HIGHLIGHT,
         visual: (
             <div className="flex flex-col items-center gap-6">
                 {/* Focus ring */}
                 <div className="relative h-44 w-44">
                     <svg className="h-full w-full -rotate-90" viewBox="0 0 176 176">
-                        <circle cx="88" cy="88" r="72" stroke="rgba(255,255,255,0.05)" strokeWidth="10" fill="none" />
+                        <circle cx="88" cy="88" r="72" stroke={`${ACCENT}15`} strokeWidth="10" fill="none" />
                         <motion.circle
                             cx="88" cy="88" r="72"
                             stroke="url(#pinnedGrad)"
                             strokeWidth="10"
                             strokeLinecap="round"
                             fill="none"
-                            style={{ strokeDasharray: 452 }}
+                            style={{
+                                strokeDasharray: 452,
+                                filter: `drop-shadow(0 0 8px ${HIGHLIGHT}30)`,
+                            }}
                             initial={{ strokeDashoffset: 452 }}
                             whileInView={{ strokeDashoffset: 452 - 0.82 * 452 }}
                             viewport={{ once: true }}
@@ -107,8 +130,8 @@ const features = [
                         />
                         <defs>
                             <linearGradient id="pinnedGrad" x1="0" y1="0" x2="1" y2="0">
-                                <stop offset="0%" stopColor="#7C9FC9" />
-                                <stop offset="100%" stopColor="#7C9FC9" />
+                                <stop offset="0%" stopColor={HIGHLIGHT} />
+                                <stop offset="100%" stopColor={ACCENT} />
                             </linearGradient>
                         </defs>
                     </svg>
@@ -119,10 +142,10 @@ const features = [
                 </div>
                 <div className="grid grid-cols-3 gap-4 w-full text-center">
                     {[{ v: "7d", l: "Streak" }, { v: "4h12m", l: "Active" }, { v: "#5", l: "Rank" }].map((stat) => (
-                        <div key={stat.l} className="rounded-xl border border-white/[0.06] bg-white/[0.03] py-3">
+                        <GlassPanel key={stat.l} className="py-3" intensity="light">
                             <p className="font-display text-xl font-bold text-white">{stat.v}</p>
                             <p className="text-[10px] uppercase tracking-wider text-white/30">{stat.l}</p>
-                        </div>
+                        </GlassPanel>
                     ))}
                 </div>
             </div>
@@ -138,7 +161,7 @@ export function PinnedSection() {
         const ctx = gsap.context(() => {
             const panels = panelRefs.current.filter(Boolean);
             panels.forEach((panel, i) => {
-                if (i === 0) return; // first panel starts visible
+                if (i === 0) return;
 
                 gsap.fromTo(
                     panel,
@@ -163,13 +186,18 @@ export function PinnedSection() {
     }, []);
 
     return (
-        <section id="pinned" ref={containerRef} className="bg-deep py-32">
+        <section id="pinned" ref={containerRef} className="py-32" style={{ background: DEEP }}>
             {/* Section header */}
             <div className="mb-20 px-8 text-center">
-                <p className="mb-3 text-[10px] uppercase tracking-[0.6em] text-white/25">How It Works</p>
-                <h2 className="font-display text-[clamp(36px,5vw,64px)] font-black leading-none tracking-tight text-white">
+                <p className="mb-3 text-[10px] uppercase tracking-[0.6em]" style={{ color: `${ACCENT}60` }}>How It Works</p>
+                <h2 className="font-display font-black leading-none tracking-tight text-white"
+                    style={{ fontSize: "clamp(36px,5vw,64px)" }}>
                     THREE LAYERS OF<br />
-                    <span style={{ background: "linear-gradient(135deg,#7C9FC9,#527FB0)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                    <span style={{
+                        background: `linear-gradient(135deg,${HIGHLIGHT},${ACCENT})`,
+                        WebkitBackgroundClip: "text",
+                        WebkitTextFillColor: "transparent"
+                    }}>
                         INTELLIGENCE
                     </span>
                 </h2>
@@ -182,6 +210,7 @@ export function PinnedSection() {
                         key={feat.number}
                         ref={(el) => { panelRefs.current[i] = el; }}
                         className={`mx-auto flex max-w-6xl flex-col gap-16 lg:flex-row lg:items-center ${i % 2 === 1 ? "lg:flex-row-reverse" : ""}`}
+                        style={GPU_STYLE}
                     >
                         {/* Text side */}
                         <div className="flex-1">
@@ -197,12 +226,12 @@ export function PinnedSection() {
                                 </span>
                             </div>
                             <h3
-                                className="mb-6 font-display text-[clamp(36px,4vw,56px)] font-black leading-none tracking-tight text-white"
-                                style={{ whiteSpace: "pre-line" }}
+                                className="mb-6 font-display font-black leading-none tracking-tight text-white"
+                                style={{ fontSize: "clamp(36px,4vw,56px)", whiteSpace: "pre-line" }}
                             >
                                 {feat.headline}
                             </h3>
-                            <p className="max-w-md text-base leading-relaxed text-white/40">{feat.body}</p>
+                            <p className="max-w-md text-base leading-relaxed" style={{ color: `${HIGHLIGHT}60` }}>{feat.body}</p>
 
                             {/* Accent divider */}
                             <div className="mt-8 h-px w-12" style={{ background: feat.accent }} />

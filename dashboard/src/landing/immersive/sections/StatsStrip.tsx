@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 import { motion, useInView, useScroll, useTransform } from "framer-motion";
-import { ScrollReveal } from "../AnimationWrappers";
+
 import { ACCENT, HIGHLIGHT, SURFACE, GPU_STYLE, EASE_SMOOTH } from "../motionConfig";
 
 const STATS = [
@@ -70,7 +70,7 @@ export function StatsStrip() {
                         className="text-center"
                         initial={{ opacity: 0, y: 24 }}
                         animate={isIn ? { opacity: 1, y: 0 } : {}}
-                        transition={{ delay: i * 0.12, duration: 0.7, ease: EASE_SMOOTH as unknown as number[] }}
+                        transition={{ delay: i * 0.12, duration: 0.7, ease: EASE_SMOOTH as [number, number, number, number] }}
                     >
                         <div
                             className="font-display font-black leading-none mb-2"
