@@ -1,0 +1,2 @@
+PLACEHOLDER - Replace this file with the real signed FlowPulse.crx built via:
+  chrome --pack-extension=/path/to/extension --pack-extension-key=/path/to/key.pem

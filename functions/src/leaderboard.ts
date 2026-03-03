@@ -112,9 +112,9 @@ export const computeLeaderboard = functions.pubsub
 
       writeBatch.set(leaderboardRef.doc(entry.uid), {
         rank,
-        nickname: entry.nickname,
-        focusScore: entry.avgFocusScore,
-        deepBlocks: entry.totalDeepBlocks,
+        anonymousNickname: entry.nickname,
+        avgFocusScore: entry.avgFocusScore,
+        deepWorkBlocks: entry.totalDeepBlocks,
         percentile,
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       });

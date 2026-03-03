@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Wipe all seeded data for a user from Firestore.
+ * Wipe all data for a user from Firestore.
  * Usage: node scripts/clear-firestore.mjs <UID>
  */
 import { initializeApp, cert } from "firebase-admin/app";

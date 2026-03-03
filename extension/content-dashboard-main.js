@@ -6,6 +6,10 @@
  * so the extension's ISOLATED world content script can pick it up.
  */
 
+// Signal presence so the dashboard can detect the extension is installed
+window.__FLOWPULSE_EXTENSION__ = true;
+window.postMessage({ type: "__FLOWPULSE_EXTENSION_PRESENT__" }, "*");
+
 function readFirebaseAuth() {
   try {
     const request = indexedDB.open("firebaseLocalStorageDb");

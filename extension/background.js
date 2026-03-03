@@ -311,6 +311,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       sendResponse({ ok: true });
       break;
 
+    case "FLOWPULSE_RESET":
+      // Reset today's local summary
+      todaySummary = { focus: 0, activeMinutes: 0, distractions: 0, topChannel: "—" };
+      chrome.storage.local.remove([SUMMARY_STORAGE_KEY, QUEUE_STORAGE_KEY]);
+      eventQueue = [];
+      currentSession = null;
+      sendResponse({ ok: true });
+      break;
+
     default:
       sendResponse({ ok: false, error: "Unknown message type" });
   }

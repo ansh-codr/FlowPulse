@@ -50,6 +50,16 @@ function AppRoutes() {
         element={user ? <Navigate to="/app" replace /> : <LoginPage />}
       />
 
+      {/* Extension download — standalone full-screen (no sidebar), protected */}
+      <Route
+        path="/extension"
+        element={
+          <AuthGuard>
+            <ExtensionDownloadPage />
+          </AuthGuard>
+        }
+      />
+
       {/* Protected dashboard under /app/* */}
       <Route
         path="/app"
@@ -66,7 +76,6 @@ function AppRoutes() {
         <Route path="sessions" element={<SessionsPage />} />
         <Route path="leaderboard" element={<LeaderboardPage />} />
         <Route path="settings" element={<SettingsPage />} />
-        <Route path="extension" element={<ExtensionDownloadPage />} />
       </Route>
 
       {/* Fallback */}

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { motion, type Variants } from "framer-motion";
 import { GlassCard } from "../components/GlassCard";
 import { FocusRing } from "../components/FocusRing";
@@ -6,8 +5,6 @@ import { StatTicker } from "../components/StatTicker";
 import { ActiveBar, FocusTimeline, MiniPie } from "../components/charts";
 import { KpiCard } from "../components/KpiCard";
 import { useDashboardData } from "../hooks/useDashboardData";
-import { useAuth } from "../hooks/useAuth";
-import { seedDemoData } from "../lib/seedData";
 
 const container: Variants = {
   hidden: { opacity: 0 },
@@ -26,23 +23,6 @@ const kpiAccents = ["#58f0ff", "#9c6bff", "#f5c842", "#4ade80"];
 
 export function HomePage() {
   const { overview, timeline, attention, distractions, kpis, loading, hasData } = useDashboardData();
-  const { user } = useAuth();
-  const [seeding, setSeeding] = useState(false);
-  const [seedDone, setSeedDone] = useState(false);
-
-  async function handleSeed() {
-    if (!user || seeding) return;
-    setSeeding(true);
-    try {
-      const result = await seedDemoData(user.uid);
-      console.log(`Seeded ${result.logsWritten} logs over ${result.daysSeeded} days`);
-      setSeedDone(true);
-    } catch (err) {
-      console.error("Seed failed:", err);
-    } finally {
-      setSeeding(false);
-    }
-  }
 
   if (loading) {
     return (
@@ -58,8 +38,8 @@ export function HomePage() {
     );
   }
 
-  // Empty state — no data yet, offer to seed demo data
-  if (!hasData && !seedDone) {
+  // Empty state — no data yet
+  if (!hasData) {
     return (
       <motion.div
         className="flex flex-col items-center justify-center gap-8 py-20"
@@ -78,30 +58,9 @@ export function HomePage() {
         <div className="text-center space-y-2">
           <h2 className="font-display text-2xl font-bold text-white">No Data Yet</h2>
           <p className="text-sm text-white/40 max-w-md">
-            Install the FlowPulse Chrome extension to start tracking, or load demo data to explore the dashboard.
+            Install the FlowPulse Chrome extension and start browsing to see your focus data here.
           </p>
         </div>
-        <motion.button
-          onClick={handleSeed}
-          disabled={seeding}
-          className="group relative overflow-hidden rounded-xl px-8 py-3.5 text-sm font-semibold text-white disabled:opacity-50"
-          style={{
-            background: "linear-gradient(135deg, rgba(88,240,255,0.2), rgba(109,109,255,0.15))",
-            border: "1px solid rgba(88,240,255,0.3)",
-          }}
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
-        >
-          <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/[0.08] to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-          {seeding ? (
-            <span className="flex items-center gap-2">
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-transparent border-t-white" />
-              Seeding 7 days of data…
-            </span>
-          ) : (
-            "Load Demo Data"
-          )}
-        </motion.button>
       </motion.div>
     );
   }

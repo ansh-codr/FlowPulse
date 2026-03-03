@@ -7,13 +7,13 @@ const db = admin.firestore();
 interface ActivityLog {
   domain: string;
   category: "productive" | "neutral" | "distraction";
-  durationSec: number;
+  duration: number;  // seconds — matches extension field name
   startTime: admin.firestore.Timestamp;
 }
 
 interface DomainStat {
   domain: string;
-  totalSec: number;
+  duration: number;  // seconds — matches shared DomainStat type
   category: "productive" | "neutral" | "distraction";
 }
 
@@ -34,8 +34,8 @@ export const dailyAggregation = functions.pubsub
 
     const usersSnap = await db.collection("users").get();
 
-    const batch = db.batch();
-    let writes = 0;
+    // Collect all stats writes, then commit in batches of 499
+    const pendingWrites: Array<{ ref: FirebaseFirestore.DocumentReference; data: Record<string, unknown> }> = [];
 
     for (const userDoc of usersSnap.docs) {
       const uid = userDoc.id;
@@ -47,76 +47,110 @@ export const dailyAggregation = functions.pubsub
 
       if (logsSnap.empty) continue;
 
-      let productiveSec = 0;
-      let neutralSec = 0;
-      let distractionSec = 0;
-      let totalSec = 0;
+      let productiveTime = 0;
+      let neutralTime = 0;
+      let distractionTime = 0;
+      let totalDuration = 0;
       const domainMap = new Map<string, DomainStat>();
+      let contextSwitches = 0;
+      const hourBuckets = new Map<number, number>();
 
-      for (const doc of logsSnap.docs) {
-        const log = doc.data() as ActivityLog;
-        const dur = log.durationSec || 0;
-        totalSec += dur;
+      const logDocs = logsSnap.docs.map(d => d.data() as ActivityLog);
+
+      for (let i = 0; i < logDocs.length; i++) {
+        const log = logDocs[i];
+        const dur = log.duration || 0;
+        totalDuration += dur;
 
         switch (log.category) {
           case "productive":
-            productiveSec += dur;
+            productiveTime += dur;
             break;
           case "distraction":
-            distractionSec += dur;
+            distractionTime += dur;
             break;
           default:
-            neutralSec += dur;
+            neutralTime += dur;
         }
 
         const existing = domainMap.get(log.domain);
         if (existing) {
-          existing.totalSec += dur;
+          existing.duration += dur;
         } else {
           domainMap.set(log.domain, {
             domain: log.domain,
-            totalSec: dur,
+            duration: dur,
             category: log.category,
           });
         }
+
+        const h = log.startTime.toMillis ? new Date(log.startTime.toMillis()).getHours() : 12;
+        hourBuckets.set(h, (hourBuckets.get(h) ?? 0) + dur);
+
+        if (i > 0 && logDocs[i].domain !== logDocs[i - 1].domain) contextSwitches++;
       }
 
       // Focus score: productive% weighted, penalise distractions
-      const focusScore = totalSec > 0
+      const focusScore = totalDuration > 0
         ? Math.round(
             Math.min(100, Math.max(0,
-              ((productiveSec / totalSec) * 80) +
-              (20 - (distractionSec / totalSec) * 40)
+              ((productiveTime / totalDuration) * 80) +
+              (20 - (distractionTime / totalDuration) * 40)
             ))
           )
         : 0;
 
       // Count deep focus blocks (>25 min productive streaks)
-      const deepBlocks = countDeepBlocks(logsSnap.docs.map(d => d.data() as ActivityLog));
+      const deepBlocks = countDeepBlocks(logDocs);
+
+      // Peak hour
+      const peakHour = [...hourBuckets.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? 14;
 
       // Top 10 domains by time
       const topDomains = [...domainMap.values()]
-        .sort((a, b) => b.totalSec - a.totalSec)
+        .sort((a, b) => b.duration - a.duration)
         .slice(0, 10);
 
+      // Domain breakdown
+      const domainBreakdown: Record<string, number> = {};
+      for (const [domain, { duration: dur }] of domainMap) {
+        domainBreakdown[domain] = dur;
+      }
+
       const statsRef = db.doc(`users/${uid}/dailyStats/${dateStr}`);
-      batch.set(statsRef, {
-        date: dateStr,
-        focusScore,
-        productiveSec,
-        neutralSec,
-        distractionSec,
-        totalSec,
-        deepBlocks,
-        topDomains,
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      pendingWrites.push({
+        ref: statsRef,
+        data: {
+          date: dateStr,
+          focusScore,
+          productiveTime,
+          neutralTime,
+          distractionTime,
+          totalDuration,
+          deepBlocks,
+          topDomains,
+          peakHour,
+          contextSwitches,
+          domainBreakdown,
+          updatedAt: new Date().toISOString(),
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        },
       });
-      writes++;
     }
 
-    if (writes > 0) {
+    // Commit in batches of 499 to stay within Firestore's 500 limit
+    const BATCH_LIMIT = 499;
+    for (let i = 0; i < pendingWrites.length; i += BATCH_LIMIT) {
+      const chunk = pendingWrites.slice(i, i + BATCH_LIMIT);
+      const batch = db.batch();
+      for (const { ref, data } of chunk) {
+        batch.set(ref, data);
+      }
       await batch.commit();
-      functions.logger.info(`dailyAggregation: wrote ${writes} dailyStats for ${dateStr}`);
+    }
+
+    if (pendingWrites.length > 0) {
+      functions.logger.info(`dailyAggregation: wrote ${pendingWrites.length} dailyStats for ${dateStr}`);
     }
 
     return null;
@@ -134,7 +168,7 @@ function countDeepBlocks(logs: ActivityLog[]): number {
   let currentStreak = 0;
 
   for (const log of sorted) {
-    currentStreak += log.durationSec;
+    currentStreak += log.duration;
     if (currentStreak >= 25 * 60) {
       blocks++;
       currentStreak = 0;
