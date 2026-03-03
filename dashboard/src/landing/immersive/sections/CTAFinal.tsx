@@ -1,16 +1,14 @@
 import { useCallback, useRef } from "react";
-import { motion, useMotionValue, useSpring } from "framer-motion";
+import { motion, useMotionValue, useSpring, useScroll, useTransform } from "framer-motion";
 import { useAuth } from "../../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import asteroid2 from "../../../assets/Images/GreenNature2.jpg";
-
-const ACCENT = "#527FB0";
-const HIGHLIGHT = "#7C9FC9";
-const DEEP = "#011023";
+import { ACCENT, HIGHLIGHT, DEEP, EASE_SMOOTH, GPU_STYLE } from "../motionConfig";
 
 export function CTAFinal() {
     const { user, signIn } = useAuth();
     const navigate = useNavigate();
+    const sectionRef = useRef<HTMLDivElement>(null);
 
     // Magnetic button
     const btnRef = useRef<HTMLButtonElement | HTMLAnchorElement | null>(null);
@@ -23,6 +21,14 @@ export function CTAFinal() {
     const spotX = useMotionValue("50%");
     const spotY = useMotionValue("50%");
 
+    // Scroll-based background dimming — section darkens as it enters view
+    const { scrollYProgress } = useScroll({
+        target: sectionRef,
+        offset: ["start end", "start 30%"],
+    });
+    const bgDim = useTransform(scrollYProgress, [0, 1], [0.22, 0.08]);
+    const spotlightIntensity = useTransform(scrollYProgress, [0, 1], [0, 0.12]);
+
     const onMouseMove = useCallback((e: React.MouseEvent<HTMLElement>) => {
         const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
         spotX.set(`${((e.clientX - rect.left) / rect.width) * 100}%`);
@@ -33,7 +39,7 @@ export function CTAFinal() {
         const dx = e.clientX - (br.left + br.width / 2);
         const dy = e.clientY - (br.top + br.height / 2);
         const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 100) { rawX.set(dx * 0.4); rawY.set(dy * 0.4); }
+        if (dist < 120) { rawX.set(dx * 0.4); rawY.set(dy * 0.4); }
         else { rawX.set(0); rawY.set(0); }
     }, [rawX, rawY, spotX, spotY]);
 
@@ -46,27 +52,45 @@ export function CTAFinal() {
 
     return (
         <section
+            ref={sectionRef}
             className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 py-32"
             style={{ background: DEEP }}
             onMouseMove={onMouseMove}
             onMouseLeave={onMouseLeave}
         >
-            {/* Blurred asteroid bg */}
+            {/* Blurred asteroid bg with scroll-driven dimming */}
             <div className="pointer-events-none absolute inset-0 z-0">
-                <img src={asteroid2} alt=""
+                <motion.img src={asteroid2} alt=""
                     className="h-full w-full object-cover"
-                    style={{ filter: "brightness(0.22) saturate(0.7) blur(2px)", transform: "scale(1.05)" }} />
+                    style={{
+                        filter: "saturate(0.7) blur(2px)",
+                        transform: "scale(1.05)",
+                        opacity: bgDim,
+                        ...GPU_STYLE,
+                    }} />
             </div>
+
+            {/* Overlay darkening */}
             <div className="pointer-events-none absolute inset-0 z-[1]"
                 style={{ background: `rgba(1,16,35,0.72)` }} />
             <div className="pointer-events-none absolute inset-0 z-[1]"
                 style={{ background: "radial-gradient(ellipse at 50% 50%, transparent 30%, rgba(1,16,35,0.85) 100%)" }} />
 
-            {/* Cursor spotlight */}
+            {/* Spotlight on CTA — scroll-driven intensity */}
             <motion.div
                 className="pointer-events-none absolute inset-0 z-[2]"
                 style={{
-                    background: `radial-gradient(circle 240px at ${spotX.get()} ${spotY.get()}, rgba(82,127,176,0.09), transparent 70%)`,
+                    background: `radial-gradient(circle 280px at 50% 55%, rgba(82,127,176,${spotlightIntensity.get()}), transparent 70%)`,
+                    ...GPU_STYLE,
+                }}
+            />
+
+            {/* Cursor-following spotlight */}
+            <motion.div
+                className="pointer-events-none absolute inset-0 z-[3]"
+                style={{
+                    background: `radial-gradient(circle 200px at var(--spot-x, 50%) var(--spot-y, 50%), rgba(82,127,176,0.07), transparent 70%)`,
+                    ...GPU_STYLE,
                 }}
             />
 
@@ -89,7 +113,7 @@ export function CTAFinal() {
                     initial={{ opacity: 0, y: 50 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    transition={{ delay: 0.1, duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
+                    transition={{ delay: 0.1, duration: 1.0, ease: EASE_SMOOTH as unknown as number[] }}
                 >
                     START YOUR
                 </motion.h2>
@@ -106,12 +130,12 @@ export function CTAFinal() {
                     initial={{ opacity: 0, y: 50 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    transition={{ delay: 0.2, duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
+                    transition={{ delay: 0.2, duration: 1.0, ease: EASE_SMOOTH as unknown as number[] }}
                 >
                     FLOW.
                 </motion.h2>
 
-                {/* Magnetic CTA */}
+                {/* Magnetic CTA with spotlight glow */}
                 <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     whileInView={{ opacity: 1, scale: 1 }}
@@ -126,7 +150,8 @@ export function CTAFinal() {
                             x: springX,
                             y: springY,
                             background: `linear-gradient(135deg, ${ACCENT}, ${HIGHLIGHT})`,
-                            boxShadow: `0 0 60px rgba(82,127,176,0.35)`,
+                            boxShadow: `0 0 60px rgba(82,127,176,0.35), 0 0 120px rgba(82,127,176,0.15)`,
+                            ...GPU_STYLE,
                         }}
                         whileHover={{ scale: 1.06 }}
                         whileTap={{ scale: 0.97 }}

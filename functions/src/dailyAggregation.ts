@@ -9,6 +9,7 @@ interface ActivityLog {
   category: "productive" | "neutral" | "distraction";
   duration: number;  // seconds — matches extension field name
   startTime: admin.firestore.Timestamp;
+  endTime?: admin.firestore.Timestamp;
 }
 
 interface DomainStat {
@@ -16,6 +17,13 @@ interface DomainStat {
   duration: number;  // seconds — matches shared DomainStat type
   category: "productive" | "neutral" | "distraction";
 }
+
+// Social media domains for pattern detection
+const SOCIAL_MEDIA_DOMAINS = [
+  "facebook.com", "twitter.com", "x.com", "instagram.com", "tiktok.com",
+  "reddit.com", "linkedin.com", "pinterest.com", "snapchat.com", "threads.net",
+  "youtube.com", "twitch.tv", "discord.com"
+];
 
 /**
  * Runs daily at 3 AM UTC.
