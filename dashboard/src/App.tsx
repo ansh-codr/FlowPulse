@@ -12,12 +12,13 @@ import { SettingsPage } from "./pages/SettingsPage";
 import { LeaderboardPage } from "./pages/LeaderboardPage";
 import { ExtensionDownloadPage } from "./pages/ExtensionDownloadPage";
 import { InsightsPage } from "./pages/InsightsPage";
+import { GlobalBackground } from "./components/GlobalBackground";
 
 const LoadingScreen = () => (
-  <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-night">
+  <div className="flex min-h-screen flex-col items-center justify-center gap-6">
     <div className="relative flex h-16 w-16 items-center justify-center">
-      <div className="absolute inset-0 animate-spin rounded-full border-2 border-transparent border-t-neon border-r-neon/30" />
-      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-plasma to-aurora shadow-glow-plasma">
+      <div className="absolute inset-0 animate-spin rounded-full border-2 border-transparent border-t-white border-r-white/30" />
+      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 shadow-[0_0_30px_rgba(255,255,255,0.1)] backdrop-blur-md">
         <span className="font-display text-sm font-bold text-white">FP</span>
       </div>
     </div>
@@ -42,16 +43,11 @@ function AppRoutes() {
 
   return (
     <Routes>
-      {/* Public landing page */}
       <Route path="/" element={<ImmersiveLanding />} />
-
-      {/* Login — redirect to /app if already signed in */}
       <Route
         path="/login"
         element={user ? <Navigate to="/app" replace /> : <LoginPage />}
       />
-
-      {/* Extension download — standalone full-screen (no sidebar), protected */}
       <Route
         path="/extension"
         element={
@@ -60,8 +56,6 @@ function AppRoutes() {
           </AuthGuard>
         }
       />
-
-      {/* Protected dashboard under /app/* */}
       <Route
         path="/app"
         element={
@@ -79,8 +73,6 @@ function AppRoutes() {
         <Route path="insights" element={<InsightsPage />} />
         <Route path="settings" element={<SettingsPage />} />
       </Route>
-
-      {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
@@ -89,6 +81,7 @@ function AppRoutes() {
 export default function App() {
   return (
     <AuthProvider>
+      <GlobalBackground />
       <BrowserRouter>
         <AppRoutes />
       </BrowserRouter>

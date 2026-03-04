@@ -6,10 +6,10 @@
  */
 
 // ─── Brand palette ────────────────────────────────────────────
-export const ACCENT = "#FBF7BA";     // Cream
+export const ACCENT = "#A5B4FC";     // Indigo/Slate accent
 export const HIGHLIGHT = "#FFFFFF";  // Pure white
-export const DEEP = "#9D1F15";       // Crimson red
-export const SURFACE = "#7a1710";    // Slightly darker crimson
+export const DEEP = "rgba(0,0,0,0.6)";// Deep background (using transparency for video)
+export const SURFACE = "rgba(255,255,255,0.02)"; // Glass surface
 
 // ─── Easing Curves (typed as Framer Motion BezierDefinition) ──
 export const EASE_SMOOTH: [number, number, number, number] = [0.16, 1, 0.3, 1];
@@ -44,15 +44,15 @@ export const HOVER = {
     cardLift: -8,
     glowBoost: 15,              // +15% glow intensity
     tiltMaxDeg: 6,              // 3D tilt max degrees
-    shadowSpread: "0 14px 40px rgba(251,247,186,0.18)",
+    shadowSpread: "0 14px 40px rgba(165,180,252,0.18)",
 } as const;
 
 // ─── Glass / Blur ─────────────────────────────────────────────
 export const GLASS = {
-    blur: 8,
-    opacity: 0.85,
-    background: `rgba(122,23,16,0.${Math.round(0.85 * 100)})`,   // evaluated
-    border: `1px solid ${ACCENT}30`,
+    blur: 16,
+    opacity: 0.1,
+    background: `rgba(255,255,255,0.03)`,
+    border: `1px solid rgba(255,255,255,0.08)`,
 } as const;
 
 // ─── Animation presets (Framer Motion variants) ───────────────

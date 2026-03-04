@@ -113,22 +113,19 @@ export function DashboardLayout() {
   }
 
   return (
-    <div className="grid min-h-screen grid-cols-[240px_1fr] bg-night text-white">
+    <div className="grid min-h-screen grid-cols-[240px_1fr] text-white">
       {/* ── Sidebar ── */}
       <aside
-        className="relative flex flex-col gap-5 overflow-hidden border-r border-white/[0.06] p-5"
-        style={{
-          background: "linear-gradient(180deg, rgba(109,109,255,0.06) 0%, rgba(88,240,255,0.02) 100%)",
-        }}
+        className="relative flex flex-col gap-5 overflow-hidden border-r border-white/10 p-5 bg-white/[0.02] backdrop-blur-xl"
       >
         {/* Sidebar ambient glow */}
-        <div className="pointer-events-none absolute -left-10 -top-10 h-48 w-48 rounded-full bg-plasma/20 blur-3xl" />
+        <div className="pointer-events-none absolute -left-10 -top-10 h-48 w-48 rounded-full bg-white/5 blur-3xl" />
 
         {/* Logo */}
         <div className="relative flex items-center gap-3 pb-2">
-          <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-plasma to-aurora shadow-glow-plasma">
+          <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 border border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
             <span className="font-display text-sm font-bold text-white">FP</span>
-            <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 animate-pulse-glow rounded-full bg-neon shadow-glow-neon" />
+            <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-white/80 shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
           </div>
           <div>
             <p className="font-display text-lg font-semibold leading-tight text-white">FlowPulse</p>
@@ -160,12 +157,12 @@ export function DashboardLayout() {
                       transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
                     />
                   )}
-                  <span className={`relative z-10 transition-colors ${isActive ? "text-neon" : "text-white/40 group-hover:text-white/60"}`}>
+                  <span className={`relative z-10 transition-colors ${isActive ? "text-white" : "text-white/40 group-hover:text-white/60"}`}>
                     {item.icon}
                   </span>
                   <span className="relative z-10">{item.label}</span>
                   {isActive && (
-                    <span className="relative z-10 ml-auto h-1.5 w-1.5 rounded-full bg-neon shadow-glow-neon" />
+                    <span className="relative z-10 ml-auto h-1.5 w-1.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
                   )}
                 </>
               )}
@@ -183,7 +180,7 @@ export function DashboardLayout() {
                   <div className="absolute inset-0 rounded-full ring-1 ring-neon/30" />
                 </div>
               ) : (
-                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-aurora/60 to-plasma/60 text-sm font-bold text-white shadow-glow-aurora">
+                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-white/10 border border-white/20 text-sm font-bold text-white shadow-[0_4px_12px_rgba(0,0,0,0.2)]">
                   {(user.displayName ?? user.email ?? "U")[0].toUpperCase()}
                 </div>
               )}
@@ -195,7 +192,7 @@ export function DashboardLayout() {
             <button
               onClick={handleSignOut}
               disabled={isSigningOut}
-              className="w-full rounded-xl border border-white/[0.06] bg-white/[0.04] px-3 py-2 text-xs text-white/50 transition hover:border-ember/30 hover:bg-ember/10 hover:text-ember disabled:opacity-50"
+              className="w-full rounded-xl border border-white/[0.06] bg-white/[0.04] px-3 py-2 text-xs text-white/50 transition hover:border-white/30 hover:bg-white/10 hover:text-white disabled:opacity-50"
             >
               {isSigningOut ? "Signing out…" : "Sign out"}
             </button>
@@ -208,9 +205,9 @@ export function DashboardLayout() {
       {/* ── Main content ── */}
       <main className="relative overflow-hidden">
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute -right-32 -top-32 h-96 w-96 animate-orb-drift rounded-full bg-plasma/15 blur-3xl" />
-          <div className="absolute -bottom-24 left-24 h-80 w-80 animate-orb-drift-2 rounded-full bg-aurora/10 blur-3xl" />
-          <div className="absolute right-1/3 top-1/2 h-64 w-64 animate-orb-drift-3 rounded-full bg-neon/[0.08] blur-3xl" />
+          <div className="absolute -right-32 -top-32 h-96 w-96 animate-orb-drift rounded-full bg-white/5 blur-3xl" />
+          <div className="absolute -bottom-24 left-24 h-80 w-80 animate-orb-drift-2 rounded-full bg-white/5 blur-3xl" />
+          <div className="absolute right-1/3 top-1/2 h-64 w-64 animate-orb-drift-3 rounded-full bg-white/[0.02] blur-3xl" />
         </div>
         <section className="relative z-10 min-h-screen p-8">
           {/* Extension not detected banner */}
