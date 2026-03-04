@@ -80,7 +80,7 @@ export function CTAFinal() {
             <motion.div
                 className="pointer-events-none absolute inset-0 z-[2]"
                 style={{
-                    background: `radial-gradient(circle 280px at 50% 55%, rgba(82,127,176,${spotlightIntensity.get()}), transparent 70%)`,
+                    background: `radial-gradient(circle 280px at 50% 55%, rgba(251,247,186,${spotlightIntensity.get()}), transparent 70%)`,
                     ...GPU_STYLE,
                 }}
             />
@@ -89,7 +89,7 @@ export function CTAFinal() {
             <motion.div
                 className="pointer-events-none absolute inset-0 z-[3]"
                 style={{
-                    background: `radial-gradient(circle 200px at var(--spot-x, 50%) var(--spot-y, 50%), rgba(82,127,176,0.07), transparent 70%)`,
+                    background: `radial-gradient(circle 200px at var(--spot-x, 50%) var(--spot-y, 50%), rgba(251,247,186,0.07), transparent 70%)`,
                     ...GPU_STYLE,
                 }}
             />
@@ -150,7 +150,7 @@ export function CTAFinal() {
                             x: springX,
                             y: springY,
                             background: `linear-gradient(135deg, ${ACCENT}, ${HIGHLIGHT})`,
-                            boxShadow: `0 0 60px rgba(82,127,176,0.35), 0 0 120px rgba(82,127,176,0.15)`,
+                            boxShadow: `0 0 60px rgba(251,247,186,0.35), 0 0 120px rgba(251,247,186,0.15)`,
                             ...GPU_STYLE,
                         }}
                         whileHover={{ scale: 1.06 }}

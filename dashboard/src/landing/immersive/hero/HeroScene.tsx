@@ -193,7 +193,7 @@ export function HeroScene() {
                         className="font-display font-black leading-[0.88] tracking-[-0.04em] text-white"
                         style={{
                             fontSize: "clamp(72px, 14vw, 180px)",
-                            textShadow: `0 0 120px rgba(124,159,201,0.12)`,
+                            textShadow: `0 0 120px rgba(255,253,240,0.12)`,
                         }}
                         initial={{ opacity: 0, y: 60 }}
                         animate={{ opacity: 1, y: 0 }}

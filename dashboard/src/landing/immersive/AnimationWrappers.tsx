@@ -130,7 +130,7 @@ export function GlassPanel({ children, className = "", intensity = "medium", sty
         <div
             className={`rounded-2xl overflow-hidden ${className}`}
             style={{
-                background: `rgba(5,37,88,${opValues[intensity]})`,
+                background: `rgba(122,23,16,${opValues[intensity]})`,
                 border: GLASS.border,
                 backdropFilter: `blur(${blurValues[intensity]}px)`,
                 WebkitBackdropFilter: `blur(${blurValues[intensity]}px)`,

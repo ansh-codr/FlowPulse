@@ -3,10 +3,10 @@ import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motio
 import { useAuth } from "../hooks/useAuth";
 
 // ── palette ──────────────────────────────────────────────────────────────────
-const DEEP = "#011023";
-const MID = "#052558";
-const ACCENT = "#527FB0";
-const LIGHT = "#7C9FC9";
+const DEEP = "#9D1F15";
+const MID = "#7a1710";
+const ACCENT = "#FBF7BA";
+const LIGHT = "#FFFDF0";
 
 // ── frame imports ─────────────────────────────────────────────────────────────
 import frame01 from "../assets/Images/robin-julian-lee-render-pose-01-resize.jpg";
@@ -64,9 +64,9 @@ function InputField({
           onBlur={() => setFocused(false)}
           className="w-full rounded-xl px-4 py-3 text-sm text-white placeholder-white/20 outline-none transition-all duration-300 disabled:opacity-40"
           style={{
-            background: "rgba(5,37,88,0.65)",
-            border: `1px solid ${focused ? ACCENT : "rgba(82,127,176,0.25)"}`,
-            boxShadow: focused ? `0 0 0 3px rgba(82,127,176,0.15), inset 0 1px 0 rgba(124,159,201,0.08)` : "none",
+            background: "rgba(122,23,16,0.65)",
+            border: `1px solid ${focused ? ACCENT : "rgba(251,247,186,0.25)"}`,
+            boxShadow: focused ? `0 0 0 3px rgba(251,247,186,0.15), inset 0 1px 0 rgba(255,253,240,0.08)` : "none",
             backdropFilter: "blur(12px)",
           }}
         />
@@ -96,7 +96,7 @@ function FloatingParticles() {
             height: Math.random() * 3 + 1,
             left: `${Math.random() * 100}%`,
             top: `${Math.random() * 100}%`,
-            background: `rgba(82,127,176,${Math.random() * 0.4 + 0.1})`,
+            background: `rgba(251,247,186,${Math.random() * 0.4 + 0.1})`,
           }}
           animate={{
             y: [0, -(Math.random() * 80 + 40), 0],
@@ -295,8 +295,8 @@ export function LoginPage() {
         className="absolute inset-0 z-[1]"
         style={{
           backgroundImage: `
-            linear-gradient(90deg, rgba(82,127,176,0.035) 1px, transparent 1px),
-            linear-gradient(0deg, rgba(82,127,176,0.035) 1px, transparent 1px)
+            linear-gradient(90deg, rgba(251,247,186,0.035) 1px, transparent 1px),
+            linear-gradient(0deg, rgba(251,247,186,0.035) 1px, transparent 1px)
           `,
           backgroundSize: "80px 80px",
         }}
@@ -345,7 +345,7 @@ export function LoginPage() {
       <div className="absolute left-8 top-8 z-[30] flex items-center gap-2.5">
         <div
           className="flex h-9 w-9 items-center justify-center rounded-lg"
-          style={{ background: `linear-gradient(135deg, ${ACCENT}, ${LIGHT})`, boxShadow: `0 0 25px rgba(82,127,176,0.4)` }}
+          style={{ background: `linear-gradient(135deg, ${ACCENT}, ${LIGHT})`, boxShadow: `0 0 25px rgba(251,247,186,0.4)` }}
         >
           <svg className="h-4.5 w-4.5 text-white" fill="none" viewBox="0 0 24 24"
             stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
@@ -561,8 +561,8 @@ export function LoginPage() {
                   <motion.div
                     className="mb-6 flex rounded-xl p-1"
                     style={{
-                      background: "rgba(5,37,88,0.5)",
-                      border: `1px solid rgba(82,127,176,0.15)`,
+                      background: "rgba(122,23,16,0.5)",
+                      border: `1px solid rgba(251,247,186,0.15)`,
                     }}
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -576,7 +576,7 @@ export function LoginPage() {
                         style={{
                           background: tab === t ? `linear-gradient(135deg, ${ACCENT}60, ${MID}CC)` : "transparent",
                           color: tab === t ? "#fff" : `${ACCENT}80`,
-                          boxShadow: tab === t ? `0 0 20px rgba(82,127,176,0.25)` : "none",
+                          boxShadow: tab === t ? `0 0 20px rgba(251,247,186,0.25)` : "none",
                         }}
                       >
                         {t === "signin" ? "Sign In" : "Sign Up"}
@@ -590,8 +590,8 @@ export function LoginPage() {
                     disabled={busy}
                     className="group relative mb-4 flex w-full items-center justify-center gap-3 overflow-hidden rounded-xl border px-5 py-3.5 text-sm font-semibold text-white transition-all duration-300 disabled:opacity-40"
                     style={{
-                      borderColor: "rgba(82,127,176,0.25)",
-                      background: "rgba(5,37,88,0.5)",
+                      borderColor: "rgba(251,247,186,0.25)",
+                      background: "rgba(122,23,16,0.5)",
                     }}
                     whileHover={{ scale: 1.01, borderColor: ACCENT }}
                     whileTap={{ scale: 0.99 }}
@@ -617,11 +617,11 @@ export function LoginPage() {
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.3, duration: 0.5 }}
                   >
-                    <div className="h-px flex-1" style={{ background: "rgba(82,127,176,0.15)" }} />
+                    <div className="h-px flex-1" style={{ background: "rgba(251,247,186,0.15)" }} />
                     <span className="text-[10px] uppercase tracking-[0.25em]" style={{ color: `${ACCENT}60` }}>
                       or with email
                     </span>
-                    <div className="h-px flex-1" style={{ background: "rgba(82,127,176,0.15)" }} />
+                    <div className="h-px flex-1" style={{ background: "rgba(251,247,186,0.15)" }} />
                   </motion.div>
 
                   {/* Email/password form */}
@@ -677,9 +677,9 @@ export function LoginPage() {
                       className="relative mt-1 overflow-hidden rounded-xl py-3.5 text-sm font-semibold text-white transition-all duration-300 disabled:opacity-40"
                       style={{
                         background: `linear-gradient(135deg, ${ACCENT}, ${MID} 60%, ${DEEP})`,
-                        boxShadow: `0 0 30px rgba(82,127,176,0.3)`,
+                        boxShadow: `0 0 30px rgba(251,247,186,0.3)`,
                       }}
-                      whileHover={{ scale: 1.01, boxShadow: `0 0 40px rgba(82,127,176,0.5)` }}
+                      whileHover={{ scale: 1.01, boxShadow: `0 0 40px rgba(251,247,186,0.5)` }}
                       whileTap={{ scale: 0.99 }}
                     >
                       <div className="absolute inset-x-0 top-0 h-px"
