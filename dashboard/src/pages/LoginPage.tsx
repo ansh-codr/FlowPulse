@@ -156,7 +156,7 @@ export function LoginPage() {
 
   // Frame animation state — auto-cycles
   const [activeFrame, setActiveFrame] = useState(0);
-  const autoTimerRef = useRef<ReturnType<typeof setInterval>>();
+  const autoTimerRef = useRef<number | undefined>(undefined);
 
   // Whether the login portal is revealed
   const [portalOpen, setPortalOpen] = useState(false);
@@ -173,7 +173,7 @@ export function LoginPage() {
 
   // Click count for portal reveal
   const clickCountRef = useRef(0);
-  const clickTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const clickTimerRef = useRef<number | undefined>(undefined);
 
   // Auto-cycle frames
   useEffect(() => {
