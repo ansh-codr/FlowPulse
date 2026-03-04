@@ -2,7 +2,7 @@ import { useCallback, useRef } from "react";
 import { motion, useMotionValue, useSpring, useScroll, useTransform } from "framer-motion";
 import { useAuth } from "../../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import asteroid2 from "../../../assets/Images/GreenNature2.jpg";
+import asteroid2 from "../../../assets/Images/robin-julian-lee-pose-06-a.jpg";
 import { ACCENT, HIGHLIGHT, DEEP, EASE_SMOOTH, GPU_STYLE } from "../motionConfig";
 
 export function CTAFinal() {

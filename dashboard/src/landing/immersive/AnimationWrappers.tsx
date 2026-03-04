@@ -153,7 +153,7 @@ interface TiltCardProps {
 export function TiltCard({ children, className = "", maxTilt = HOVER.tiltMaxDeg, style }: TiltCardProps) {
     const ref = useRef<HTMLDivElement>(null);
     const [transform, setTransform] = useState("perspective(800px) rotateX(0deg) rotateY(0deg)");
-    const [shadow, setShadow] = useState(`0 4px 20px rgba(82,127,176,0.08)`);
+    const [shadow, setShadow] = useState(`0 4px 20px rgba(251,247,186,0.08)`);
 
     const handleMove = useCallback((e: React.MouseEvent) => {
         if (!ref.current || isMobile()) return;
@@ -168,7 +168,7 @@ export function TiltCard({ children, className = "", maxTilt = HOVER.tiltMaxDeg,
 
     const handleLeave = useCallback(() => {
         setTransform("perspective(800px) rotateX(0deg) rotateY(0deg) scale(1)");
-        setShadow(`0 4px 20px rgba(82,127,176,0.08)`);
+        setShadow(`0 4px 20px rgba(251,247,186,0.08)`);
     }, []);
 
     return (
