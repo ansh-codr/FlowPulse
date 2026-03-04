@@ -262,7 +262,7 @@ export function DataShowcase() {
                 />
             </div>
             <div className="pointer-events-none absolute inset-0 z-[1]"
-                style={{ background: `rgba(1,16,35,0.88)` }} />
+                style={{ background: `rgba(122,23,16,0.88)` }} />
 
             <div ref={sRef} className="relative z-10 mx-auto max-w-7xl px-8">
                 {/* Header */}

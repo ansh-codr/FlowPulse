@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
-import asteroid1 from "../../../assets/Images/GreenNature.jpg";
+import asteroid1 from "../../../assets/Images/jason-gullion-1.jpg";
 import { GlassPanel, ScrollReveal } from "../AnimationWrappers";
 import { ACCENT, HIGHLIGHT, DEEP, SURFACE, EASE_SMOOTH, GPU_STYLE } from "../motionConfig";
 
@@ -131,11 +131,11 @@ export function FeatureImageA() {
             </motion.div>
 
             {/* Deep overlay */}
-            <div className="pointer-events-none absolute inset-0 z-[1]" style={{ background: `rgba(1,16,35,0.78)` }} />
+            <div className="pointer-events-none absolute inset-0 z-[1]" style={{ background: `rgba(122,23,16,0.78)` }} />
 
             {/* Left edge glow */}
             <div className="pointer-events-none absolute inset-y-0 left-0 z-[2] w-64"
-                style={{ background: `linear-gradient(to right, rgba(1,16,35,0.9), transparent)` }} />
+                style={{ background: `linear-gradient(to right, rgba(122,23,16,0.9), transparent)` }} />
 
             {/* Content (mid layer) */}
             <motion.div

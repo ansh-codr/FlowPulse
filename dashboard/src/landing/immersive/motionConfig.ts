@@ -6,10 +6,10 @@
  */
 
 // ─── Brand palette ────────────────────────────────────────────
-export const ACCENT = "#527FB0";
-export const HIGHLIGHT = "#7C9FC9";
-export const DEEP = "#011023";
-export const SURFACE = "#052558";
+export const ACCENT = "#FBF7BA";     // Cream
+export const HIGHLIGHT = "#FFFFFF";  // Pure white
+export const DEEP = "#9D1F15";       // Crimson red
+export const SURFACE = "#7a1710";    // Slightly darker crimson
 
 // ─── Easing Curves (typed as Framer Motion BezierDefinition) ──
 export const EASE_SMOOTH: [number, number, number, number] = [0.16, 1, 0.3, 1];
@@ -51,7 +51,7 @@ export const HOVER = {
 export const GLASS = {
     blur: 8,
     opacity: 0.85,
-    background: `rgba(5,37,88,0.${Math.round(0.85 * 100)})`,   // evaluated
+    background: `rgba(122,23,16,0.${Math.round(0.85 * 100)})`,   // evaluated
     border: `1px solid ${ACCENT}30`,
 } as const;
 

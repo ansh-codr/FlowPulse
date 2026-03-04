@@ -1,12 +1,9 @@
-import { useCallback, useRef, lazy, Suspense } from "react";
+import { useCallback, useRef } from "react";
 import { motion, useMotionValue, useSpring, useTransform, useScroll } from "framer-motion";
 import { Link } from "react-router-dom";
-import redOrb from "../../../assets/videos/redorb.mp4";
 import {
     ACCENT, HIGHLIGHT, DEEP, EASE_SMOOTH, PARALLAX, GPU_STYLE, isMobile,
 } from "../motionConfig";
-
-const Hero3DCanvas = lazy(() => import("./Hero3DCanvas").then(m => ({ default: m.Hero3DCanvas })));
 
 // ── Floating Glass UI Panel ────────────────────────────────────
 function FloatingPanel({
@@ -22,7 +19,7 @@ function FloatingPanel({
                 border: `1px solid ${ACCENT}30`,
                 backdropFilter: "blur(12px)",
                 WebkitBackdropFilter: "blur(12px)",
-                boxShadow: `0 8px 32px rgba(1,16,35,0.5), 0 0 24px ${ACCENT}10`,
+                boxShadow: `0 8px 32px rgba(122,23,16,0.5), 0 0 24px ${ACCENT}10`,
                 ...GPU_STYLE,
             }}
             initial={{ opacity: 0, y: 30, scale: 0.85 }}
@@ -125,7 +122,7 @@ export function HeroScene() {
             onMouseMove={!mobile ? handleMouseMove : undefined}
             onMouseLeave={!mobile ? handleMouseLeave : undefined}
         >
-            {/* ── Layer 0 (Background): Red Orb Video ────────────── */}
+            {/* ── Layer 0 (Background): Video ────────────── */}
             <motion.div
                 className="absolute inset-0 z-0 overflow-hidden"
                 style={{
@@ -136,11 +133,11 @@ export function HeroScene() {
                 }}
             >
                 <motion.video
-                    src={redOrb}
+                    src={"/src/assets/videos/robin-julian-lee-pose-Video.mp4"}
                     autoPlay muted loop playsInline preload="auto"
                     className="h-full w-full object-cover"
                     style={{
-                        filter: "brightness(0.55) contrast(1.1) saturate(1.3) hue-rotate(180deg)",
+                        filter: "brightness(0.65) contrast(1.1)",
                         opacity: videoOpacity,
                         ...GPU_STYLE,
                     }}
@@ -149,32 +146,19 @@ export function HeroScene() {
 
             {/* ── Layer 1: Gradient overlays ──────────────────────── */}
             <div className="pointer-events-none absolute inset-0 z-[1]"
-                style={{ background: `rgba(1,16,35,0.35)` }} />
+                style={{ background: `rgba(122,23,16,0.35)` }} />
             <div className="pointer-events-none absolute inset-x-0 top-0 z-[2]"
-                style={{ height: "40%", background: `linear-gradient(to bottom, rgba(1,16,35,0.90) 0%, transparent 100%)` }} />
+                style={{ height: "40%", background: `linear-gradient(to bottom, rgba(122,23,16,0.90) 0%, transparent 100%)` }} />
             <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[2]"
-                style={{ height: "50%", background: `linear-gradient(to top, rgba(1,16,35,0.97) 0%, rgba(1,16,35,0.50) 60%, transparent 100%)` }} />
+                style={{ height: "50%", background: `linear-gradient(to top, rgba(122,23,16,0.97) 0%, rgba(122,23,16,0.50) 60%, transparent 100%)` }} />
             <div className="pointer-events-none absolute inset-0 z-[2]"
-                style={{ background: "radial-gradient(ellipse at 50% 50%, transparent 35%, rgba(1,16,35,0.65) 100%)" }} />
+                style={{ background: "radial-gradient(ellipse at 50% 50%, transparent 35%, rgba(122,23,16,0.65) 100%)" }} />
 
             {/* ── Layer 2 (Midground): Glow pulse ────────────────── */}
             <motion.div className="absolute inset-0 z-[3] flex items-center justify-center" style={{ x: midX, y: midY, ...GPU_STYLE }}>
                 <GlowPulse />
             </motion.div>
 
-            {/* ── Layer 2.5: 3D Canvas (midground) ───────────────── */}
-            {!mobile && (
-                <motion.div
-                    className="absolute inset-0 z-[4] pointer-events-none"
-                    style={{ x: midX, y: midY, ...GPU_STYLE }}
-                >
-                    <div className="absolute inset-0" style={{ opacity: 0.5 }}>
-                        <Suspense fallback={null}>
-                            <Hero3DCanvas mouseX={rawX.get()} mouseY={rawY.get()} />
-                        </Suspense>
-                    </div>
-                </motion.div>
-            )}
 
             {/* ── Layer 3: Floating UI Panels (depth layer) ──────── */}
             <motion.div
@@ -268,7 +252,7 @@ export function HeroScene() {
                     </Link>
                     <a href="#manifesto"
                         className="rounded-full border px-9 py-4 text-sm font-medium uppercase tracking-[0.14em] text-white/60 backdrop-blur-sm transition-all hover:text-white hover:border-white/40"
-                        style={{ borderColor: `${ACCENT}55`, background: "rgba(1,16,35,0.4)" }}
+                        style={{ borderColor: `${ACCENT}55`, background: "rgba(122,23,16,0.4)" }}
                     >
                         See How It Works ↓
                     </a>

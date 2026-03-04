@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import asteroid2 from "../../../assets/Images/GreenNature2.jpg";
+import asteroid2 from "../../../assets/Images/jason-gullion-2.jpg";
 import { GlassPanel, ScrollReveal } from "../AnimationWrappers";
 import { ACCENT, HIGHLIGHT, DEEP, SURFACE, GPU_STYLE } from "../motionConfig";
 
@@ -121,11 +121,11 @@ function RadialLeaderboard() {
                     key={active}
                     className="absolute bottom-0 left-1/2 -translate-x-1/2 rounded-xl px-5 py-3 text-center"
                     style={{
-                        background: `rgba(5,37,88,0.85)`,
+                        background: `rgba(122,23,16,0.85)`,
                         border: `1px solid ${ACCENT}40`,
                         backdropFilter: "blur(12px)",
                         WebkitBackdropFilter: "blur(12px)",
-                        boxShadow: `0 4px 24px rgba(1,16,35,0.5)`,
+                        boxShadow: `0 4px 24px rgba(122,23,16,0.5)`,
                         minWidth: "160px",
                     }}
                     initial={{ opacity: 0, y: 8, scale: 0.95 }}
@@ -166,11 +166,11 @@ export function FeatureImageB() {
 
             {/* Dark overlay */}
             <div className="pointer-events-none absolute inset-0 z-[1]"
-                style={{ background: `rgba(1,16,35,0.80)` }} />
+                style={{ background: `rgba(122,23,16,0.80)` }} />
 
             {/* Right edge glow */}
             <div className="pointer-events-none absolute inset-y-0 right-0 z-[2] w-64"
-                style={{ background: `linear-gradient(to left, rgba(1,16,35,0.9), transparent)` }} />
+                style={{ background: `linear-gradient(to left, rgba(122,23,16,0.9), transparent)` }} />
 
             {/* Content — mirrored layout */}
             <motion.div

@@ -26,7 +26,7 @@ export function ManifestoStrip() {
             <div
                 className="pointer-events-none absolute inset-0"
                 style={{
-                    background: `repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(1,16,35,0.08) 3px, rgba(1,16,35,0.08) 4px)`,
+                    background: `repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(122,23,16,0.08) 3px, rgba(122,23,16,0.08) 4px)`,
                 }}
             />
 
