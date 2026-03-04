@@ -44,7 +44,7 @@ export const HOVER = {
     cardLift: -8,
     glowBoost: 15,              // +15% glow intensity
     tiltMaxDeg: 6,              // 3D tilt max degrees
-    shadowSpread: "0 14px 40px rgba(82,127,176,0.18)",
+    shadowSpread: "0 14px 40px rgba(251,247,186,0.18)",
 } as const;
 
 // ─── Glass / Blur ─────────────────────────────────────────────

@@ -201,7 +201,7 @@ export function FeatureImageA() {
                     <div className="relative">
                         {/* Glow ring behind SVG */}
                         <div className="absolute inset-0 rounded-full"
-                            style={{ boxShadow: `0 0 80px 20px rgba(82,127,176,0.15)` }} />
+                            style={{ boxShadow: `0 0 80px 20px rgba(251,247,186,0.15)` }} />
                         <CircularHeatmap revealed={isInView} />
 
                         {/* Legend */}

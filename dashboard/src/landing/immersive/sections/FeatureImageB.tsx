@@ -181,7 +181,7 @@ export function FeatureImageB() {
                 <ScrollReveal direction="scale" delay={0.15} duration={1.0}>
                     <div className="relative flex items-center justify-center">
                         <div className="absolute inset-0 rounded-full"
-                            style={{ boxShadow: `0 0 80px 20px rgba(82,127,176,0.12)` }} />
+                            style={{ boxShadow: `0 0 80px 20px rgba(251,247,186,0.12)` }} />
                         <RadialLeaderboard />
                     </div>
                 </ScrollReveal>
