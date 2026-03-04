@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import asteroid2 from "../../../assets/Images/robin-julian-lee-pose-06-a.jpg";
+import asteroid2 from "../../../assets/Images/jason-gullion-breakdown.jpg";
 import { GlassPanel, ScrollReveal } from "../AnimationWrappers";
 import { ACCENT, HIGHLIGHT, DEEP, SURFACE, GPU_STYLE } from "../motionConfig";
 

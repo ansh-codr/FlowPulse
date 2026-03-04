@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
-import asteroid1 from "../../../assets/Images/robin-julian-lee-render-pose-04-resize.jpg";
+import asteroid1 from "../../../assets/Images/alena-aenami-lights1k1.jpg";
 import { GlassPanel, ScrollReveal } from "../AnimationWrappers";
 import { ACCENT, HIGHLIGHT, DEEP, SURFACE, EASE_SMOOTH, GPU_STYLE } from "../motionConfig";
 
