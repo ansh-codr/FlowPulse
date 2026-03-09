@@ -117,6 +117,26 @@ body {
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--cyan);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sync-badge:hover {
+  background: rgba(88, 240, 255, 0.15);
+  border-color: rgba(88, 240, 255, 0.3);
+}
+
+.sync-badge:active {
+  transform: scale(0.96);
+}
+
+.sync-badge.syncing .sync-dot {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .sync-dot {

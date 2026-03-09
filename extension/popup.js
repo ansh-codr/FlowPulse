@@ -68,6 +68,32 @@ $("openDashboard").addEventListener("click", () => {
   chrome.tabs.create({ url: "https://anshyadav.tech/" });
 });
 
+/* ── Manual Sync ──────────────────────────────────── */
+$("syncBadge").addEventListener("click", async () => {
+  const syncStatus = $("syncStatus");
+  const syncBadge = $("syncBadge");
+  
+  syncStatus.textContent = "Syncing...";
+  syncBadge.classList.add("syncing");
+  syncBadge.disabled = true;
+  
+  try {
+    await chrome.runtime.sendMessage({ type: "FLOWPULSE_SYNC_NOW" });
+    syncStatus.textContent = "Synced!";
+    setTimeout(() => {
+      syncStatus.textContent = "Live";
+      syncBadge.classList.remove("syncing");
+    }, 1500);
+  } catch (err) {
+    syncStatus.textContent = "Error";
+    setTimeout(() => {
+      syncStatus.textContent = "Live";
+      syncBadge.classList.remove("syncing");
+    }, 2000);
+  }
+  syncBadge.disabled = false;
+});
+
 /* ── Live updates ───────────────────────────────────── */
 chrome.storage.onChanged.addListener((changes) => {
   if (changes.summary) hydrate();

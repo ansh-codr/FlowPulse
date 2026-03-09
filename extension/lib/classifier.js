@@ -5,9 +5,8 @@
  * YouTube videos get special treatment using title/channel keyword matching.
  */
 
-// MV3 service workers can't use `import ... from "./file.json"` directly.
-// Use import assertion for Chrome 91+ (MV3 requires Chrome 88+)
-import domainMap from "./domains.json" with { type: "json" };
+// Import domain data as JS module (more compatible with MV3 service workers)
+import domainMap from "./domains.js";
 
 const productiveSet = new Set(domainMap.productive);
 const distractionSet = new Set(domainMap.distraction);
