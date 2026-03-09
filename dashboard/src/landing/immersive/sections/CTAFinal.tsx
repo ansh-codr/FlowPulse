@@ -72,9 +72,9 @@ export function CTAFinal() {
 
             {/* Overlay darkening */}
             <div className="pointer-events-none absolute inset-0 z-[1]"
-                style={{ background: `rgba(122,23,16,0.72)` }} />
+                style={{ background: `rgba(8,6,4,0.65)` }} />
             <div className="pointer-events-none absolute inset-0 z-[1]"
-                style={{ background: "radial-gradient(ellipse at 50% 50%, transparent 30%, rgba(122,23,16,0.85) 100%)" }} />
+                style={{ background: "radial-gradient(ellipse at 50% 50%, transparent 30%, rgba(4,3,2,0.90) 100%)" }} />
 
             {/* Spotlight on CTA — scroll-driven intensity */}
             <motion.div

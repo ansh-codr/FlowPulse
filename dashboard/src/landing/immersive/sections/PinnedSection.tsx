@@ -28,7 +28,7 @@ const features = [
                             key={tab.label}
                             className="flex items-center gap-3 rounded-xl px-4 py-2.5"
                             style={{
-                                background: `rgba(122,23,16,0.6)`,
+                                background: `rgba(10,8,6,0.65)`,
                                 border: `1px solid ${ACCENT}20`,
                                 backdropFilter: "blur(8px)",
                             }}

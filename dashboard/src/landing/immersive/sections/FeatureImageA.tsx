@@ -131,11 +131,11 @@ export function FeatureImageA() {
             </motion.div>
 
             {/* Deep overlay */}
-            <div className="pointer-events-none absolute inset-0 z-[1]" style={{ background: `rgba(122,23,16,0.78)` }} />
+            <div className="pointer-events-none absolute inset-0 z-[1]" style={{ background: `rgba(8,6,4,0.72)` }} />
 
             {/* Left edge glow */}
             <div className="pointer-events-none absolute inset-y-0 left-0 z-[2] w-64"
-                style={{ background: `linear-gradient(to right, rgba(122,23,16,0.9), transparent)` }} />
+                style={{ background: `linear-gradient(to right, rgba(8,6,4,0.90), transparent)` }} />
 
             {/* Content (mid layer) */}
             <motion.div

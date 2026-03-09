@@ -52,7 +52,7 @@ export function StatsStrip() {
         >
             {/* Scanline */}
             <div className="pointer-events-none absolute inset-0"
-                style={{ background: `repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(122,23,16,0.07) 3px, rgba(122,23,16,0.07) 4px)` }} />
+                style={{ background: `repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255,107,53,0.04) 3px, rgba(255,107,53,0.04) 4px)` }} />
 
             {/* Accent lines */}
             <div className="absolute top-0 inset-x-0 h-px"
