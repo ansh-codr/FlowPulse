@@ -10,6 +10,7 @@
 export { dailyAggregation } from "./dailyAggregation";
 export { computeLeaderboard } from "./leaderboard";
 export { generateNudges } from "./nudges";
+export { generateHealthAlerts } from "./healthAlerts";
 export {
   connectGoogleActivity,
   googleActivityOAuthCallback,

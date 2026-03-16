@@ -1,9 +1,13 @@
 /**
  * InsightsPage – AI-powered productivity insights and recommendations
  */
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { GlassCard } from "../components/GlassCard";
 import { useIntelligence } from "../hooks/useIntelligence";
+import { useAuth } from "../hooks/useAuth";
+import { dismissHealthAlert, subscribeToHealthAlerts } from "../lib/firestoreQueries";
+import type { HealthAlert } from "../../../shared/types";
 
 const container = {
   hidden: { opacity: 0 },
@@ -31,6 +35,9 @@ const riskColors = {
 };
 
 export function InsightsPage() {
+  const { user } = useAuth();
+  const [healthAlerts, setHealthAlerts] = useState<HealthAlert[]>([]);
+
   const {
     sessionMetrics,
     distractionPatterns,
@@ -42,6 +49,17 @@ export function InsightsPage() {
     loading,
     hasEnoughData,
   } = useIntelligence();
+
+  useEffect(() => {
+    if (!user?.uid) return;
+    const unsub = subscribeToHealthAlerts(user.uid, setHealthAlerts);
+    return unsub;
+  }, [user?.uid]);
+
+  async function handleDismissHealthAlert(alertId?: string) {
+    if (!user?.uid || !alertId) return;
+    await dismissHealthAlert(user.uid, alertId);
+  }
 
   if (loading) {
     return (
@@ -257,6 +275,34 @@ export function InsightsPage() {
                 : "No long sedentary study periods"}
             </span>
           </div>
+        </GlassCard>
+      </motion.div>
+
+      {/* Health Awareness Alerts */}
+      <motion.div variants={item}>
+        <GlassCard title="Health Awareness Alerts" subtitle="Actionable suggestions from combined activity data" accentColor="#ff8a8a" delay={0.19}>
+          {healthAlerts.length === 0 ? (
+            <p className="text-sm text-white/40">No active health alerts. Keep up the balanced routine.</p>
+          ) : (
+            <div className="space-y-2">
+              {healthAlerts.map((alert) => (
+                <div key={alert.id} className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                  <div>
+                    <p className="text-sm text-white/80">{alert.message}</p>
+                    <p className="mt-1 text-xs uppercase tracking-wider text-white/40">
+                      {alert.priority} priority • {alert.type.replace(/_/g, " ")}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleDismissHealthAlert(alert.id)}
+                    className="rounded-lg border border-white/15 px-3 py-1 text-xs text-white/70 transition hover:bg-white/10"
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </GlassCard>
       </motion.div>
 

@@ -63,6 +63,18 @@ export interface CombinedAnalyticsDaily {
   updatedAt?: string;
 }
 
+/** users/{uid}/health_alerts/{docId} */
+export interface HealthAlert {
+  id?: string;
+  date: string; // YYYY-MM-DD
+  type: "screen_usage_threshold" | "low_step_count" | "focus_without_movement" | "healthy_balance";
+  message: string;
+  priority: "low" | "medium" | "high";
+  dismissed: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 /** users/{uid}/activityLogs/{docId} */
 export interface ActivityLog {
   id?: string; // Firestore doc ID (populated on read)

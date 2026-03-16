@@ -54,6 +54,14 @@ service cloud.firestore {
         allow read: if request.auth != null && request.auth.uid == userId;
         allow write: if false;
       }
+
+      // ── Health awareness alerts (generated server-side, dismissible in dashboard) ────
+      match /health_alerts/{alertId} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow update: if request.auth != null && request.auth.uid == userId
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['dismissed', 'updatedAt']);
+        allow create, delete: if false;
+      }
     }
 
     // ── Leaderboard (public read, admin write) ──────────────

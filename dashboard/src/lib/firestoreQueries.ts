@@ -24,6 +24,7 @@ import type {
   MobileActivitySummary,
   MobileIntegrationStatus,
   CombinedAnalyticsDaily,
+  HealthAlert,
 } from "../../../shared/types";
 
 /* ── Helpers ──────────────────────────────────────────────────────────────── */
@@ -235,6 +236,37 @@ export async function getWeeklyCombinedAnalytics(uid: string): Promise<CombinedA
   const q = query(ref, orderBy("date", "desc"), limit(7));
   const snap = await getDocs(q);
   return snap.docs.map((d) => d.data() as CombinedAnalyticsDaily);
+}
+
+/* ── Health Awareness Alerts ─────────────────────────────────────────────── */
+
+export function subscribeToHealthAlerts(
+  uid: string,
+  callback: (alerts: HealthAlert[]) => void
+): Unsubscribe {
+  const ref = collection(db, "users", uid, "health_alerts");
+  const q = query(
+    ref,
+    where("dismissed", "==", false),
+    orderBy("date", "desc"),
+    limit(10)
+  );
+
+  return onSnapshot(q, (snapshot) => {
+    const alerts = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as HealthAlert[];
+    callback(alerts);
+  });
+}
+
+export async function dismissHealthAlert(uid: string, alertId: string): Promise<void> {
+  const ref = doc(db, "users", uid, "health_alerts", alertId);
+  await updateDoc(ref, {
+    dismissed: true,
+    updatedAt: new Date().toISOString(),
+  });
 }
 
 /* ── Leaderboard ──────────────────────────────────────────────────────────── */
