@@ -43,6 +43,9 @@ export interface MobileIntegrationStatus {
   scope: string;
   connectedAt?: string;
   updatedAt?: string;
+  lastSyncAt?: string | null;
+  lastSyncResult?: "success" | "failed" | null;
+  lastError?: string | null;
 }
 
 /** users/{uid}/activityLogs/{docId} */

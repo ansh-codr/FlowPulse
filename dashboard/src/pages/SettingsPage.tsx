@@ -28,6 +28,9 @@ export function SettingsPage() {
     connected: false,
     optedIn: false,
     scope: "https://www.googleapis.com/auth/fitness.activity.read",
+    lastSyncAt: null,
+    lastSyncResult: null,
+    lastError: null,
   });
   const [mobileSummaries, setMobileSummaries] = useState<MobileActivitySummary[]>([]);
   const [syncing, setSyncing] = useState(false);
@@ -102,6 +105,9 @@ export function SettingsPage() {
         connected: false,
         optedIn: false,
         scope: "https://www.googleapis.com/auth/fitness.activity.read",
+        lastSyncAt: null,
+        lastSyncResult: null,
+        lastError: null,
       });
       setMobileSummaries([]);
       setIntegrationMessage("Google integration disconnected and stored mobile activity summaries were deleted.");
@@ -243,6 +249,18 @@ export function SettingsPage() {
             </span>
             <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-white/60">Provider: Google Fit</span>
             <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-white/60">Scope: activity recognition only</span>
+          </div>
+
+          <div className="grid grid-cols-1 gap-2 rounded-xl border border-white/10 bg-white/[0.03] p-3 text-sm sm:grid-cols-3">
+            <span className="text-white/60">
+              Last sync: {integration.lastSyncAt ? new Date(integration.lastSyncAt).toLocaleString() : "Never"}
+            </span>
+            <span className="text-white/60">
+              Result: {integration.lastSyncResult ?? "—"}
+            </span>
+            <span className="text-white/60 truncate" title={integration.lastError ?? undefined}>
+              Error: {integration.lastError ?? "None"}
+            </span>
           </div>
 
           <div className="flex flex-wrap gap-2">

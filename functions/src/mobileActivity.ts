@@ -50,6 +50,8 @@ interface DailyActivitySummary {
   activitySessions: number;
 }
 
+type SyncResult = "success" | "failed";
+
 function getOAuthConfig(): GoogleOAuthConfig {
   const cfg = functions.config();
   const clientId = cfg?.googlefit?.client_id as string | undefined;
@@ -68,6 +70,18 @@ function getOAuthConfig(): GoogleOAuthConfig {
 
 function integrationRef(uid: string): FirebaseFirestore.DocumentReference {
   return db.doc(`users/${uid}/integrations/google_activity`);
+}
+
+async function updateSyncStatus(uid: string, result: SyncResult, errorMessage?: string): Promise<void> {
+  await integrationRef(uid).set(
+    {
+      lastSyncAt: admin.firestore.FieldValue.serverTimestamp(),
+      lastSyncResult: result,
+      lastError: result === "failed" ? (errorMessage ?? "Unknown synchronization error") : admin.firestore.FieldValue.delete(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    },
+    { merge: true }
+  );
 }
 
 function mobileSummaryRef(uid: string, dateStr: string): FirebaseFirestore.DocumentReference {
@@ -344,9 +358,11 @@ export const scheduledMobileActivitySync = functions.pubsub
       try {
         const today = toDateStr(new Date());
         await syncDate(uid, today);
+        await updateSyncStatus(uid, "success");
         syncedUsers++;
       } catch (error) {
         failedUsers++;
+        await updateSyncStatus(uid, "failed", error instanceof Error ? error.message : "Scheduled sync failed");
         functions.logger.error("scheduledMobileActivitySync failed for user", { uid, error });
       }
     }
@@ -383,6 +399,9 @@ export const connectGoogleActivity = functions.https.onCall(async (data, context
       connected: false,
       optedIn: true,
       scope: GOOGLE_FIT_SCOPE,
+      lastSyncAt: admin.firestore.FieldValue.delete(),
+      lastSyncResult: admin.firestore.FieldValue.delete(),
+      lastError: admin.firestore.FieldValue.delete(),
       pendingState: state,
       pendingStateExpiresAt: admin.firestore.Timestamp.fromMillis(Date.now() + 10 * 60 * 1000),
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -448,6 +467,9 @@ export const googleActivityOAuthCallback = functions.https.onRequest(async (req,
         connectedAt: admin.firestore.FieldValue.serverTimestamp(),
         pendingState: admin.firestore.FieldValue.delete(),
         pendingStateExpiresAt: admin.firestore.FieldValue.delete(),
+        lastSyncAt: admin.firestore.FieldValue.delete(),
+        lastSyncResult: admin.firestore.FieldValue.delete(),
+        lastError: admin.firestore.FieldValue.delete(),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       },
       { merge: true }
@@ -471,12 +493,18 @@ export const syncGoogleActivityData = functions.https.onCall(async (data, contex
   const baseDate = new Date();
 
   const synced: Array<{ date: string; stepCount: number; activeMinutes: number; activitySessions: number }> = [];
-  for (let i = 0; i < safeDays; i++) {
-    const d = new Date(baseDate);
-    d.setUTCDate(baseDate.getUTCDate() - i);
-    const dateStr = toDateStr(d);
-    const summary = await syncDate(uid, dateStr);
-    synced.push(summary);
+  try {
+    for (let i = 0; i < safeDays; i++) {
+      const d = new Date(baseDate);
+      d.setUTCDate(baseDate.getUTCDate() - i);
+      const dateStr = toDateStr(d);
+      const summary = await syncDate(uid, dateStr);
+      synced.push(summary);
+    }
+    await updateSyncStatus(uid, "success");
+  } catch (error) {
+    await updateSyncStatus(uid, "failed", error instanceof Error ? error.message : "Manual sync failed");
+    throw error;
   }
 
   return {
@@ -523,6 +551,9 @@ export const getGoogleActivityConnectionStatus = functions.https.onCall(async (_
     scope?: string;
     connectedAt?: FirebaseFirestore.Timestamp;
     updatedAt?: FirebaseFirestore.Timestamp;
+    lastSyncAt?: FirebaseFirestore.Timestamp;
+    lastSyncResult?: SyncResult;
+    lastError?: string;
   };
 
   return {
@@ -532,6 +563,9 @@ export const getGoogleActivityConnectionStatus = functions.https.onCall(async (_
     scope: data.scope ?? GOOGLE_FIT_SCOPE,
     connectedAt: data.connectedAt?.toDate().toISOString() ?? null,
     updatedAt: data.updatedAt?.toDate().toISOString() ?? null,
+    lastSyncAt: data.lastSyncAt?.toDate().toISOString() ?? null,
+    lastSyncResult: data.lastSyncResult ?? null,
+    lastError: data.lastError ?? null,
   };
 });
 
@@ -557,6 +591,9 @@ export const disconnectGoogleActivity = functions.https.onCall(async (_data, con
       refreshToken: admin.firestore.FieldValue.delete(),
       pendingState: admin.firestore.FieldValue.delete(),
       pendingStateExpiresAt: admin.firestore.FieldValue.delete(),
+      lastSyncAt: admin.firestore.FieldValue.delete(),
+      lastSyncResult: admin.firestore.FieldValue.delete(),
+      lastError: admin.firestore.FieldValue.delete(),
       disconnectedAt: admin.firestore.FieldValue.serverTimestamp(),
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     },
