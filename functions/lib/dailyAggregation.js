@@ -199,6 +199,19 @@ exports.dailyAggregation = functions.pubsub
         const topDomains = [...domainMap.values()]
             .sort((a, b) => b.duration - a.duration)
             .slice(0, 10);
+        // Mobile activity summary for correlation (privacy-safe aggregate fields only)
+        const mobileSummarySnap = await db.doc(`users/${uid}/mobile_activity_summary/${dateStr}`).get();
+        const mobileSummary = mobileSummarySnap.data() ?? {};
+        const mobileStepCount = Math.max(0, Math.round(mobileSummary.step_count ?? 0));
+        const mobileActiveMinutes = Math.max(0, Math.round(mobileSummary.active_minutes ?? 0));
+        const mobileActivitySessions = Math.max(0, Math.round(mobileSummary.activity_sessions ?? 0));
+        // Cross-device behavior signals
+        const highScreenTimeLowSteps = totalDuration >= 4 * 3600 && mobileStepCount > 0 && mobileStepCount < 3000;
+        const longFocusWithoutMovement = deepBlocks >= 3 && mobileActiveMinutes < 20;
+        const balancedLearningAndMovement = totalDuration >= 2 * 3600 &&
+            productiveTime >= totalDuration * 0.5 &&
+            mobileActiveMinutes >= 30 &&
+            mobileStepCount >= 6000;
         // Domain breakdown
         const domainBreakdown = {};
         for (const [domain, { duration: dur }] of domainMap) {
@@ -227,6 +240,12 @@ exports.dailyAggregation = functions.pubsub
                 dopamineCycles,
                 distractionHeatmap,
                 peakDistractionHours,
+                mobileStepCount,
+                mobileActiveMinutes,
+                mobileActivitySessions,
+                highScreenTimeLowSteps,
+                longFocusWithoutMovement,
+                balancedLearningAndMovement,
                 updatedAt: new Date().toISOString(),
                 createdAt: admin.firestore.FieldValue.serverTimestamp(),
             },

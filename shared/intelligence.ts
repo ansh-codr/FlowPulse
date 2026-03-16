@@ -624,7 +624,8 @@ export function generateProductivityAdvice(
   sessionMetrics: SessionMetrics,
   distractionPatterns: DistractionPatterns,
   focusMetrics: FocusMetrics,
-  predictiveInsights: PredictiveInsights
+  predictiveInsights: PredictiveInsights,
+  latestDailyStats?: Partial<DailyStats> | null
 ): ProductivityAdvice {
   const focusImprovements: string[] = [];
   const distractionReduction: string[] = [];
@@ -686,6 +687,31 @@ export function generateProductivityAdvice(
     );
   }
 
+  // Cross-device movement correlation (desktop + mobile)
+  const mobileSteps = latestDailyStats?.mobileStepCount ?? 0;
+  const mobileActiveMinutes = latestDailyStats?.mobileActiveMinutes ?? 0;
+  const highScreenTimeLowSteps =
+    latestDailyStats?.highScreenTimeLowSteps ??
+    ((latestDailyStats?.totalDuration ?? 0) >= 4 * 3600 && mobileSteps > 0 && mobileSteps < 3000);
+  const longFocusWithoutMovement =
+    latestDailyStats?.longFocusWithoutMovement ??
+    (sessionMetrics.deepWorkSessions >= 3 && mobileActiveMinutes < 20);
+  const balancedLearningAndMovement =
+    latestDailyStats?.balancedLearningAndMovement ??
+    ((latestDailyStats?.totalDuration ?? 0) >= 2 * 3600 && mobileActiveMinutes >= 30 && mobileSteps >= 6000);
+
+  if (highScreenTimeLowSteps) {
+    distractionReduction.push(
+      "Screen usage exceeded recommended duration. Consider taking a short walk."
+    );
+  }
+
+  if (longFocusWithoutMovement) {
+    focusImprovements.push(
+      "Learning activity was high but physical movement was low. Add short movement breaks between deep work blocks."
+    );
+  }
+
   // Best study time
   const bestHours = predictiveInsights.optimalFocusHours;
   let bestStudyTime = "Based on your patterns, ";
@@ -701,6 +727,9 @@ export function generateProductivityAdvice(
   if (predictiveInsights.burnoutRisk === "high") {
     lifestyleInsight =
       "Your screen time has been high with declining focus. Consider taking tomorrow off or doing a light day.";
+  }
+  if (balancedLearningAndMovement) {
+    lifestyleInsight = "Healthy balance between study and movement detected.";
   }
 
   // Priority recommendation

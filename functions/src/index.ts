@@ -10,3 +10,12 @@
 export { dailyAggregation } from "./dailyAggregation";
 export { computeLeaderboard } from "./leaderboard";
 export { generateNudges } from "./nudges";
+export {
+  connectGoogleActivity,
+  googleActivityOAuthCallback,
+  syncGoogleActivityData,
+  scheduledMobileActivitySync,
+  getMobileActivitySummaries,
+  getGoogleActivityConnectionStatus,
+  disconnectGoogleActivity,
+} from "./mobileActivity";

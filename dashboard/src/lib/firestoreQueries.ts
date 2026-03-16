@@ -13,13 +13,16 @@ import {
   Timestamp,
   type Unsubscribe,
 } from "firebase/firestore";
-import { db } from "./firebase";
+import { httpsCallable } from "firebase/functions";
+import { db, functions } from "./firebase";
 import type {
   ActivityLog,
   DailyStats,
   UserSettings,
   Nudge,
   LeaderboardEntry,
+  MobileActivitySummary,
+  MobileIntegrationStatus,
 } from "../../../shared/types";
 
 /* ── Helpers ──────────────────────────────────────────────────────────────── */
@@ -173,6 +176,45 @@ export function subscribeToNudges(
 export async function dismissNudge(uid: string, nudgeId: string): Promise<void> {
   const ref = doc(db, "users", uid, "nudges", nudgeId);
   await updateDoc(ref, { dismissed: true });
+}
+
+/* ── Mobile Activity Integration ─────────────────────────────────────────── */
+
+export async function connectGoogleActivity(optIn: boolean): Promise<{ authUrl: string; scope: string; message: string }> {
+  const call = httpsCallable(functions, "connectGoogleActivity");
+  const result = await call({ optIn });
+  return result.data as { authUrl: string; scope: string; message: string };
+}
+
+export async function syncGoogleActivityData(days = 1): Promise<{
+  syncedDays: number;
+  summaries: Array<{ date: string; stepCount: number; activeMinutes: number; activitySessions: number }>;
+}> {
+  const call = httpsCallable(functions, "syncGoogleActivityData");
+  const result = await call({ days });
+  return result.data as {
+    syncedDays: number;
+    summaries: Array<{ date: string; stepCount: number; activeMinutes: number; activitySessions: number }>;
+  };
+}
+
+export async function getMobileActivitySummaries(limitDays = 14): Promise<MobileActivitySummary[]> {
+  const call = httpsCallable(functions, "getMobileActivitySummaries");
+  const result = await call({ limitDays });
+  const payload = result.data as { summaries: MobileActivitySummary[] };
+  return payload.summaries ?? [];
+}
+
+export async function getGoogleActivityConnectionStatus(): Promise<MobileIntegrationStatus> {
+  const call = httpsCallable(functions, "getGoogleActivityConnectionStatus");
+  const result = await call();
+  return result.data as MobileIntegrationStatus;
+}
+
+export async function disconnectGoogleActivity(): Promise<{ deletedSummaryCount: number; message: string }> {
+  const call = httpsCallable(functions, "disconnectGoogleActivity");
+  const result = await call();
+  return result.data as { deletedSummaryCount: number; message: string };
 }
 
 /* ── Leaderboard ──────────────────────────────────────────────────────────── */

@@ -46,7 +46,7 @@ export function CTAFinal() {
     const onMouseLeave = useCallback(() => { rawX.set(0); rawY.set(0); }, [rawX, rawY]);
 
     const handleCTA = useCallback(async () => {
-        if (user) navigate("/app/home");
+        if (user) navigate("/app");
         else await signIn();
     }, [user, signIn, navigate]);
 

@@ -145,6 +145,30 @@ exports.generateNudges = functions.firestore
             priority: "low",
         });
     }
+    // ── Cross-device signal: high screen time + low movement ──
+    if (data.highScreenTimeLowSteps) {
+        nudges.push({
+            type: "low_movement",
+            message: "Screen usage exceeded recommended duration. Consider taking a short walk.",
+            priority: "high",
+        });
+    }
+    // ── Cross-device signal: long focus without movement ──
+    if (data.longFocusWithoutMovement) {
+        nudges.push({
+            type: "low_movement",
+            message: "Learning activity was high but physical movement was low.",
+            priority: "medium",
+        });
+    }
+    // ── Positive cross-device balance signal ──
+    if (data.balancedLearningAndMovement) {
+        nudges.push({
+            type: "deep_work_celebration",
+            message: "Healthy balance between study and movement detected.",
+            priority: "low",
+        });
+    }
     // ── Deep work celebration ──
     if (data.deepBlocks >= 4) {
         nudges.push({

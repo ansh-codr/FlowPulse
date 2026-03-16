@@ -18,6 +18,12 @@ interface DailyStats {
   socialMediaLoops?: Array<{ platform: string; visits: number }>;
   dopamineCycles?: number;
   peakDistractionHours?: number[];
+  mobileStepCount?: number;
+  mobileActiveMinutes?: number;
+  mobileActivitySessions?: number;
+  highScreenTimeLowSteps?: boolean;
+  longFocusWithoutMovement?: boolean;
+  balancedLearningAndMovement?: boolean;
 }
 
 type NudgeType = "break" | "refocus" | "low_movement" | "sleep_warning" | 
@@ -138,6 +144,33 @@ export const generateNudges = functions.firestore
       nudges.push({
         type: "low_movement",
         message: "Amazing focus today! Remember to stand up and stretch — sustained sitting can slow you down tomorrow.",
+        priority: "low",
+      });
+    }
+
+    // ── Cross-device signal: high screen time + low movement ──
+    if (data.highScreenTimeLowSteps) {
+      nudges.push({
+        type: "low_movement",
+        message: "Screen usage exceeded recommended duration. Consider taking a short walk.",
+        priority: "high",
+      });
+    }
+
+    // ── Cross-device signal: long focus without movement ──
+    if (data.longFocusWithoutMovement) {
+      nudges.push({
+        type: "low_movement",
+        message: "Learning activity was high but physical movement was low.",
+        priority: "medium",
+      });
+    }
+
+    // ── Positive cross-device balance signal ──
+    if (data.balancedLearningAndMovement) {
+      nudges.push({
+        type: "deep_work_celebration",
+        message: "Healthy balance between study and movement detected.",
         priority: "low",
       });
     }

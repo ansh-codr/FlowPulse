@@ -35,6 +35,16 @@ export interface UserSettings {
   timezone: string; // e.g. "America/New_York"
 }
 
+/** users/{uid}/integrations/google_activity */
+export interface MobileIntegrationStatus {
+  provider: "google_fit";
+  connected: boolean;
+  optedIn: boolean;
+  scope: string;
+  connectedAt?: string;
+  updatedAt?: string;
+}
+
 /** users/{uid}/activityLogs/{docId} */
 export interface ActivityLog {
   id?: string; // Firestore doc ID (populated on read)
@@ -68,7 +78,24 @@ export interface DailyStats {
   dopamineCycles?: number;
   distractionHeatmap?: Array<{ hour: number; distractionSeconds: number; ratio: number }>;
   peakDistractionHours?: number[];
+  // Mobile activity summary (privacy-safe aggregates only)
+  mobileStepCount?: number;
+  mobileActiveMinutes?: number;
+  mobileActivitySessions?: number;
+  highScreenTimeLowSteps?: boolean;
+  longFocusWithoutMovement?: boolean;
+  balancedLearningAndMovement?: boolean;
   updatedAt: string; // ISO timestamp
+}
+
+/** users/{uid}/mobile_activity_summary/{YYYY-MM-DD} */
+export interface MobileActivitySummary {
+  user_id: string;
+  date: string; // YYYY-MM-DD
+  step_count: number;
+  active_minutes: number;
+  activity_sessions: number;
+  created_at?: string;
 }
 
 export interface DomainStat {

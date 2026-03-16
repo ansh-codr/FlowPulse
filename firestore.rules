@@ -37,6 +37,17 @@ service cloud.firestore {
         allow create: if request.auth != null && request.auth.uid == userId;
         allow delete: if false;
       }
+
+      // ── Mobile activity summaries (read-only for users; writes via Admin SDK) ────
+      match /mobile_activity_summary/{dateId} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow write: if false;
+      }
+
+      // ── Integration tokens (never client-accessible; managed by Cloud Functions) ────
+      match /integrations/{integrationId} {
+        allow read, write: if false;
+      }
     }
 
     // ── Leaderboard (public read, admin write) ──────────────

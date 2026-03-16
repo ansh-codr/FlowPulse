@@ -2,8 +2,16 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../hooks/useAuth";
 import { GlassCard } from "../components/GlassCard";
-import { getUserSettings, updateUserSettings } from "../lib/firestoreQueries";
-import type { UserSettings } from "../../../shared/types";
+import {
+  getUserSettings,
+  updateUserSettings,
+  connectGoogleActivity,
+  syncGoogleActivityData,
+  getMobileActivitySummaries,
+  getGoogleActivityConnectionStatus,
+  disconnectGoogleActivity,
+} from "../lib/firestoreQueries";
+import type { UserSettings, MobileActivitySummary, MobileIntegrationStatus } from "../../../shared/types";
 
 export function SettingsPage() {
   const { user, signOut } = useAuth();
@@ -15,10 +23,22 @@ export function SettingsPage() {
   const [newDomain, setNewDomain] = useState("");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [integration, setIntegration] = useState<MobileIntegrationStatus>({
+    provider: "google_fit",
+    connected: false,
+    optedIn: false,
+    scope: "https://www.googleapis.com/auth/fitness.activity.read",
+  });
+  const [mobileSummaries, setMobileSummaries] = useState<MobileActivitySummary[]>([]);
+  const [syncing, setSyncing] = useState(false);
+  const [disconnecting, setDisconnecting] = useState(false);
+  const [integrationMessage, setIntegrationMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
     getUserSettings(user.uid).then(setSettings);
+    getGoogleActivityConnectionStatus().then(setIntegration);
+    getMobileActivitySummaries(7).then(setMobileSummaries);
   }, [user]);
 
   async function handleSave() {
@@ -40,6 +60,56 @@ export function SettingsPage() {
 
   function removeDomain(domain: string) {
     setSettings((s) => ({ ...s, blockedDomains: s.blockedDomains.filter((d) => d !== domain) }));
+  }
+
+  async function handleConnectGoogleActivity() {
+    setIntegrationMessage(null);
+    try {
+      const result = await connectGoogleActivity(true);
+      setIntegrationMessage("Google authorization opened. Complete consent, then click Sync Activity Data.");
+      window.open(result.authUrl, "_blank", "noopener,noreferrer");
+    } catch (error) {
+      setIntegrationMessage(error instanceof Error ? error.message : "Failed to start Google activity connection.");
+    }
+  }
+
+  async function handleSyncActivity(days = 7) {
+    setSyncing(true);
+    setIntegrationMessage(null);
+    try {
+      await syncGoogleActivityData(days);
+      const [status, summaries] = await Promise.all([
+        getGoogleActivityConnectionStatus(),
+        getMobileActivitySummaries(7),
+      ]);
+      setIntegration(status);
+      setMobileSummaries(summaries);
+      setIntegrationMessage("Activity data synced successfully.");
+    } catch (error) {
+      setIntegrationMessage(error instanceof Error ? error.message : "Failed to sync activity data.");
+    } finally {
+      setSyncing(false);
+    }
+  }
+
+  async function handleDisconnectGoogleActivity() {
+    setDisconnecting(true);
+    setIntegrationMessage(null);
+    try {
+      await disconnectGoogleActivity();
+      setIntegration({
+        provider: "google_fit",
+        connected: false,
+        optedIn: false,
+        scope: "https://www.googleapis.com/auth/fitness.activity.read",
+      });
+      setMobileSummaries([]);
+      setIntegrationMessage("Google integration disconnected and stored mobile activity summaries were deleted.");
+    } catch (error) {
+      setIntegrationMessage(error instanceof Error ? error.message : "Failed to disconnect Google activity integration.");
+    } finally {
+      setDisconnecting(false);
+    }
   }
 
   return (
@@ -154,6 +224,80 @@ export function SettingsPage() {
           onChange={(e) => setSettings((s) => ({ ...s, timezone: e.target.value }))}
           className="w-full max-w-sm rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-2.5 text-sm text-white outline-none transition focus:border-gold/40 focus:ring-2 focus:ring-gold/10"
         />
+      </GlassCard>
+
+      {/* Mobile Activity Integration */}
+      <GlassCard title="Mobile Activity Integration" subtitle="Google Fit activity summaries" accentColor="#6ef5b1" delay={0.2}>
+        <div className="space-y-4">
+          <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm text-white/70">
+            <p className="font-medium text-white">Privacy-first collection</p>
+            <p className="mt-1 text-white/60">
+              FlowPulse only stores step count, active movement minutes, activity sessions, and daily summaries.
+              Heart rate, sleep, medical data, and location are never collected.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <span className={`rounded-full px-3 py-1 text-xs font-medium ${integration.connected ? "bg-emerald-500/20 text-emerald-300" : "bg-white/10 text-white/60"}`}>
+              {integration.connected ? "Connected" : "Not connected"}
+            </span>
+            <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-white/60">Provider: Google Fit</span>
+            <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-white/60">Scope: activity recognition only</span>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <motion.button
+              onClick={handleConnectGoogleActivity}
+              className="rounded-xl border border-neon/30 bg-neon/10 px-4 py-2 text-sm font-medium text-neon transition hover:bg-neon/20"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              Connect Google Account
+            </motion.button>
+
+            <motion.button
+              onClick={() => handleSyncActivity(7)}
+              disabled={syncing || !integration.connected}
+              className="rounded-xl border border-emerald-400/30 bg-emerald-500/10 px-4 py-2 text-sm font-medium text-emerald-300 transition hover:bg-emerald-500/20 disabled:opacity-50"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              {syncing ? "Syncing..." : "Sync Activity Data"}
+            </motion.button>
+
+            <motion.button
+              onClick={handleDisconnectGoogleActivity}
+              disabled={disconnecting || !integration.connected}
+              className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-2 text-sm font-medium text-rose-300 transition hover:bg-rose-500/20 disabled:opacity-50"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              {disconnecting ? "Disconnecting..." : "Disconnect & Delete Data"}
+            </motion.button>
+          </div>
+
+          {integrationMessage && (
+            <p className="rounded-xl border border-white/10 bg-white/[0.03] p-3 text-sm text-white/70">{integrationMessage}</p>
+          )}
+
+          <div className="space-y-2">
+            <p className="text-xs uppercase tracking-[0.3em] text-white/40">Recent Daily Activity Summaries</p>
+            {mobileSummaries.length === 0 ? (
+              <p className="text-sm text-white/40">No synced activity summaries yet.</p>
+            ) : (
+              <div className="space-y-2">
+                {mobileSummaries.map((summary) => (
+                  <div key={summary.date} className="grid grid-cols-2 gap-2 rounded-xl border border-white/10 bg-white/[0.03] p-3 text-sm sm:grid-cols-4">
+                    <span className="text-white/70">{summary.date}</span>
+                    <span className="text-white/70">{summary.step_count} steps</span>
+                    <span className="text-white/70">{summary.active_minutes} active min</span>
+                    <span className="text-white/70">{summary.activity_sessions} sessions</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </GlassCard>
 
       {/* Actions */}

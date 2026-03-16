@@ -30,7 +30,7 @@ export interface IntelligenceData {
 }
 
 export function useIntelligence(): IntelligenceData {
-  const { logs, weeklyStats, loading } = useDashboardData();
+  const { logs, weeklyStats, dailyStats, loading } = useDashboardData();
 
   const sessionMetrics = useMemo(
     () => analyzeSessionIntelligence(logs),
@@ -58,9 +58,10 @@ export function useIntelligence(): IntelligenceData {
         sessionMetrics,
         distractionPatterns,
         focusMetrics,
-        predictiveInsights
+        predictiveInsights,
+        dailyStats
       ),
-    [sessionMetrics, distractionPatterns, focusMetrics, predictiveInsights]
+    [sessionMetrics, distractionPatterns, focusMetrics, predictiveInsights, dailyStats]
   );
 
   const leaderboardMetrics = useMemo(
