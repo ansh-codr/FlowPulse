@@ -71,21 +71,21 @@ export function HomePage() {
   const dateStr = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 
   return (
-    <motion.div className="space-y-6" variants={container} initial="hidden" animate="show">
+    <motion.div className="space-y-6 overflow-x-hidden" variants={container} initial="hidden" animate="show">
       {/* Header */}
-      <motion.header variants={item} className="flex items-start justify-between">
+      <motion.header variants={item} className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="inline-flex h-1.5 w-1.5 animate-pulse-glow rounded-full bg-neon shadow-glow-neon" />
             <p className="text-xs uppercase tracking-[0.4em] text-white/30">{dateStr}</p>
           </div>
-          <h1 className="font-display text-4xl font-bold leading-tight tracking-tight text-white">
+          <h1 className="font-display text-3xl font-bold leading-tight tracking-tight text-white sm:text-4xl">
             {greeting} 👋
           </h1>
-          <p className="text-sm text-white/40">Here's your cognitive snapshot for today.</p>
+          <p className="max-w-[56ch] text-sm leading-relaxed text-white/40">Here's your cognitive snapshot for today.</p>
         </div>
         <motion.button
-          className="group relative overflow-hidden rounded-xl border border-white/[0.10] bg-white/[0.05] px-5 py-2.5 text-sm font-medium text-white/70 transition hover:border-neon/30 hover:text-white"
+          className="group relative w-full overflow-hidden rounded-xl border border-white/[0.10] bg-white/[0.05] px-5 py-2.5 text-sm font-medium text-white/70 transition hover:border-neon/30 hover:text-white sm:w-auto"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
@@ -105,7 +105,7 @@ export function HomePage() {
       )}
 
       {/* Focus Ring + Cognitive Altitude */}
-      <motion.div variants={item} className="grid gap-6 lg:grid-cols-[280px_1fr]">
+      <motion.div variants={item} className="grid gap-6 lg:grid-cols-[minmax(260px,280px)_1fr]">
         <GlassCard
           title="Focus Score"
           subtitle="Live orbital ring"
@@ -141,7 +141,7 @@ export function HomePage() {
 
         <GlassCard title="Dominant channel" subtitle={overview.topCategory} accentColor="#f5c842" delay={0.15}>
           <div className="space-y-4 text-white/80">
-            <p className="leading-relaxed text-sm">
+            <p className="text-sm leading-relaxed">
               {overview.focusScore >= 70
                 ? <>Strong creative surge. Held deep focus for <span className="font-semibold text-white">{Math.round(overview.totalActiveMinutes / Math.max(1, timeline.length))} min</span> avg.</>
                 : <>Mixed attention today. Try to protect a focused block this afternoon.</>

@@ -13,6 +13,8 @@
 
 :root {
   font-family: "Inter", system-ui, sans-serif;
+  line-height: 1.5;
+  font-size: 16px;
   color: #f5f0eb;
   background-color: #08060A;
   text-rendering: optimizeLegibility;

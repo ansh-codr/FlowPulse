@@ -14,15 +14,34 @@ import type { AppUsage, AttentionSlice, TimelineBlock } from "../../../shared/ty
 
 const tooltipStyle = {
   background: "rgba(5,6,10,0.95)",
-  border: "1px solid rgba(88,240,255,0.15)",
+  border: "1px solid rgba(88,240,255,0.2)",
   borderRadius: "12px",
   color: "white",
   fontSize: "12px",
-  padding: "8px 14px",
-  boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+  padding: "10px 14px",
+  boxShadow: "0 16px 36px rgba(0,0,0,0.45)",
 };
 
+function barColorForBlock(block: TimelineBlock): string {
+  if (block.focusLevel === "deep") return "#22d3ee";
+  if (block.focusLevel === "flow") return "#818cf8";
+  if (block.focusLevel === "shallow") return "#f59e0b";
+  return "#fb7185";
+}
+
+function ringColorForValue(value: number): string {
+  if (value >= 70) return "#22d3ee";
+  if (value >= 50) return "#818cf8";
+  if (value >= 35) return "#f59e0b";
+  return "#fb7185";
+}
+
 export function FocusTimeline({ data }: { data: TimelineBlock[] }) {
+  const avgFocus = data.length > 0
+    ? Math.round(data.reduce((sum, p) => sum + p.focusScore, 0) / data.length)
+    : 0;
+  const lineEnd = ringColorForValue(avgFocus);
+
   return (
     <ResponsiveContainer width="100%" height={220}>
       <AreaChart data={data} margin={{ left: 0, right: 0, top: 12, bottom: 0 }}>
@@ -34,7 +53,7 @@ export function FocusTimeline({ data }: { data: TimelineBlock[] }) {
           </linearGradient>
           <linearGradient id="focusLine" x1="0" y1="0" x2="1" y2="0">
             <stop offset="0%" stopColor="#9c6bff" />
-            <stop offset="100%" stopColor="#58f0ff" />
+            <stop offset="100%" stopColor={lineEnd} />
           </linearGradient>
           <filter id="area-glow">
             <feGaussianBlur stdDeviation="2" result="blur" />
@@ -93,7 +112,11 @@ export function ActiveBar({ data }: { data: TimelineBlock[] }) {
           contentStyle={tooltipStyle}
           cursor={{ fill: "rgba(88,240,255,0.06)" }}
         />
-        <Bar dataKey="activeMinutes" radius={[8, 8, 0, 0]} fill="url(#barGradient)" />
+        <Bar dataKey="activeMinutes" radius={[8, 8, 0, 0]}>
+          {data.map((block) => (
+            <Cell key={`${block.hour}-${block.focusLevel}`} fill={barColorForBlock(block)} fillOpacity={0.9} />
+          ))}
+        </Bar>
       </BarChart>
     </ResponsiveContainer>
   );
