@@ -17,6 +17,9 @@ import {
   type ProductivityAdvice,
   type LeaderboardMetrics,
 } from "../../../shared/intelligence";
+import type { CombinedAnalyticsDaily } from "../../../shared/types";
+
+interface CombinedBehaviorSignals extends CombinedAnalyticsDaily {}
 
 export interface IntelligenceData {
   sessionMetrics: SessionMetrics;
@@ -25,6 +28,7 @@ export interface IntelligenceData {
   predictiveInsights: PredictiveInsights;
   productivityAdvice: ProductivityAdvice;
   leaderboardMetrics: LeaderboardMetrics;
+  combinedBehaviorSignals: CombinedBehaviorSignals;
   loading: boolean;
   hasEnoughData: boolean;
 }
@@ -69,6 +73,21 @@ export function useIntelligence(): IntelligenceData {
     [weeklyStats]
   );
 
+  const combinedBehaviorSignals = useMemo(
+    () => ({
+      date: dailyStats?.date ?? new Date().toISOString().slice(0, 10),
+      desktopScreenTimeMinutes: dailyStats?.desktopScreenTimeMinutes ?? Math.round((dailyStats?.totalDuration ?? 0) / 60),
+      learningActivityMinutes: dailyStats?.learningActivityMinutes ?? Math.round((dailyStats?.productiveTime ?? 0) / 60),
+      dailyStepCount: dailyStats?.dailyStepCount ?? dailyStats?.mobileStepCount ?? 0,
+      activeMovementMinutes: dailyStats?.activeMovementMinutes ?? dailyStats?.mobileActiveMinutes ?? 0,
+      highScreenUsageLowPhysicalActivity: dailyStats?.highScreenUsageLowPhysicalActivity ?? false,
+      healthyLearningMovementBalance: dailyStats?.healthyLearningMovementBalance ?? false,
+      longSedentaryStudyPeriods: dailyStats?.longSedentaryStudyPeriods ?? 0,
+      longSedentaryStudyDetected: dailyStats?.longSedentaryStudyDetected ?? false,
+    }),
+    [dailyStats]
+  );
+
   const hasEnoughData = weeklyStats.length >= 14;
 
   return {
@@ -78,6 +97,7 @@ export function useIntelligence(): IntelligenceData {
     predictiveInsights,
     productivityAdvice,
     leaderboardMetrics,
+    combinedBehaviorSignals,
     loading,
     hasEnoughData,
   };

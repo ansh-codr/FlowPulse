@@ -38,6 +38,7 @@ export function InsightsPage() {
     predictiveInsights,
     productivityAdvice,
     leaderboardMetrics,
+    combinedBehaviorSignals,
     loading,
     hasEnoughData,
   } = useIntelligence();
@@ -218,6 +219,44 @@ export function InsightsPage() {
               </div>
             </div>
           )}
+        </GlassCard>
+      </motion.div>
+
+      {/* Combined Cross-Device Analytics */}
+      <motion.div variants={item}>
+        <GlassCard title="Cross-Device Behavior Indicators" subtitle="Desktop + mobile activity correlation" accentColor="#6ef5b1" delay={0.17}>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-xl bg-white/[0.04] p-3 text-center">
+              <p className="font-display text-2xl font-bold text-neon">{combinedBehaviorSignals.desktopScreenTimeMinutes}m</p>
+              <p className="text-[10px] uppercase tracking-wider text-white/40">Desktop Screen Time</p>
+            </div>
+            <div className="rounded-xl bg-white/[0.04] p-3 text-center">
+              <p className="font-display text-2xl font-bold text-aurora">{combinedBehaviorSignals.learningActivityMinutes}m</p>
+              <p className="text-[10px] uppercase tracking-wider text-white/40">Learning Duration</p>
+            </div>
+            <div className="rounded-xl bg-white/[0.04] p-3 text-center">
+              <p className="font-display text-2xl font-bold text-emerald-300">{combinedBehaviorSignals.dailyStepCount}</p>
+              <p className="text-[10px] uppercase tracking-wider text-white/40">Daily Steps</p>
+            </div>
+            <div className="rounded-xl bg-white/[0.04] p-3 text-center">
+              <p className="font-display text-2xl font-bold text-amber-300">{combinedBehaviorSignals.activeMovementMinutes}m</p>
+              <p className="text-[10px] uppercase tracking-wider text-white/40">Active Movement</p>
+            </div>
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            <span className={`rounded-full px-3 py-1 text-xs font-medium ${combinedBehaviorSignals.highScreenUsageLowPhysicalActivity ? "bg-rose-500/20 text-rose-300" : "bg-white/10 text-white/60"}`}>
+              {combinedBehaviorSignals.highScreenUsageLowPhysicalActivity ? "High screen usage + low physical activity" : "No high screen/low activity risk"}
+            </span>
+            <span className={`rounded-full px-3 py-1 text-xs font-medium ${combinedBehaviorSignals.healthyLearningMovementBalance ? "bg-emerald-500/20 text-emerald-300" : "bg-white/10 text-white/60"}`}>
+              {combinedBehaviorSignals.healthyLearningMovementBalance ? "Healthy learning/movement balance" : "Balance not reached yet"}
+            </span>
+            <span className={`rounded-full px-3 py-1 text-xs font-medium ${combinedBehaviorSignals.longSedentaryStudyDetected ? "bg-amber-500/20 text-amber-300" : "bg-white/10 text-white/60"}`}>
+              {combinedBehaviorSignals.longSedentaryStudyDetected
+                ? `${combinedBehaviorSignals.longSedentaryStudyPeriods} long sedentary study period(s)`
+                : "No long sedentary study periods"}
+            </span>
+          </div>
         </GlassCard>
       </motion.div>
 

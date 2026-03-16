@@ -48,6 +48,21 @@ export interface MobileIntegrationStatus {
   lastError?: string | null;
 }
 
+/** users/{uid}/combined_analytics/{YYYY-MM-DD} */
+export interface CombinedAnalyticsDaily {
+  date: string; // YYYY-MM-DD
+  desktopScreenTimeMinutes: number;
+  learningActivityMinutes: number;
+  dailyStepCount: number;
+  activeMovementMinutes: number;
+  highScreenUsageLowPhysicalActivity: boolean;
+  healthyLearningMovementBalance: boolean;
+  longSedentaryStudyPeriods: number;
+  longSedentaryStudyDetected: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 /** users/{uid}/activityLogs/{docId} */
 export interface ActivityLog {
   id?: string; // Firestore doc ID (populated on read)
@@ -85,9 +100,17 @@ export interface DailyStats {
   mobileStepCount?: number;
   mobileActiveMinutes?: number;
   mobileActivitySessions?: number;
+  desktopScreenTimeMinutes?: number;
+  learningActivityMinutes?: number;
+  dailyStepCount?: number;
+  activeMovementMinutes?: number;
   highScreenTimeLowSteps?: boolean;
   longFocusWithoutMovement?: boolean;
   balancedLearningAndMovement?: boolean;
+  highScreenUsageLowPhysicalActivity?: boolean;
+  healthyLearningMovementBalance?: boolean;
+  longSedentaryStudyPeriods?: number;
+  longSedentaryStudyDetected?: boolean;
   updatedAt: string; // ISO timestamp
 }
 

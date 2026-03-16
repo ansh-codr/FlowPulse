@@ -23,6 +23,7 @@ import type {
   LeaderboardEntry,
   MobileActivitySummary,
   MobileIntegrationStatus,
+  CombinedAnalyticsDaily,
 } from "../../../shared/types";
 
 /* ── Helpers ──────────────────────────────────────────────────────────────── */
@@ -215,6 +216,25 @@ export async function disconnectGoogleActivity(): Promise<{ deletedSummaryCount:
   const call = httpsCallable(functions, "disconnectGoogleActivity");
   const result = await call();
   return result.data as { deletedSummaryCount: number; message: string };
+}
+
+/* ── Combined Cross-Device Analytics ─────────────────────────────────────── */
+
+export async function getCombinedAnalyticsForDate(
+  uid: string,
+  dateStr: string
+): Promise<CombinedAnalyticsDaily | null> {
+  const ref = doc(db, "users", uid, "combined_analytics", dateStr);
+  const snap = await getDoc(ref);
+  if (!snap.exists()) return null;
+  return snap.data() as CombinedAnalyticsDaily;
+}
+
+export async function getWeeklyCombinedAnalytics(uid: string): Promise<CombinedAnalyticsDaily[]> {
+  const ref = collection(db, "users", uid, "combined_analytics");
+  const q = query(ref, orderBy("date", "desc"), limit(7));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => d.data() as CombinedAnalyticsDaily);
 }
 
 /* ── Leaderboard ──────────────────────────────────────────────────────────── */
