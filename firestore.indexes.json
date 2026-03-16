@@ -1,19 +1,4 @@
 {
-  "indexes": [
-    {
-      "collectionGroup": "activityLogs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "startTime", "order": "DESCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "dailyStats",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "date", "order": "DESCENDING" }
-      ]
-    }
-  ],
+  "indexes": [],
   "fieldOverrides": []
 }
