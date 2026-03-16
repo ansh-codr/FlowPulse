@@ -43,7 +43,7 @@ function AppRoutes() {
 
   return (
     <Routes>
-      <Route path="/" element={<ImmersiveLanding />} />
+      <Route path="/" element={user ? <Navigate to="/app" replace /> : <ImmersiveLanding />} />
       <Route
         path="/login"
         element={user ? <Navigate to="/app" replace /> : <LoginPage />}
