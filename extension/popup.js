@@ -1,4 +1,4 @@
-import { signIn, signOut, getAuth } from "./lib/auth.js";
+import { signIn, signOut, getAuth, openDashboard } from "./lib/auth.js";
 
 const RADIUS = 52;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
@@ -65,7 +65,7 @@ $("signOutBtn").addEventListener("click", async () => {
 });
 
 $("openDashboard").addEventListener("click", () => {
-  chrome.tabs.create({ url: "https://anshyadav.tech/" });
+  openDashboard();
 });
 
 /* ── Manual Sync ──────────────────────────────────── */

@@ -13,6 +13,29 @@
 import { FIREBASE_CONFIG } from "./firebase.js";
 
 const AUTH_STORAGE_KEY = "flowpulse_auth";
+const DASHBOARD_ORIGINS = [
+  "https://anshyadav.tech",
+  "https://flowpulse.netlify.app",
+  "http://localhost:5173",
+];
+
+async function focusOrOpenDashboard(path = "/") {
+  const tabs = await chrome.tabs.query({});
+  const match = tabs.find((tab) =>
+    typeof tab.url === "string" && DASHBOARD_ORIGINS.some((origin) => tab.url.startsWith(origin))
+  );
+
+  const targetUrl = `${DASHBOARD_ORIGINS[0]}${path}`;
+  if (match?.id != null) {
+    await chrome.tabs.update(match.id, { active: true, url: targetUrl });
+    if (typeof match.windowId === "number") {
+      await chrome.windows.update(match.windowId, { focused: true });
+    }
+    return;
+  }
+
+  await chrome.tabs.create({ url: targetUrl });
+}
 
 /**
  * Store auth data received from dashboard content script.
@@ -43,7 +66,11 @@ export async function storeAuth(data) {
  * Content script on the dashboard will pick up auth automatically.
  */
 export async function signIn() {
-  chrome.tabs.create({ url: "https://anshyadav.tech/login" });
+  await focusOrOpenDashboard("/login");
+}
+
+export async function openDashboard() {
+  await focusOrOpenDashboard("/app");
 }
 
 /**
