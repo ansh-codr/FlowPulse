@@ -48,6 +48,12 @@ service cloud.firestore {
       match /integrations/{integrationId} {
         allow read, write: if false;
       }
+
+      // ── Combined cross-device analytics (read-only for dashboard; writes via Admin SDK) ────
+      match /combined_analytics/{dateId} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow write: if false;
+      }
     }
 
     // ── Leaderboard (public read, admin write) ──────────────

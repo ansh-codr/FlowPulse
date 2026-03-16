@@ -24,6 +24,18 @@ interface MobileActivitySummary {
   activity_sessions?: number;
 }
 
+interface CombinedAnalyticsDaily {
+  date: string;
+  desktopScreenTimeMinutes: number;
+  learningActivityMinutes: number;
+  dailyStepCount: number;
+  activeMovementMinutes: number;
+  highScreenUsageLowPhysicalActivity: boolean;
+  healthyLearningMovementBalance: boolean;
+  longSedentaryStudyPeriods: number;
+  longSedentaryStudyDetected: boolean;
+}
+
 // Social media domains for pattern detection
 const SOCIAL_MEDIA_DOMAINS = [
   "facebook.com", "twitter.com", "x.com", "instagram.com", "tiktok.com",
@@ -229,6 +241,13 @@ export const dailyAggregation = functions.pubsub
       const mobileActiveMinutes = Math.max(0, Math.round(mobileSummary.active_minutes ?? 0));
       const mobileActivitySessions = Math.max(0, Math.round(mobileSummary.activity_sessions ?? 0));
 
+      const desktopScreenTimeMinutes = Math.round(totalDuration / 60);
+      const learningActivityMinutes = Math.round(productiveTime / 60);
+      const dailyStepCount = mobileStepCount;
+      const activeMovementMinutes = mobileActiveMinutes;
+
+      const longSedentaryStudyPeriods = countLongSedentaryStudyPeriods(sortedLogs);
+
       // Cross-device behavior signals
       const highScreenTimeLowSteps = totalDuration >= 4 * 3600 && mobileStepCount > 0 && mobileStepCount < 3000;
       const longFocusWithoutMovement = deepBlocks >= 3 && mobileActiveMinutes < 20;
@@ -237,6 +256,27 @@ export const dailyAggregation = functions.pubsub
         productiveTime >= totalDuration * 0.5 &&
         mobileActiveMinutes >= 30 &&
         mobileStepCount >= 6000;
+
+      const highScreenUsageLowPhysicalActivity =
+        desktopScreenTimeMinutes >= 240 &&
+        (dailyStepCount < 3000 || activeMovementMinutes < 20);
+      const healthyLearningMovementBalance =
+        learningActivityMinutes >= 120 &&
+        activeMovementMinutes >= 30 &&
+        dailyStepCount >= 6000;
+      const longSedentaryStudyDetected = longSedentaryStudyPeriods > 0;
+
+      const combinedAnalytics: CombinedAnalyticsDaily = {
+        date: dateStr,
+        desktopScreenTimeMinutes,
+        learningActivityMinutes,
+        dailyStepCount,
+        activeMovementMinutes,
+        highScreenUsageLowPhysicalActivity,
+        healthyLearningMovementBalance,
+        longSedentaryStudyPeriods,
+        longSedentaryStudyDetected,
+      };
 
       // Domain breakdown
       const domainBreakdown: Record<string, number> = {};
@@ -270,11 +310,29 @@ export const dailyAggregation = functions.pubsub
           mobileStepCount,
           mobileActiveMinutes,
           mobileActivitySessions,
+          desktopScreenTimeMinutes,
+          learningActivityMinutes,
+          dailyStepCount,
+          activeMovementMinutes,
           highScreenTimeLowSteps,
           longFocusWithoutMovement,
           balancedLearningAndMovement,
+          highScreenUsageLowPhysicalActivity,
+          healthyLearningMovementBalance,
+          longSedentaryStudyPeriods,
+          longSedentaryStudyDetected,
           updatedAt: new Date().toISOString(),
           createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        },
+      });
+
+      const combinedRef = db.doc(`users/${uid}/combined_analytics/${dateStr}`);
+      pendingWrites.push({
+        ref: combinedRef,
+        data: {
+          ...combinedAnalytics,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          updatedAt: new Date().toISOString(),
         },
       });
     }
@@ -317,4 +375,36 @@ function countDeepBlocks(logs: ActivityLog[]): number {
   }
 
   return blocks;
+}
+
+/**
+ * Count long sedentary study periods as productive streaks >= 90 minutes.
+ */
+function countLongSedentaryStudyPeriods(logs: ActivityLog[]): number {
+  const productive = logs
+    .filter((l) => l.category === "productive")
+    .sort((a, b) => a.startTime.toMillis() - b.startTime.toMillis());
+
+  if (productive.length === 0) return 0;
+
+  let periods = 0;
+  let streakSeconds = productive[0].duration;
+
+  for (let i = 1; i < productive.length; i++) {
+    const prev = productive[i - 1];
+    const curr = productive[i];
+    const prevEnd = prev.endTime?.toMillis() ?? prev.startTime.toMillis() + prev.duration * 1000;
+    const currStart = curr.startTime.toMillis();
+    const gapSeconds = (currStart - prevEnd) / 1000;
+
+    if (gapSeconds <= 5 * 60) {
+      streakSeconds += curr.duration;
+    } else {
+      if (streakSeconds >= 90 * 60) periods++;
+      streakSeconds = curr.duration;
+    }
+  }
+
+  if (streakSeconds >= 90 * 60) periods++;
+  return periods;
 }
