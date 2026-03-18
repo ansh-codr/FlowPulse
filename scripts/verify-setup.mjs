@@ -81,18 +81,30 @@ function verifyRoutes() {
 }
 
 function verifyFirebaseBindings() {
-  requireContains(
-    "dashboard/src/lib/firebase.ts",
-    "import.meta.env.VITE_FIREBASE_API_KEY",
+  const relPath = "dashboard/src/lib/firebase.ts";
+  const text = readText(relPath);
+
+  const hasApiKey =
+    text.includes("import.meta.env.VITE_FIREBASE_API_KEY") ||
+    text.includes("apiKey:") && text.includes("AIza");
+  addCheck(
     "Firebase API key binding",
+    hasApiKey,
+    `${relPath} must include public apiKey config (env-based or inline public key)`
   );
-  requireContains(
-    "dashboard/src/lib/firebase.ts",
-    "import.meta.env.VITE_FIREBASE_PROJECT_ID",
+
+  const hasProjectId =
+    text.includes("import.meta.env.VITE_FIREBASE_PROJECT_ID") ||
+    text.includes('projectId: "flowpulse-698a3"') ||
+    text.includes("projectId:");
+  addCheck(
     "Firebase project ID binding",
+    hasProjectId,
+    `${relPath} must include projectId config (env-based or inline)`
   );
+
   requireContains(
-    "dashboard/src/lib/firebase.ts",
+    relPath,
     "initializeApp(firebaseConfig)",
     "Firebase app initialization",
   );

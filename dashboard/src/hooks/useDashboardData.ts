@@ -274,9 +274,9 @@ export function useDashboardData(dateStr?: string) {
   const cacheKey = `${DASHBOARD_CACHE_PREFIX}:${uid}:${date}`;
 
   const [logs, setLogs] = useState<ActivityLog[]>([]);
-  const dailyStats: DailyStats | null = null;
-  const weeklyStats: DailyStats[] = [];
-  const streak = 0;
+  const [dailyStats, setDailyStats] = useState<DailyStats | null>(null);
+  const [weeklyStats, setWeeklyStats] = useState<DailyStats[]>([]);
+  const [streak, setStreak] = useState(0);
   const [realtimeSummary, setRealtimeSummary] = useState<DailyRealtimeSummary | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -284,6 +284,9 @@ export function useDashboardData(dateStr?: string) {
     if (!uid) {
       setLogs([]);
       setRealtimeSummary(null);
+      setDailyStats(null);
+      setWeeklyStats([]);
+      setStreak(0);
       setLoading(false);
       return;
     }
