@@ -5,14 +5,12 @@
 import { useEffect, useState, useMemo } from "react";
 import { useAuth } from "./useAuth";
 import {
-  getDailyStatsForDate,
-  getWeeklyStats,
-  getStreakDays,
-  subscribeToActivityLogs,
+  subscribeToDailyRealtimeSummary,
 } from "../lib/firestoreQueries";
 import type {
   ActivityLog,
   DailyStats,
+  DailyRealtimeSummary,
   TimelineBlock,
   HeatmapCell,
   OverviewStats,
@@ -25,9 +23,34 @@ import type {
 import { toFocusLevel } from "../../../shared/types";
 
 const PALETTE = ["#58f0ff", "#7b6bff", "#ff8ad6", "#6ef5b1", "#ffcb74", "#f97373"];
+const DASHBOARD_CACHE_PREFIX = "flowpulse_dashboard_cache";
 
 function todayStr(): string {
   return new Date().toISOString().slice(0, 10);
+}
+
+function summaryToSyntheticLogs(summary: DailyRealtimeSummary | null): ActivityLog[] {
+  if (!summary) return [];
+
+  const activeSeconds = Math.max(0, Number(summary.activitySummary.activeMinutes || 0) * 60);
+  if (activeSeconds <= 0) return [];
+
+  const now = new Date();
+  const start = new Date(now.getTime() - activeSeconds * 1000);
+  const focus = Number(summary.activitySummary.focusScore || 0);
+
+  return [
+    {
+      id: `${summary.date}-summary`,
+      url: `https://${summary.activitySummary.topDomain || "dashboard.flowpulse"}`,
+      domain: summary.activitySummary.topDomain || "dashboard.flowpulse",
+      title: "Daily activity summary",
+      category: focus >= 65 ? "productive" : focus >= 40 ? "neutral" : "distraction",
+      startTime: start.toISOString(),
+      endTime: now.toISOString(),
+      duration: activeSeconds,
+    },
+  ];
 }
 
 /* ── Log → TimelineBlock[] ────────────────────────────────────────────── */
@@ -248,30 +271,65 @@ export function useDashboardData(dateStr?: string) {
   const { user } = useAuth();
   const date = dateStr ?? todayStr();
   const uid = user?.uid ?? "";
+  const cacheKey = `${DASHBOARD_CACHE_PREFIX}:${uid}:${date}`;
 
   const [logs, setLogs] = useState<ActivityLog[]>([]);
-  const [dailyStats, setDailyStats] = useState<DailyStats | null>(null);
-  const [weeklyStats, setWeeklyStats] = useState<DailyStats[]>([]);
-  const [streak, setStreak] = useState(0);
+  const dailyStats: DailyStats | null = null;
+  const weeklyStats: DailyStats[] = [];
+  const streak = 0;
+  const [realtimeSummary, setRealtimeSummary] = useState<DailyRealtimeSummary | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!uid) return;
+    if (!uid) {
+      setLogs([]);
+      setRealtimeSummary(null);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
 
-    // Subscribe to real-time activity logs for the day
-    const unsub = subscribeToActivityLogs(uid, date, (newLogs) => {
-      setLogs(newLogs);
-      setLoading(false);
-    });
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached) as DailyRealtimeSummary;
+        setRealtimeSummary(parsed);
+        setLogs(summaryToSyntheticLogs(parsed));
+      } catch {
+        // Ignore malformed cache and continue with realtime listener.
+      }
+    }
 
-    // Fetch daily stats + weekly stats + streak
-    getDailyStatsForDate(uid, date).then(setDailyStats);
-    getWeeklyStats(uid).then(setWeeklyStats);
-    getStreakDays(uid).then(setStreak);
+    const unsub = subscribeToDailyRealtimeSummary(
+      uid,
+      date,
+      (summary) => {
+        setRealtimeSummary(summary);
+        setLogs(summaryToSyntheticLogs(summary));
+        if (summary) {
+          localStorage.setItem(cacheKey, JSON.stringify(summary));
+        }
+        setLoading(false);
+      },
+      () => {
+        const fallback = localStorage.getItem(cacheKey);
+        if (fallback) {
+          try {
+            const parsed = JSON.parse(fallback) as DailyRealtimeSummary;
+            setRealtimeSummary(parsed);
+            setLogs(summaryToSyntheticLogs(parsed));
+          } catch {
+            setRealtimeSummary(null);
+            setLogs([]);
+          }
+        }
+      setLoading(false);
+      }
+    );
 
     return unsub;
-  }, [uid, date]);
+  }, [uid, date, cacheKey]);
 
   // Derived view models
   const timeline = useMemo(() => logsToTimeline(logs), [logs]);
@@ -284,14 +342,17 @@ export function useDashboardData(dateStr?: string) {
 
   const overview: OverviewStats = useMemo(() => {
     // Always return a valid overview — zeros when no data yet
-    const focusScore = dailyStats?.focusScore ?? (timeline.length > 0
-      ? Math.round(timeline.reduce((s, b) => s + b.focusScore, 0) / timeline.length)
-      : 0);
-    const totalActiveMinutes = dailyStats
-      ? Math.round(dailyStats.totalDuration / 60)
-      : Math.round(logs.reduce((s, l) => s + l.duration, 0) / 60);
-    const distractionCount = logs.filter(l => l.category === "distraction").length;
-    const topCategory = apps.length > 0 ? apps[0].name : "—";
+    const focusScore = realtimeSummary?.activitySummary.focusScore
+      ?? dailyStats?.focusScore
+      ?? (timeline.length > 0
+        ? Math.round(timeline.reduce((s, b) => s + b.focusScore, 0) / timeline.length)
+        : 0);
+    const totalActiveMinutes = realtimeSummary?.activitySummary.activeMinutes
+      ?? (dailyStats ? Math.round(dailyStats.totalDuration / 60) : Math.round(logs.reduce((s, l) => s + l.duration, 0) / 60));
+    const distractionCount = realtimeSummary?.activitySummary.distractionCount
+      ?? logs.filter((l) => l.category === "distraction").length;
+    const topCategory = realtimeSummary?.activitySummary.topDomain
+      ?? (apps.length > 0 ? apps[0].name : "—");
 
     return {
       focusScore,
@@ -302,7 +363,7 @@ export function useDashboardData(dateStr?: string) {
     };
   }, [logs, dailyStats, timeline, apps, streak]);
 
-  const hasData = logs.length > 0 || dailyStats !== null;
+  const hasData = logs.length > 0 || dailyStats !== null || realtimeSummary !== null;
 
   return {
     logs,

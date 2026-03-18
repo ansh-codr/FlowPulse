@@ -1,0 +1,12 @@
+name = "flowpulse-assets"
+main = "src/index.ts"
+compatibility_date = "2026-03-18"
+
+[[r2_buckets]]
+binding = "ASSETS_BUCKET"
+bucket_name = "flowpulse-static-assets"
+
+[vars]
+EXTENSION_OBJECT_KEY = "extension.zip"
+CONFIG_OBJECT_KEY = "config/config.json"
+FALLBACK_CONFIG_JSON = "{\"version\":\"dev\",\"downloadUrl\":\"/download-extension\",\"installNotes\":[\"Enable Chrome developer mode\",\"Drag & drop the extension package\"]}"

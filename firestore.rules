@@ -12,15 +12,34 @@ service cloud.firestore {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
 
-      // ── Activity logs ─────────────────────────────────────
-      match /activityLogs/{logId} {
+      // ── Lightweight daily realtime summary ────────────────
+      match /dailyRealtime/{dateId} {
         allow read: if request.auth != null && request.auth.uid == userId;
-        allow create, update: if request.auth != null && request.auth.uid == userId
-          && request.resource.data.keys().hasAll(['url', 'domain', 'title', 'category', 'startTime', 'endTime', 'duration'])
-          && request.resource.data.category in ['productive', 'neutral', 'distraction']
-          && request.resource.data.duration is number
-          && request.resource.data.duration >= 0;
+        allow create, update: if request.auth != null
+          && request.auth.uid == userId
+          && request.resource.data.userId == userId
+          && request.resource.data.date == dateId
+          && request.resource.data.steps is int
+          && request.resource.data.steps >= 0
+          && request.resource.data.activitySummary.focusScore is int
+          && request.resource.data.activitySummary.focusScore >= 0
+          && request.resource.data.activitySummary.focusScore <= 100
+          && request.resource.data.activitySummary.activeMinutes is int
+          && request.resource.data.activitySummary.activeMinutes >= 0
+          && request.resource.data.activitySummary.productiveMinutes is int
+          && request.resource.data.activitySummary.productiveMinutes >= 0
+          && request.resource.data.activitySummary.distractionCount is int
+          && request.resource.data.activitySummary.distractionCount >= 0
+          && request.resource.data.activitySummary.sessionCount is int
+          && request.resource.data.activitySummary.sessionCount >= 0
+          && request.resource.data.activitySummary.topDomain is string
+          && request.resource.data.lastUpdated is timestamp;
         allow delete: if false;
+      }
+
+      // ── Legacy heavy activity logs (disabled for client writes) ─
+      match /activityLogs/{logId} {
+        allow read, write: if false;
       }
 
       // ── Daily stats (client + Cloud Functions can write for MVP) ─

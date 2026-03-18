@@ -36,70 +36,63 @@ export async function getUserId() {
 }
 
 /**
- * Write activity logs to Firestore via REST API.
- * Uses individual createDocument calls (parallel) since batchWrite
- * has permission issues with security rules.
+ * Upsert lightweight realtime activity for users/{uid}/dailyRealtime/{YYYY-MM-DD}.
+ * This avoids heavy per-event writes and keeps Firestore usage free-tier friendly.
  */
-export async function writeActivityLogs(uid, logs) {
+export async function upsertDailyRealtimeSummary(uid, payload) {
   const token = await getAuthToken();
-  if (!token || !uid || logs.length === 0) return false;
+  if (!token || !uid || !payload?.date) return false;
 
   try {
-    const BASE = `https://firestore.googleapis.com/v1/projects/${FIREBASE_CONFIG.projectId}/databases/(default)/documents`;
+    const docPath = `${FIRESTORE_BASE}/users/${uid}/dailyRealtime/${payload.date}`;
 
-    // Parallel individual creates — each succeeds/fails independently
-    const results = await Promise.allSettled(
-      logs.map(async (log) => {
-        const response = await fetch(
-          `${BASE}/users/${uid}/activityLogs?documentId=${encodeURIComponent(log.id)}`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              fields: {
-                url: { stringValue: log.url },
-                domain: { stringValue: log.domain },
-                title: { stringValue: log.title || "" },
-                category: { stringValue: log.category },
-                startTime: { timestampValue: log.startTime },
-                endTime: { timestampValue: log.endTime },
-                duration: { integerValue: String(log.duration) },
-              },
-            }),
-          }
-        );
-        if (!response.ok) {
-          // 409 CONFLICT = doc already exists, that's fine (duplicate)
-          if (response.status === 409) return true;
-          const err = await response.json().catch(() => ({}));
-          throw new Error(`${response.status}: ${JSON.stringify(err)}`);
-        }
-        return true;
-      })
-    );
+    const fields = {
+      userId: { stringValue: uid },
+      date: { stringValue: payload.date },
+      steps: { integerValue: String(Math.max(0, Number(payload.steps || 0))) },
+      activitySummary: {
+        mapValue: {
+          fields: {
+            activeMinutes: { integerValue: String(Math.max(0, Number(payload.activitySummary?.activeMinutes || 0))) },
+            productiveMinutes: { integerValue: String(Math.max(0, Number(payload.activitySummary?.productiveMinutes || 0))) },
+            distractionCount: { integerValue: String(Math.max(0, Number(payload.activitySummary?.distractionCount || 0))) },
+            focusScore: { integerValue: String(Math.max(0, Math.min(100, Number(payload.activitySummary?.focusScore || 0)))) },
+            topDomain: { stringValue: String(payload.activitySummary?.topDomain || "—") },
+            sessionCount: { integerValue: String(Math.max(0, Number(payload.activitySummary?.sessionCount || 0))) },
+          },
+        },
+      },
+      lastUpdated: { timestampValue: new Date().toISOString() },
+    };
 
-    const successes = results.filter((r) => r.status === "fulfilled").length;
-    const failures = results.filter((r) => r.status === "rejected");
-    if (failures.length > 0) {
-      console.warn(
-        "[FlowPulse] Write:",
-        successes,
-        "ok,",
-        failures.length,
-        "failed"
-      );
+    const response = await fetch(docPath, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        fields,
+        updateMask: {
+          fieldPaths: ["userId", "date", "steps", "activitySummary", "lastUpdated"],
+        },
+      }),
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(`${response.status}: ${JSON.stringify(err)}`);
     }
 
-    // Consider success if most writes went through
-    return successes > logs.length / 2;
+    return true;
   } catch (err) {
-    console.error("[FlowPulse] Firestore write error:", err);
+    console.error("[FlowPulse] Firestore lightweight write error:", err);
     return false;
   }
 }
+
+// Backwards-compatible alias used by older callers.
+export const writeActivityLogs = upsertDailyRealtimeSummary;
 
 /**
  * Read user settings from Firestore

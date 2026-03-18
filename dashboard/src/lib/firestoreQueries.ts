@@ -17,6 +17,7 @@ import { httpsCallable } from "firebase/functions";
 import { db, functions } from "./firebase";
 import type {
   ActivityLog,
+  DailyRealtimeSummary,
   DailyStats,
   UserSettings,
   Nudge,
@@ -28,6 +29,45 @@ import type {
 } from "../../../shared/types";
 
 /* ── Helpers ──────────────────────────────────────────────────────────────── */
+
+/* ── Lightweight Daily Realtime ───────────────────────────────────────────── */
+
+export function subscribeToDailyRealtimeSummary(
+  uid: string,
+  dateStr: string,
+  callback: (summary: DailyRealtimeSummary | null) => void,
+  onError?: (error: Error) => void
+): Unsubscribe {
+  const ref = doc(db, "users", uid, "dailyRealtime", dateStr);
+  return onSnapshot(
+    ref,
+    (snap) => {
+      if (!snap.exists()) {
+        callback(null);
+        return;
+      }
+
+      const data = snap.data();
+      callback({
+        userId: data.userId ?? uid,
+        date: data.date ?? dateStr,
+        steps: Number(data.steps ?? 0),
+        activitySummary: {
+          activeMinutes: Number(data.activitySummary?.activeMinutes ?? 0),
+          productiveMinutes: Number(data.activitySummary?.productiveMinutes ?? 0),
+          distractionCount: Number(data.activitySummary?.distractionCount ?? 0),
+          focusScore: Number(data.activitySummary?.focusScore ?? 0),
+          topDomain: String(data.activitySummary?.topDomain ?? "—"),
+          sessionCount: Number(data.activitySummary?.sessionCount ?? 0),
+        },
+        lastUpdated: data.lastUpdated?.toDate?.()?.toISOString?.() ?? new Date().toISOString(),
+      });
+    },
+    (error) => {
+      if (onError) onError(error as Error);
+    }
+  );
+}
 
 /* ── Activity Logs ────────────────────────────────────────────────────────── */
 

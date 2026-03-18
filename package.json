@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "verify:setup": "node scripts/verify-setup.mjs"
+    "verify:setup": "node scripts/verify-setup.mjs",
+    "deploy:backend": "firebase deploy --only firestore:rules,firestore:indexes,functions --project flowpulse-698a3",
+    "deploy:netlify": "netlify deploy --dir=dashboard/dist --prod"
   },
   "repository": {
     "type": "git",

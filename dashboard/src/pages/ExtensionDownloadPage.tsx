@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { fetchWorkerConfig, getWorkerDownloadUrl } from "../lib/workerApi";
 
 // ── palette
 const DEEP = "#011023";
@@ -124,6 +125,28 @@ function Accordion({ label, children }: { label: string; children: React.ReactNo
 
 export function ExtensionDownloadPage() {
     const navigate = useNavigate();
+    const [downloadUrl, setDownloadUrl] = useState(getWorkerDownloadUrl());
+    const [workerError, setWorkerError] = useState<string | null>(null);
+
+    useEffect(() => {
+        let mounted = true;
+
+        fetchWorkerConfig()
+            .then((cfg) => {
+                if (!mounted) return;
+                setDownloadUrl(cfg.downloadUrl || getWorkerDownloadUrl());
+                setWorkerError(null);
+            })
+            .catch(() => {
+                if (!mounted) return;
+                setDownloadUrl(getWorkerDownloadUrl());
+                setWorkerError("Extension download service is temporarily unavailable. Please retry in a moment or use manual installation.");
+            });
+
+        return () => {
+            mounted = false;
+        };
+    }, []);
 
     return (
         <div
@@ -196,8 +219,7 @@ export function ExtensionDownloadPage() {
                 >
                     {/* Primary download button */}
                     <a
-                        href="/flowpulse.crx"
-                        download="FlowPulse.crx"
+                        href={downloadUrl}
                         className="group relative mb-8 flex items-center justify-center gap-3 overflow-hidden rounded-2xl py-4 text-base font-bold text-white transition-all duration-300"
                         style={{
                             background: `linear-gradient(135deg, ${ACCENT}, ${MID} 60%, ${DEEP})`,
@@ -216,6 +238,12 @@ export function ExtensionDownloadPage() {
                         </svg>
                         Download FlowPulse Extension
                     </a>
+
+                    {workerError && (
+                        <p className="mb-6 rounded-xl border border-amber-300/30 bg-amber-400/10 px-4 py-3 text-xs leading-relaxed text-amber-100">
+                            {workerError}
+                        </p>
+                    )}
 
                     {/* Install steps */}
                     <div className="flex flex-col gap-3">

@@ -12,8 +12,6 @@
     "notifications"
   ],
   "host_permissions": [
-    "https://*.firebaseio.com/*",
-    "https://*.googleapis.com/*",
     "https://firestore.googleapis.com/*",
     "https://securetoken.googleapis.com/*"
   ],

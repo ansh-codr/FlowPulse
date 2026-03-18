@@ -4,11 +4,11 @@ import { getFirestore } from "firebase/firestore";
 import { getFunctions } from "firebase/functions";
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: "AIzaSyDtG3UyShHnsMq99TsUOrKb0LWWIBQ7V4M",
+  authDomain: "flowpulse-698a3.firebaseapp.com",
+  projectId: "flowpulse-698a3",
+  messagingSenderId: "641591502705",
+  appId: "1:641591502705:web:0bae21ddb15c00ebbbf8d0",
 };
 
 export const app = initializeApp(firebaseConfig);

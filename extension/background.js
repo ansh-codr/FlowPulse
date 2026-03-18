@@ -1,28 +1,51 @@
 /**
  * FlowPulse — Background Service Worker (MV3)
  *
- * Real tab tracking with idle detection, domain classification,
- * batched writes to Firestore, and YouTube metadata handling.
+ * Tracks tab sessions, keeps local aggregate state, and periodically
+ * upserts a lightweight daily Firestore summary document.
  */
 
 import { classifyActivity, extractDomain } from "./lib/classifier.js";
-import { getUserId, writeActivityLogs, getUserSettings } from "./lib/firebase.js";
+import { getUserId, upsertDailyRealtimeSummary, getUserSettings } from "./lib/firebase.js";
 import { getAuth, storeAuth } from "./lib/auth.js";
 
 /* ── State ────────────────────────────────────────────────────────────────── */
 
 let currentSession = null; // { url, domain, title, startTime, tabId }
-let eventQueue = [];       // Batched events pending Firestore write
 let isIdle = false;
 let trackingEnabled = true;
 let blockedDomains = [];
 let todaySummary = { focus: 0, activeMinutes: 0, distractions: 0, topChannel: "—" };
+let dailyAggregate = null;
 
-const FLUSH_INTERVAL_MS = 30_000; // 30 seconds
-const MAX_QUEUE_SIZE = 20;
 const IDLE_THRESHOLD_SEC = 60;
-const QUEUE_STORAGE_KEY = "flowpulse_event_queue";
+const AGG_STORAGE_KEY = "flowpulse_daily_aggregate";
 const SUMMARY_STORAGE_KEY = "summary";
+const MOBILE_STEPS_KEY = "flowpulse_mobile_steps_today";
+
+function todayDateStr() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function newDailyAggregate(date = todayDateStr()) {
+  return {
+    date,
+    steps: 0,
+    activeSeconds: 0,
+    productiveSeconds: 0,
+    distractionCount: 0,
+    sessionCount: 0,
+    domainDurations: {},
+    dirty: false,
+  };
+}
+
+function ensureTodayAggregate() {
+  const today = todayDateStr();
+  if (!dailyAggregate || dailyAggregate.date !== today) {
+    dailyAggregate = newDailyAggregate(today);
+  }
+}
 
 /* ── Initialization ───────────────────────────────────────────────────────── */
 
@@ -31,14 +54,14 @@ chrome.runtime.onInstalled.addListener(() => {
   chrome.idle.setDetectionInterval(IDLE_THRESHOLD_SEC);
   chrome.alarms.create("flowpulse-flush", { periodInMinutes: 0.5 });
   loadSettings();
-  restoreQueue();
+  restoreState();
 });
 
 chrome.runtime.onStartup.addListener(() => {
   chrome.idle.setDetectionInterval(IDLE_THRESHOLD_SEC);
   chrome.alarms.create("flowpulse-flush", { periodInMinutes: 0.5 });
   loadSettings();
-  restoreQueue();
+  restoreState();
 });
 
 // Also ensure alarm exists when service worker wakes up (belt and suspenders)
@@ -48,7 +71,7 @@ chrome.alarms.get("flowpulse-flush", (alarm) => {
     console.log("[FlowPulse] Re-created flush alarm");
   }
 });
-restoreQueue();
+restoreState();
 
 /* ── Settings sync ────────────────────────────────────────────────────────── */
 
@@ -66,19 +89,31 @@ async function loadSettings() {
   }
 }
 
-/* ── Queue persistence ────────────────────────────────────────────────────── */
+/* ── Local state persistence ──────────────────────────────────────────────── */
 
-async function restoreQueue() {
+async function restoreState() {
   try {
-    const result = await chrome.storage.local.get(QUEUE_STORAGE_KEY);
-    if (result[QUEUE_STORAGE_KEY]?.length) {
-      eventQueue = result[QUEUE_STORAGE_KEY];
+    const result = await chrome.storage.local.get([AGG_STORAGE_KEY, SUMMARY_STORAGE_KEY, MOBILE_STEPS_KEY]);
+    const savedAgg = result[AGG_STORAGE_KEY];
+    if (savedAgg && typeof savedAgg === "object") {
+      dailyAggregate = { ...newDailyAggregate(), ...savedAgg };
     }
-  } catch {}
+    if (result[SUMMARY_STORAGE_KEY]) {
+      todaySummary = result[SUMMARY_STORAGE_KEY];
+    }
+    if (typeof result[MOBILE_STEPS_KEY] === "number") {
+      ensureTodayAggregate();
+      dailyAggregate.steps = Math.max(0, Math.floor(result[MOBILE_STEPS_KEY]));
+    }
+    ensureTodayAggregate();
+  } catch {
+    ensureTodayAggregate();
+  }
 }
 
-async function persistQueue() {
-  await chrome.storage.local.set({ [QUEUE_STORAGE_KEY]: eventQueue });
+async function persistAggregate() {
+  ensureTodayAggregate();
+  await chrome.storage.local.set({ [AGG_STORAGE_KEY]: dailyAggregate });
 }
 
 /* ── Session management ───────────────────────────────────────────────────── */
@@ -105,7 +140,6 @@ function commitSession() {
   );
 
   const event = {
-    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     url: currentSession.url,
     domain: currentSession.domain,
     title: currentSession.title || "",
@@ -115,14 +149,9 @@ function commitSession() {
     duration: durationSec,
   };
 
-  eventQueue.push(event);
-  updateLocalSummary(event);
-  persistQueue();
-
-  // Auto-flush if queue is large
-  if (eventQueue.length >= MAX_QUEUE_SIZE) {
-    flushQueue();
-  }
+  applySessionToAggregate(event);
+  updateLocalSummaryFromAggregate();
+  persistAggregate();
 
   currentSession = null;
 }
@@ -144,58 +173,76 @@ function startSession(url, title, tabId) {
 
 /* ── Local summary for popup ──────────────────────────────────────────────── */
 
-function updateLocalSummary(event) {
-  const minutes = Math.round(event.duration / 60);
-
+function applySessionToAggregate(event) {
+  ensureTodayAggregate();
+  dailyAggregate.activeSeconds += event.duration;
+  dailyAggregate.sessionCount += 1;
+  if (event.category === "productive") {
+    dailyAggregate.productiveSeconds += event.duration;
+  }
   if (event.category === "distraction") {
-    todaySummary.distractions++;
+    dailyAggregate.distractionCount += 1;
   }
-  todaySummary.activeMinutes += minutes;
+  dailyAggregate.domainDurations[event.domain] =
+    (dailyAggregate.domainDurations[event.domain] || 0) + event.duration;
+  dailyAggregate.dirty = true;
+}
 
-  // Simple focus approximation: productive ratio
-  const totalEvents = eventQueue.length;
-  const productiveEvents = eventQueue.filter((e) => e.category === "productive").length;
-  todaySummary.focus = totalEvents > 0
-    ? Math.round((productiveEvents / totalEvents) * 100)
-    : 50;
+function updateLocalSummaryFromAggregate() {
+  ensureTodayAggregate();
+  const activeMinutes = Math.round(dailyAggregate.activeSeconds / 60);
+  const focus = dailyAggregate.activeSeconds > 0
+    ? Math.round((dailyAggregate.productiveSeconds / dailyAggregate.activeSeconds) * 100)
+    : 0;
+  const sorted = Object.entries(dailyAggregate.domainDurations).sort((a, b) => b[1] - a[1]);
 
-  // Top domain
-  const domainCounts = {};
-  for (const e of eventQueue) {
-    domainCounts[e.domain] = (domainCounts[e.domain] || 0) + e.duration;
-  }
-  const sorted = Object.entries(domainCounts).sort((a, b) => b[1] - a[1]);
-  todaySummary.topChannel = sorted[0]?.[0] || "—";
-
+  todaySummary = {
+    focus,
+    activeMinutes,
+    distractions: dailyAggregate.distractionCount,
+    topChannel: sorted[0]?.[0] || "—",
+  };
   chrome.storage.local.set({ [SUMMARY_STORAGE_KEY]: todaySummary });
 }
 
 /* ── Flush queue to Firestore ─────────────────────────────────────────────── */
 
 async function flushQueue() {
-  if (eventQueue.length === 0) return;
+  ensureTodayAggregate();
+  if (!dailyAggregate.dirty) return;
 
   const uid = await getUserId();
   const authData = await getAuth();
 
   if (!uid || !authData) {
-    console.log("[FlowPulse] Not signed in, keeping events in local queue");
+    console.log("[FlowPulse] Not signed in, keeping aggregate in local cache");
     return;
   }
 
-  const batch = [...eventQueue];
-  eventQueue = [];
-  await persistQueue();
+  const payload = {
+    date: dailyAggregate.date,
+    steps: dailyAggregate.steps || 0,
+    activitySummary: {
+      activeMinutes: Math.round(dailyAggregate.activeSeconds / 60),
+      productiveMinutes: Math.round(dailyAggregate.productiveSeconds / 60),
+      distractionCount: dailyAggregate.distractionCount,
+      focusScore: dailyAggregate.activeSeconds > 0
+        ? Math.round((dailyAggregate.productiveSeconds / dailyAggregate.activeSeconds) * 100)
+        : 0,
+      topDomain: todaySummary.topChannel || "—",
+      sessionCount: dailyAggregate.sessionCount,
+    },
+  };
 
-  const success = await writeActivityLogs(uid, batch);
+  const success = await upsertDailyRealtimeSummary(uid, payload);
 
   if (!success) {
-    // Re-queue failed events
-    eventQueue = [...batch, ...eventQueue];
-    await persistQueue();
-    console.warn("[FlowPulse] Flush failed, re-queued", batch.length, "events");
+    await persistAggregate();
+    console.warn("[FlowPulse] Flush failed, aggregate kept for retry");
   } else {
-    console.log("[FlowPulse] Flushed", batch.length, "events to Firestore");
+    dailyAggregate.dirty = false;
+    await persistAggregate();
+    console.log("[FlowPulse] Flushed lightweight daily summary to Firestore");
   }
 }
 
@@ -285,6 +332,16 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       flushQueue().then(() => sendResponse({ ok: true }));
       return true; // Keep message channel open for async response
 
+    case "FLOWPULSE_MOBILE_STEPS_UPDATE":
+      ensureTodayAggregate();
+      dailyAggregate.steps = Math.max(0, Math.floor(Number(message.steps || 0)));
+      dailyAggregate.dirty = true;
+      chrome.storage.local.set({ [MOBILE_STEPS_KEY]: dailyAggregate.steps });
+      updateLocalSummaryFromAggregate();
+      persistAggregate();
+      sendResponse({ ok: true });
+      break;
+
     case "FLOWPULSE_SETTINGS_CHANGED":
       loadSettings();
       sendResponse({ ok: true });
@@ -314,8 +371,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     case "FLOWPULSE_RESET":
       // Reset today's local summary
       todaySummary = { focus: 0, activeMinutes: 0, distractions: 0, topChannel: "—" };
-      chrome.storage.local.remove([SUMMARY_STORAGE_KEY, QUEUE_STORAGE_KEY]);
-      eventQueue = [];
+      dailyAggregate = newDailyAggregate();
+      chrome.storage.local.remove([SUMMARY_STORAGE_KEY, AGG_STORAGE_KEY, MOBILE_STEPS_KEY]);
       currentSession = null;
       sendResponse({ ok: true });
       break;

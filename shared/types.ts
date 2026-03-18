@@ -87,6 +87,22 @@ export interface ActivityLog {
   duration: number;  // seconds
 }
 
+/** users/{uid}/dailyRealtime/{YYYY-MM-DD} */
+export interface DailyRealtimeSummary {
+  userId: string;
+  date: string; // YYYY-MM-DD
+  steps: number;
+  activitySummary: {
+    activeMinutes: number;
+    productiveMinutes: number;
+    distractionCount: number;
+    focusScore: number;
+    topDomain: string;
+    sessionCount: number;
+  };
+  lastUpdated: string; // ISO timestamp
+}
+
 /** users/{uid}/dailyStats/{YYYY-MM-DD} */
 export interface DailyStats {
   date: string; // YYYY-MM-DD

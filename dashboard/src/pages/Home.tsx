@@ -5,6 +5,7 @@ import { StatTicker } from "../components/StatTicker";
 import { ActiveBar, FocusTimeline, MiniPie } from "../components/charts";
 import { KpiCard } from "../components/KpiCard";
 import { useDashboardData } from "../hooks/useDashboardData";
+import { Link } from "react-router-dom";
 
 const container: Variants = {
   hidden: { opacity: 0 },
@@ -60,6 +61,14 @@ export function HomePage() {
           <p className="text-sm text-white/40 max-w-md">
             Install the FlowPulse Chrome extension and start browsing to see your focus data here.
           </p>
+          <div className="pt-3">
+            <Link
+              to="/extension"
+              className="inline-flex items-center gap-2 rounded-xl border border-neon/30 bg-neon/10 px-4 py-2 text-xs font-semibold text-neon transition hover:bg-neon/20"
+            >
+              Download Extension
+            </Link>
+          </div>
         </div>
       </motion.div>
     );
