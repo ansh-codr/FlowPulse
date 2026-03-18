@@ -35,13 +35,13 @@
       "run_at": "document_idle"
     },
     {
-      "matches": ["https://anshyadav.tech/*", "https://flowpulse.netlify.app/*", "http://localhost:5173/*"],
+      "matches": ["https://anshyadav.tech/*", "https://flowpulse.netlify.app/*", "https://flowpulse-698a3.web.app/*", "https://flowpulse-698a3.firebaseapp.com/*", "http://localhost:5173/*"],
       "js": ["content-dashboard-main.js"],
       "world": "MAIN",
       "run_at": "document_idle"
     },
     {
-      "matches": ["https://anshyadav.tech/*", "https://flowpulse.netlify.app/*", "http://localhost:5173/*"],
+      "matches": ["https://anshyadav.tech/*", "https://flowpulse.netlify.app/*", "https://flowpulse-698a3.web.app/*", "https://flowpulse-698a3.firebaseapp.com/*", "http://localhost:5173/*"],
       "js": ["content-dashboard.js"],
       "run_at": "document_idle"
     }

@@ -1,4 +1,4 @@
-const WORKER_BASE_URL = "https://flowpulse-assets.example.workers.dev";
+const WORKER_BASE_URL = "https://flowpulsehealth.dodgehellcatansh.workers.dev";
 
 export interface WorkerConfigResponse {
   version: string;

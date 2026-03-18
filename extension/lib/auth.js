@@ -16,6 +16,8 @@ const AUTH_STORAGE_KEY = "flowpulse_auth";
 const DASHBOARD_ORIGINS = [
   "https://anshyadav.tech",
   "https://flowpulse.netlify.app",
+  "https://flowpulse-698a3.web.app",
+  "https://flowpulse-698a3.firebaseapp.com",
   "http://localhost:5173",
 ];
 
