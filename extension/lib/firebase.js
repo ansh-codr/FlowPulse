@@ -7,12 +7,12 @@
 
 // Firebase config
 const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyAj7-7d1ez68B4J4pHxZyz_Er4SOXiYuJ8",
-  authDomain: "flowpulse-dc45a.firebaseapp.com",
-  projectId: "flowpulse-dc45a",
-  storageBucket: "flowpulse-dc45a.firebasestorage.app",
-  messagingSenderId: "398649552926",
-  appId: "1:398649552926:web:6dcb2f4f1ed80c0d69be0f",
+  apiKey: "AIzaSyDtG3UyShHnsMq99TsUOrKb0LWWIBQ7V4M",
+  authDomain: "flowpulse-698a3.firebaseapp.com",
+  projectId: "flowpulse-698a3",
+  storageBucket: "flowpulse-698a3.firebasestorage.app",
+  messagingSenderId: "641591502705",
+  appId: "1:641591502705:web:0bae21ddb15c00ebbbf8d0",
 };
 
 // We'll use the REST API directly instead of the SDK in service workers
