@@ -20,3 +20,4 @@ export {
   getGoogleActivityConnectionStatus,
   disconnectGoogleActivity,
 } from "./mobileActivity";
+export { createR2UploadUrl } from "./r2Storage";

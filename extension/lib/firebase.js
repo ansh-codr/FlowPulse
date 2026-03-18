@@ -10,7 +10,6 @@ const FIREBASE_CONFIG = {
   apiKey: "AIzaSyDtG3UyShHnsMq99TsUOrKb0LWWIBQ7V4M",
   authDomain: "flowpulse-698a3.firebaseapp.com",
   projectId: "flowpulse-698a3",
-  storageBucket: "flowpulse-698a3.firebasestorage.app",
   messagingSenderId: "641591502705",
   appId: "1:641591502705:web:0bae21ddb15c00ebbbf8d0",
 };
