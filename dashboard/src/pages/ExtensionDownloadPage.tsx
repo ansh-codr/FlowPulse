@@ -19,17 +19,17 @@ const INSTALL_STEPS: Step[] = [
     {
         number: "01",
         title: "Download the extension",
-        body: "Click the button above to download the FlowPulse.crx file. Save it anywhere on your computer.",
+        body: "Click Download to get extension.zip. Save it, then extract/unzip it to a normal folder (for example: Downloads/flowpulse-extension).",
     },
     {
         number: "02",
-        title: "Open your Chrome extensions page",
-        body: 'Navigate to chrome://extensions in Chrome. You can also click the puzzle-piece icon → "Manage Extensions".',
+        title: "Open chrome://extensions",
+        body: 'In Chrome, open chrome://extensions and turn on "Developer mode" in the top-right corner.',
     },
     {
         number: "03",
-        title: "Drag and drop to install",
-        body: "Drag the downloaded FlowPulse.crx file directly onto the chrome://extensions page. Chrome will prompt you to confirm — click Add Extension.",
+        title: "Load unpacked",
+        body: 'Click "Load unpacked" and select the extracted folder that contains manifest.json. Do not select the icons folder.',
     },
     {
         number: "04",
@@ -41,18 +41,18 @@ const INSTALL_STEPS: Step[] = [
 const FALLBACK_STEPS: Step[] = [
     {
         number: "01",
-        title: "Enable Developer Mode",
-        body: 'Go to chrome://extensions and toggle on "Developer mode" in the top-right corner.',
+        title: "If Chrome says manifest missing",
+        body: "You selected the wrong folder. Go one level up and choose the folder where manifest.json is directly visible.",
     },
     {
         number: "02",
-        title: "Load the unpacked folder",
-        body: 'Click "Load unpacked" and select the FlowPulse extension folder (the one containing manifest.json).',
+        title: "Check extracted structure",
+        body: "Correct folder example: flowpulse-extension/manifest.json, flowpulse-extension/background.js, flowpulse-extension/icons/.",
     },
     {
         number: "03",
-        title: "Confirm & pin",
-        body: "The extension will appear in your list. Pin it from the puzzle-piece menu.",
+        title: "Try load unpacked again",
+        body: 'Open chrome://extensions, click "Load unpacked", and select that corrected folder.',
     },
 ];
 

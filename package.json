@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "verify:setup": "node scripts/verify-setup.mjs",
     "deploy:backend": "firebase deploy --only firestore:rules,firestore:indexes,functions --project flowpulse-698a3",
-    "deploy:netlify": "netlify deploy --dir=dashboard/dist --prod"
+    "deploy:hosting": "firebase deploy --only hosting --project flowpulse-698a3"
   },
   "repository": {
     "type": "git",

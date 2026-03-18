@@ -1,4 +1,4 @@
-const WORKER_BASE_URL = "https://flowpulsehealth.dodgehellcatansh.workers.dev";
+const WORKER_BASE_URL = "https://flowpulse-assets.dodgehellcatansh.workers.dev";
 
 export interface WorkerConfigResponse {
   version: string;
@@ -8,6 +8,13 @@ export interface WorkerConfigResponse {
 
 export function getWorkerDownloadUrl() {
   return `${WORKER_BASE_URL}/download-extension`;
+}
+
+function normalizeDownloadUrl(url?: string) {
+  if (!url) return getWorkerDownloadUrl();
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  const normalizedPath = url.startsWith("/") ? url : `/${url}`;
+  return `${WORKER_BASE_URL}${normalizedPath}`;
 }
 
 export async function fetchWorkerConfig(): Promise<WorkerConfigResponse> {
@@ -22,5 +29,9 @@ export async function fetchWorkerConfig(): Promise<WorkerConfigResponse> {
     throw new Error(`Worker config request failed (${response.status})`);
   }
 
-  return (await response.json()) as WorkerConfigResponse;
+  const payload = (await response.json()) as WorkerConfigResponse;
+  return {
+    ...payload,
+    downloadUrl: normalizeDownloadUrl(payload.downloadUrl),
+  };
 }
