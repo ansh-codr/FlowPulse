@@ -71,12 +71,7 @@ export async function upsertDailyRealtimeSummary(uid, payload) {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        fields,
-        updateMask: {
-          fieldPaths: ["userId", "date", "steps", "activitySummary", "lastUpdated"],
-        },
-      }),
+      body: JSON.stringify({ fields }),
     });
 
     if (!response.ok) {
@@ -91,8 +86,50 @@ export async function upsertDailyRealtimeSummary(uid, payload) {
   }
 }
 
-// Backwards-compatible alias used by older callers.
-export const writeActivityLogs = upsertDailyRealtimeSummary;
+/**
+ * Write activity logs to users/{uid}/activityLogs using Firestore REST.
+ * Returns number of successful writes.
+ */
+export async function writeActivityLogs(uid, logs) {
+  const token = await getAuthToken();
+  if (!token || !uid || !Array.isArray(logs) || logs.length === 0) return 0;
+
+  let successCount = 0;
+
+  for (const log of logs) {
+    try {
+      const response = await fetch(`${FIRESTORE_BASE}/users/${uid}/activityLogs`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fields: {
+            url: { stringValue: String(log.url || "") },
+            domain: { stringValue: String(log.domain || "") },
+            title: { stringValue: String(log.title || "") },
+            category: { stringValue: String(log.category || "neutral") },
+            startTime: { timestampValue: new Date(log.startTime).toISOString() },
+            endTime: { timestampValue: new Date(log.endTime).toISOString() },
+            duration: { integerValue: String(Math.max(0, Number(log.duration || 0))) },
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(`${response.status}: ${JSON.stringify(err)}`);
+      }
+
+      successCount += 1;
+    } catch (err) {
+      console.error("[FlowPulse] Firestore activity log write error:", err);
+    }
+  }
+
+  return successCount;
+}
 
 /**
  * Read user settings from Firestore

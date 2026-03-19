@@ -6,7 +6,7 @@
  */
 
 import { classifyActivity, extractDomain } from "./lib/classifier.js";
-import { getUserId, upsertDailyRealtimeSummary, getUserSettings } from "./lib/firebase.js";
+import { getUserId, upsertDailyRealtimeSummary, getUserSettings, writeActivityLogs } from "./lib/firebase.js";
 import { getAuth, storeAuth } from "./lib/auth.js";
 
 /* ── State ────────────────────────────────────────────────────────────────── */
@@ -20,8 +20,21 @@ let dailyAggregate = null;
 
 const IDLE_THRESHOLD_SEC = 60;
 const AGG_STORAGE_KEY = "flowpulse_daily_aggregate";
+const LOG_QUEUE_KEY = "flowpulse_activity_log_queue";
 const SUMMARY_STORAGE_KEY = "summary";
 const MOBILE_STEPS_KEY = "flowpulse_mobile_steps_today";
+
+const MAX_LOG_QUEUE = 1000;
+const LOG_FLUSH_BATCH = 40;
+
+let pendingLogs = [];
+
+const DASHBOARD_ORIGINS = [
+  "https://flowpulse-698a3.web.app/",
+  "https://flowpulse-698a3.firebaseapp.com/",
+  "https://anshyadav.tech/",
+  "http://localhost:5173/",
+];
 
 function todayDateStr() {
   return new Date().toISOString().slice(0, 10);
@@ -93,10 +106,13 @@ async function loadSettings() {
 
 async function restoreState() {
   try {
-    const result = await chrome.storage.local.get([AGG_STORAGE_KEY, SUMMARY_STORAGE_KEY, MOBILE_STEPS_KEY]);
+    const result = await chrome.storage.local.get([AGG_STORAGE_KEY, LOG_QUEUE_KEY, SUMMARY_STORAGE_KEY, MOBILE_STEPS_KEY]);
     const savedAgg = result[AGG_STORAGE_KEY];
     if (savedAgg && typeof savedAgg === "object") {
       dailyAggregate = { ...newDailyAggregate(), ...savedAgg };
+    }
+    if (Array.isArray(result[LOG_QUEUE_KEY])) {
+      pendingLogs = result[LOG_QUEUE_KEY].slice(-MAX_LOG_QUEUE);
     }
     if (result[SUMMARY_STORAGE_KEY]) {
       todaySummary = result[SUMMARY_STORAGE_KEY];
@@ -114,6 +130,33 @@ async function restoreState() {
 async function persistAggregate() {
   ensureTodayAggregate();
   await chrome.storage.local.set({ [AGG_STORAGE_KEY]: dailyAggregate });
+}
+
+async function persistLogQueue() {
+  await chrome.storage.local.set({ [LOG_QUEUE_KEY]: pendingLogs.slice(-MAX_LOG_QUEUE) });
+}
+
+async function requestDashboardAuthRefresh() {
+  try {
+    const tabs = await chrome.tabs.query({});
+    const dashboardTabs = tabs.filter((tab) =>
+      typeof tab.url === "string" && DASHBOARD_ORIGINS.some((origin) => tab.url.startsWith(origin))
+    );
+
+    if (dashboardTabs.length === 0) return false;
+
+    await Promise.all(
+      dashboardTabs
+        .filter((tab) => tab.id != null)
+        .map((tab) =>
+          chrome.tabs.sendMessage(tab.id, { type: "FLOWPULSE_REQUEST_DASHBOARD_AUTH" }).catch(() => null)
+        )
+    );
+
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /* ── Session management ───────────────────────────────────────────────────── */
@@ -150,8 +193,13 @@ function commitSession() {
   };
 
   applySessionToAggregate(event);
+  pendingLogs.push(event);
+  if (pendingLogs.length > MAX_LOG_QUEUE) {
+    pendingLogs = pendingLogs.slice(-MAX_LOG_QUEUE);
+  }
   updateLocalSummaryFromAggregate();
   persistAggregate();
+  persistLogQueue();
 
   currentSession = null;
 }
@@ -169,6 +217,20 @@ function startSession(url, title, tabId) {
     tabId,
     channelName: "",
   };
+}
+
+async function bootstrapCurrentSession() {
+  if (!trackingEnabled || isIdle) return;
+
+  try {
+    const tabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+    const tab = tabs[0];
+    if (tab?.url) {
+      startSession(tab.url, tab.title, tab.id);
+    }
+  } catch {
+    // Ignore query failures; regular tab listeners will recover.
+  }
 }
 
 /* ── Local summary for popup ──────────────────────────────────────────────── */
@@ -205,18 +267,62 @@ function updateLocalSummaryFromAggregate() {
   chrome.storage.local.set({ [SUMMARY_STORAGE_KEY]: todaySummary });
 }
 
+function sampleCurrentSessionToAggregate() {
+  if (!currentSession || !trackingEnabled || isIdle) return;
+
+  const nowMs = Date.now();
+  const startMs = new Date(currentSession.startTime).getTime();
+  const durationSec = Math.round((nowMs - startMs) / 1000);
+
+  // Skip tiny samples to avoid noisy writes.
+  if (durationSec < 2) return;
+
+  const { category } = classifyActivity(
+    currentSession.url,
+    currentSession.title,
+    currentSession.channelName || "",
+    blockedDomains
+  );
+
+  applySessionToAggregate({
+    url: currentSession.url,
+    domain: currentSession.domain,
+    title: currentSession.title || "",
+    category,
+    startTime: currentSession.startTime,
+    endTime: new Date(nowMs).toISOString(),
+    duration: durationSec,
+  });
+
+  currentSession.startTime = new Date(nowMs).toISOString();
+  updateLocalSummaryFromAggregate();
+  persistAggregate();
+}
+
 /* ── Flush queue to Firestore ─────────────────────────────────────────────── */
 
 async function flushQueue() {
+  sampleCurrentSessionToAggregate();
   ensureTodayAggregate();
-  if (!dailyAggregate.dirty) return;
+  if (!dailyAggregate.dirty && pendingLogs.length === 0) return;
 
-  const uid = await getUserId();
   const authData = await getAuth();
+  const uid = authData?.uid || await getUserId();
 
   if (!uid || !authData) {
+    requestDashboardAuthRefresh();
     console.log("[FlowPulse] Not signed in, keeping aggregate in local cache");
     return;
+  }
+
+  if (pendingLogs.length > 0) {
+    const batch = pendingLogs.slice(0, LOG_FLUSH_BATCH);
+    const written = await writeActivityLogs(uid, batch);
+    if (written > 0) {
+      pendingLogs.splice(0, written);
+      await persistLogQueue();
+      console.log(`[FlowPulse] Flushed ${written} activity logs to Firestore`);
+    }
   }
 
   const payload = {
@@ -307,6 +413,8 @@ chrome.alarms.onAlarm.addListener((alarm) => {
   }
 });
 
+bootstrapCurrentSession();
+
 /* ── Message handling ─────────────────────────────────────────────────────── */
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -372,7 +480,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       // Reset today's local summary
       todaySummary = { focus: 0, activeMinutes: 0, distractions: 0, topChannel: "—" };
       dailyAggregate = newDailyAggregate();
-      chrome.storage.local.remove([SUMMARY_STORAGE_KEY, AGG_STORAGE_KEY, MOBILE_STEPS_KEY]);
+      pendingLogs = [];
+      chrome.storage.local.remove([SUMMARY_STORAGE_KEY, AGG_STORAGE_KEY, LOG_QUEUE_KEY, MOBILE_STEPS_KEY]);
       currentSession = null;
       sendResponse({ ok: true });
       break;

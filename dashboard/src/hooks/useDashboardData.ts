@@ -5,7 +5,8 @@
 import { useEffect, useState, useMemo } from "react";
 import { useAuth } from "./useAuth";
 import {
-  subscribeToDailyRealtimeSummary,
+  subscribeToActivityLogs,
+  subscribeToLatestDailyRealtimeSummary,
 } from "../lib/firestoreQueries";
 import type {
   ActivityLog,
@@ -304,12 +305,17 @@ export function useDashboardData(dateStr?: string) {
       }
     }
 
-    const unsub = subscribeToDailyRealtimeSummary(
+    let latestSummary: DailyRealtimeSummary | null = null;
+    let hasRealtimeLogs = false;
+
+    const unsubSummary = subscribeToLatestDailyRealtimeSummary(
       uid,
-      date,
       (summary) => {
+        latestSummary = summary;
         setRealtimeSummary(summary);
-        setLogs(summaryToSyntheticLogs(summary));
+        if (!hasRealtimeLogs) {
+          setLogs(summaryToSyntheticLogs(summary));
+        }
         if (summary) {
           localStorage.setItem(cacheKey, JSON.stringify(summary));
         }
@@ -331,7 +337,20 @@ export function useDashboardData(dateStr?: string) {
       }
     );
 
-    return unsub;
+    const unsubLogs = subscribeToActivityLogs(uid, date, (activityLogs) => {
+      hasRealtimeLogs = activityLogs.length > 0;
+      if (hasRealtimeLogs) {
+        setLogs(activityLogs);
+      } else {
+        setLogs(summaryToSyntheticLogs(latestSummary));
+      }
+      setLoading(false);
+    });
+
+    return () => {
+      unsubSummary();
+      unsubLogs();
+    };
   }, [uid, date, cacheKey]);
 
   // Derived view models

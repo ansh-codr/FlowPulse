@@ -17,7 +17,8 @@ declare global {
   }
 }
 
-const CHECK_DELAY_MS = 2000; // wait for content script to inject
+const CHECK_WINDOW_MS = 10000;
+const CHECK_INTERVAL_MS = 1000;
 
 export function useExtensionDetect(): { detected: boolean | null } {
   const [detected, setDetected] = useState<boolean | null>(null);
@@ -46,14 +47,27 @@ export function useExtensionDetect(): { detected: boolean | null } {
     // Request auth — if extension is present, it will respond
     window.postMessage({ type: "FLOWPULSE_REQUEST_AUTH" }, "*");
 
-    // Timeout: if no response after delay, extension is not installed
-    const timer = setTimeout(() => {
-      setDetected((prev) => (prev === null ? false : prev));
-    }, CHECK_DELAY_MS);
+    let elapsed = 0;
+    const interval = setInterval(() => {
+      if (window.__FLOWPULSE_EXTENSION__) {
+        setDetected(true);
+        return;
+      }
+
+      elapsed += CHECK_INTERVAL_MS;
+      if (elapsed >= CHECK_WINDOW_MS) {
+        setDetected((prev) => (prev === null ? false : prev));
+        clearInterval(interval);
+        return;
+      }
+
+      // Re-ping in case the extension main-world bridge injected after app boot.
+      window.postMessage({ type: "FLOWPULSE_REQUEST_AUTH" }, "*");
+    }, CHECK_INTERVAL_MS);
 
     return () => {
       window.removeEventListener("message", onMessage);
-      clearTimeout(timer);
+      clearInterval(interval);
     };
   }, []);
 

@@ -37,9 +37,21 @@ service cloud.firestore {
         allow delete: if false;
       }
 
-      // ── Legacy heavy activity logs (disabled for client writes) ─
+      // ── Activity logs (user-owned event stream for dashboard timeline/apps) ─
       match /activityLogs/{logId} {
-        allow read, write: if false;
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow create: if request.auth != null
+          && request.auth.uid == userId
+          && request.resource.data.url is string
+          && request.resource.data.domain is string
+          && request.resource.data.title is string
+          && request.resource.data.category is string
+          && request.resource.data.category in ['productive', 'neutral', 'distraction']
+          && request.resource.data.startTime is timestamp
+          && request.resource.data.endTime is timestamp
+          && request.resource.data.duration is int
+          && request.resource.data.duration >= 0;
+        allow update, delete: if false;
       }
 
       // ── Daily stats (client + Cloud Functions can write for MVP) ─

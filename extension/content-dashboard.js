@@ -40,3 +40,14 @@ window.addEventListener("message", (event) => {
 setTimeout(() => {
   window.postMessage({ type: "FLOWPULSE_REQUEST_AUTH" }, "*");
 }, 500);
+
+// Allow background worker to request an auth refresh from dashboard context.
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (message?.type === "FLOWPULSE_REQUEST_DASHBOARD_AUTH") {
+    window.postMessage({ type: "FLOWPULSE_REQUEST_AUTH" }, "*");
+    sendResponse({ ok: true });
+    return;
+  }
+
+  sendResponse({ ok: false });
+});

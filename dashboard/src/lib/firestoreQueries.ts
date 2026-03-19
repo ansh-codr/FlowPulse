@@ -69,6 +69,46 @@ export function subscribeToDailyRealtimeSummary(
   );
 }
 
+export function subscribeToLatestDailyRealtimeSummary(
+  uid: string,
+  callback: (summary: DailyRealtimeSummary | null) => void,
+  onError?: (error: Error) => void
+): Unsubscribe {
+  const ref = collection(db, "users", uid, "dailyRealtime");
+  const q = query(ref, orderBy("lastUpdated", "desc"), limit(1));
+
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      if (snapshot.empty) {
+        callback(null);
+        return;
+      }
+
+      const latest = snapshot.docs[0];
+      const data = latest.data();
+
+      callback({
+        userId: data.userId ?? uid,
+        date: data.date ?? latest.id,
+        steps: Number(data.steps ?? 0),
+        activitySummary: {
+          activeMinutes: Number(data.activitySummary?.activeMinutes ?? 0),
+          productiveMinutes: Number(data.activitySummary?.productiveMinutes ?? 0),
+          distractionCount: Number(data.activitySummary?.distractionCount ?? 0),
+          focusScore: Number(data.activitySummary?.focusScore ?? 0),
+          topDomain: String(data.activitySummary?.topDomain ?? "—"),
+          sessionCount: Number(data.activitySummary?.sessionCount ?? 0),
+        },
+        lastUpdated: data.lastUpdated?.toDate?.()?.toISOString?.() ?? new Date().toISOString(),
+      });
+    },
+    (error) => {
+      if (onError) onError(error as Error);
+    }
+  );
+}
+
 /* ── Activity Logs ────────────────────────────────────────────────────────── */
 
 export async function getActivityLogs(

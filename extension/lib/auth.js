@@ -122,17 +122,25 @@ async function refreshIdToken(refreshToken) {
   if (!refreshToken) return null;
 
   try {
+    const body = new URLSearchParams({
+      grant_type: "refresh_token",
+      refresh_token: refreshToken,
+    });
+
     const response = await fetch(
       `https://securetoken.googleapis.com/v1/token?key=${FIREBASE_CONFIG.apiKey}`,
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          grant_type: "refresh_token",
-          refresh_token: refreshToken,
-        }),
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body,
       }
     );
+
+    if (!response.ok) {
+      const raw = await response.text().catch(() => "");
+      console.error("[FlowPulse] Token refresh HTTP error:", response.status, raw);
+      return null;
+    }
 
     const data = await response.json();
     if (data.error) {

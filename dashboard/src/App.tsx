@@ -13,6 +13,7 @@ import { LeaderboardPage } from "./pages/LeaderboardPage";
 import { ExtensionDownloadPage } from "./pages/ExtensionDownloadPage";
 import { InsightsPage } from "./pages/InsightsPage";
 import { GlobalBackground } from "./components/GlobalBackground";
+import { SonyLanding } from "./pages/SonyLanding";
 
 const LoadingScreen = () => (
   <div className="flex min-h-screen flex-col items-center justify-center gap-6">
@@ -44,6 +45,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={user ? <Navigate to="/app" replace /> : <ImmersiveLanding />} />
+      <Route path="/sony" element={<SonyLanding />} />
       <Route
         path="/login"
         element={user ? <Navigate to="/app" replace /> : <LoginPage />}
