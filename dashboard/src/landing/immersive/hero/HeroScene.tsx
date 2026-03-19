@@ -1,9 +1,35 @@
-import { useCallback, useRef } from "react";
-import { motion, useMotionValue, useSpring, useTransform, useScroll } from "framer-motion";
+import { useCallback, useRef, useState } from "react";
+import { motion, useMotionValue, useMotionValueEvent, useSpring, useTransform, useScroll } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
     ACCENT, HIGHLIGHT, EASE_SMOOTH, PARALLAX, GPU_STYLE, isMobile,
 } from "../motionConfig";
+
+const REDORB_FRAME_MAP = import.meta.glob("../../../assets/redorb frames images/*.jpg", {
+    eager: true,
+    import: "default",
+}) as Record<string, string>;
+
+function byNumericFrameName(a: string, b: string) {
+    const getNum = (v: string) => {
+        const m = v.match(/(\d+)(?=\.jpg$)/i);
+        return m ? Number(m[1]) : 0;
+    };
+    return getNum(a) - getNum(b);
+}
+
+const REDORB_FRAMES = Object.entries(REDORB_FRAME_MAP)
+    .sort((a, b) => byNumericFrameName(a[0], b[0]))
+    .map(([, src]) => src);
+
+const HERO_SCROLL_CURVE = 1.22; // >1 slows frame progression
+
+function frameIndexForProgress(progress: number, frameCount: number, curve: number) {
+    if (frameCount <= 0) return 0;
+    const normalized = Math.max(0, Math.min(1, progress));
+    const curved = Math.pow(normalized, curve);
+    return Math.max(0, Math.min(frameCount - 1, Math.floor(curved * (frameCount - 1))));
+}
 
 // ── Floating Glass UI Panel ──────────────────────────────────────
 function FloatingPanel({
@@ -42,6 +68,7 @@ function FloatingPanel({
 export function HeroScene() {
     const containerRef = useRef<HTMLDivElement>(null);
     const mobile = isMobile();
+    const [heroFrameIndex, setHeroFrameIndex] = useState(0);
 
     const rawX = useMotionValue(0);
     const rawY = useMotionValue(0);
@@ -56,8 +83,18 @@ export function HeroScene() {
     const fgY = useTransform(springY, [-400, 400], [PARALLAX.fg.mouseMultiplier * 6, -PARALLAX.fg.mouseMultiplier * 6]);
 
     const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start start", "end start"] });
-    const videoScale = useTransform(scrollYProgress, [0, 1], [1.04, 1.18]);
-    const videoOpacity = useTransform(scrollYProgress, [0, 0.85], [1, 0]);
+    const frameScale = useTransform(scrollYProgress, [0, 1], [1.03, 1.16]);
+    const frameOpacity = useTransform(scrollYProgress, [0, 0.15, 0.85, 1], [0.2, 0.6, 0.7, 0.8]);
+
+    useMotionValueEvent(scrollYProgress, "change", (latest) => {
+        if (REDORB_FRAMES.length > 0) {
+            const nextHero = frameIndexForProgress(latest, REDORB_FRAMES.length, HERO_SCROLL_CURVE);
+            setHeroFrameIndex((prev) => (prev === nextHero ? prev : nextHero));
+        }
+    });
+
+    const heroCurrentFrame = REDORB_FRAMES[heroFrameIndex] || REDORB_FRAMES[0] || "";
+    const heroBaseFrame = REDORB_FRAMES[0] || "";
 
     const handleMouseMove = useCallback((e: React.MouseEvent) => {
         const rect = containerRef.current?.getBoundingClientRect();
@@ -77,25 +114,42 @@ export function HeroScene() {
             onMouseMove={!mobile ? handleMouseMove : undefined}
             onMouseLeave={!mobile ? handleMouseLeave : undefined}
         >
-            {/* ── Layer 0: redorb.mp4 (original colors, full viewport) */}
+            {/* ── Layer 0: red/orange visual base */}
             <motion.div
                 className="absolute inset-0 z-0 overflow-hidden"
-                style={{ x: bgX, y: bgY, scale: videoScale, ...GPU_STYLE }}
+                style={{ x: bgX, y: bgY, scale: frameScale, ...GPU_STYLE }}
             >
-                <motion.video
-                    src="/src/assets/videos/redorb.mp4"
-                    autoPlay muted loop playsInline preload="auto"
+                <img
+                    src={heroBaseFrame}
+                    alt=""
                     className="h-full w-full object-cover"
-                    style={{ opacity: videoOpacity, ...GPU_STYLE }}
+                    style={{ opacity: 0.55 }}
+                />
+            </motion.div>
+
+            {/* ── Layer 0.5: frame-wise image sequence (changes with scroll) */}
+            <motion.div
+                className="pointer-events-none absolute inset-0 z-[1] overflow-hidden"
+                style={{ opacity: frameOpacity }}
+            >
+                <motion.img
+                    key={heroFrameIndex}
+                    src={heroCurrentFrame}
+                    alt=""
+                    className="h-full w-full object-cover"
+                    initial={{ opacity: 0, scale: 1.05 }}
+                    animate={{ opacity: 1, scale: 1.02 }}
+                    transition={{ duration: 0.45, ease: "easeOut" }}
+                    style={{ mixBlendMode: "screen", filter: "saturate(1.08) contrast(1.06)" }}
                 />
             </motion.div>
 
             {/* ── Layer 1: Minimal dark vignette — preserves orb colors */}
-            <div className="pointer-events-none absolute inset-0 z-[1]"
+            <div className="pointer-events-none absolute inset-0 z-[2]"
                 style={{ background: "radial-gradient(ellipse at 50% 60%, transparent 30%, rgba(0,0,0,0.70) 100%)" }} />
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[1]"
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[2]"
                 style={{ height: "30%", background: "linear-gradient(to top, #08060A 0%, transparent 100%)" }} />
-            <div className="pointer-events-none absolute inset-x-0 top-0 z-[1]"
+            <div className="pointer-events-none absolute inset-x-0 top-0 z-[2]"
                 style={{ height: "25%", background: "linear-gradient(to bottom, rgba(8,6,10,0.85) 0%, transparent 100%)" }} />
 
             {/* ── Layer 2: Floating UI panels */}
@@ -109,7 +163,12 @@ export function HeroScene() {
             </motion.div>
 
             {/* ── Layer 3: Text */}
-            <div className="relative z-10 text-center px-6 select-none">
+            <div className="relative z-10 mx-auto max-w-4xl rounded-2xl px-6 py-8 text-center select-none"
+                style={{
+                    background: "linear-gradient(180deg, rgba(8,6,10,0.52), rgba(8,6,10,0.35))",
+                    backdropFilter: "blur(2px)",
+                }}
+            >
 
                 {/* Eyebrow */}
                 <motion.div
@@ -197,7 +256,7 @@ export function HeroScene() {
 
             {/* ── Scroll indicator */}
             <motion.div
-                className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2"
+                className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1.3, duration: 0.6 }}

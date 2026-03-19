@@ -1,8 +1,24 @@
-import { useRef } from "react";
-import { motion, useScroll, useTransform, useInView } from "framer-motion";
-import asteroid1 from "../../../assets/Images/alena-aenami-lights1k1.jpg";
+import { useRef, useState } from "react";
+import { motion, useScroll, useTransform, useInView, useMotionValueEvent } from "framer-motion";
 import { GlassPanel, ScrollReveal } from "../AnimationWrappers";
 import { ACCENT, HIGHLIGHT, DEEP, SURFACE, EASE_SMOOTH, GPU_STYLE } from "../motionConfig";
+
+const LAPTOP_FRAME_MAP = import.meta.glob("../../../assets/HeroSection Frame Images/*.jpg", {
+    eager: true,
+    import: "default",
+}) as Record<string, string>;
+
+function byNumericFrameName(a: string, b: string) {
+    const getNum = (v: string) => {
+        const m = v.match(/(\d+)(?=\.jpg$)/i);
+        return m ? Number(m[1]) : 0;
+    };
+    return getNum(a) - getNum(b);
+}
+
+const LAPTOP_FRAMES = Object.entries(LAPTOP_FRAME_MAP)
+    .sort((a, b) => byNumericFrameName(a[0], b[0]))
+    .map(([, src]) => src);
 
 // ── Circular Focus Heatmap ────────────────────────────────────────────
 const HOURS = [
@@ -111,27 +127,36 @@ export function FeatureImageA() {
     const ref = useRef<HTMLDivElement>(null);
     const isInView = useInView(ref, { once: true, amount: 0.3 });
     const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+    const [laptopFrameIndex, setLaptopFrameIndex] = useState(0);
 
     // Multi-speed parallax
-    const imgY = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"]);
     const contentY = useTransform(scrollYProgress, [0, 1], ["5%", "-5%"]);
     const heatmapScale = useTransform(scrollYProgress, [0.2, 0.6], [0.85, 1]);
 
+    useMotionValueEvent(scrollYProgress, "change", (latest) => {
+        if (LAPTOP_FRAMES.length === 0) return;
+        const curved = Math.pow(Math.max(0, Math.min(1, latest)), 0.95);
+        const next = Math.max(0, Math.min(LAPTOP_FRAMES.length - 1, Math.floor(curved * (LAPTOP_FRAMES.length - 1))));
+        setLaptopFrameIndex((prev) => (prev === next ? prev : next));
+    });
+
+    const laptopFrame = LAPTOP_FRAMES[laptopFrameIndex] || "";
+
     return (
         <section ref={ref} className="relative overflow-hidden" style={{ minHeight: "100vh" }}>
-            {/* Parallax image (bg layer — slowest) */}
-            <motion.div className="absolute inset-0 z-0" style={{ y: imgY, ...GPU_STYLE }}>
-                <img
-                    src={asteroid1}
-                    alt=""
-                    className="h-[120%] w-full object-cover object-center"
-                    style={{ marginTop: "-10%" }}
-                    loading="lazy"
-                />
-            </motion.div>
+            {/* Focus-clock driven backdrop (girl bg removed from this section) */}
+            <div className="absolute inset-0 z-0"
+                style={{
+                    background: "radial-gradient(ellipse at 65% 40%, rgba(255,107,53,0.20), rgba(12,8,10,0.95) 62%), linear-gradient(180deg, #08060A 0%, #060407 100%)",
+                }}
+            />
+
+            <div className="pointer-events-none absolute -right-24 top-1/2 z-[1] hidden -translate-y-1/2 opacity-40 lg:block">
+                <CircularHeatmap revealed />
+            </div>
 
             {/* Deep overlay */}
-            <div className="pointer-events-none absolute inset-0 z-[1]" style={{ background: `rgba(8,6,4,0.72)` }} />
+            <div className="pointer-events-none absolute inset-0 z-[1]" style={{ background: `rgba(8,6,4,0.62)` }} />
 
             {/* Left edge glow */}
             <div className="pointer-events-none absolute inset-y-0 left-0 z-[2] w-64"
@@ -190,31 +215,23 @@ export function FeatureImageA() {
                     </ScrollReveal>
                 </div>
 
-                {/* Right — Circular Heatmap with depth-based scale */}
+                {/* Right — Laptop frame animation (scroll-driven) */}
                 <motion.div
-                    className="flex items-center justify-center"
+                    className="flex w-full h-full items-center justify-center lg:justify-end"
                     initial={{ opacity: 0, scale: 0.85 }}
                     animate={isInView ? { opacity: 1, scale: 1 } : {}}
                     transition={{ delay: 0.2, duration: 1.0, ease: EASE_SMOOTH }}
                     style={{ scale: heatmapScale, ...GPU_STYLE }}
                 >
-                    <div className="relative">
-                        {/* Glow ring behind SVG */}
-                        <div className="absolute inset-0 rounded-full"
-                            style={{ boxShadow: `0 0 80px 20px rgba(251,247,186,0.15)` }} />
-                        <CircularHeatmap revealed={isInView} />
-
-                        {/* Legend */}
-                        <div className="mt-4 flex justify-center gap-6">
-                            <div className="flex items-center gap-2">
-                                <div className="h-2 w-6 rounded" style={{ background: HIGHLIGHT, opacity: 0.7 }} />
-                                <span className="text-[10px] uppercase tracking-widest" style={{ color: `${HIGHLIGHT}60` }}>Deep Focus</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <div className="h-2 w-6 rounded" style={{ background: ACCENT, opacity: 0.7 }} />
-                                <span className="text-[10px] uppercase tracking-widest" style={{ color: `${ACCENT}80` }}>Light Work</span>
-                            </div>
-                        </div>
+                    <div className="relative w-full max-w-[600px] lg:max-w-none">
+                        <img
+                            src={laptopFrame}
+                            alt=""
+                            className="w-full h-auto object-contain"
+                            style={{ 
+                                filter: "drop-shadow(0 20px 50px rgba(0,0,0,0.5))"
+                            }}
+                        />
                     </div>
                 </motion.div>
             </motion.div>

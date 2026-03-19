@@ -6,6 +6,7 @@ import { PinnedSection } from "./sections/PinnedSection";
 import { FeatureImageA } from "./sections/FeatureImageA";
 import { FeatureCards } from "./sections/FeatureCards";
 import { FeatureImageB } from "./sections/FeatureImageB";
+import { FocusClockSection } from "./sections/FocusClockSection";
 import { DataShowcase } from "./sections/DataShowcase";
 import { StatsStrip } from "./sections/StatsStrip";
 import { CTAFinal } from "./sections/CTAFinal";
@@ -54,6 +55,9 @@ export function ImmersiveLanding() {
 
                     {/* 6. Feature B — nature image + radial leaderboard */}
                     <FeatureImageB />
+
+                    {/* Focus Clock Section extracted from Feature A */}
+                    <FocusClockSection />
 
                     {/* 7. Data showcase — wave chart + focus ring + leaderboard */}
                     <DataShowcase />

@@ -1,18 +1,13 @@
-import { useState, useEffect } from "react";
+
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Link } from "react-router-dom";
 
 export function NavBar() {
-    const [scrolled, setScrolled] = useState(false);
     const { scrollY } = useScroll();
     
     // Smooth transition for background blur/opacity
     const bgOpacity = useTransform(scrollY, [0, 100], [0, 0.85]);
     const borderOpacity = useTransform(scrollY, [0, 100], [0, 0.1]);
-
-    useEffect(() => {
-        return scrollY.on("change", (y) => setScrolled(y > 50));
-    }, [scrollY]);
 
     return (
         <motion.header
