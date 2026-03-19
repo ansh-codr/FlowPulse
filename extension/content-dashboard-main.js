@@ -10,6 +10,21 @@
 window.__FLOWPULSE_EXTENSION__ = true;
 window.postMessage({ type: "__FLOWPULSE_EXTENSION_PRESENT__" }, "*");
 
+const EXPECTED_FIREBASE_API_KEY = "AIzaSyDtG3UyShHnsMq99TsUOrKb0LWWIBQ7V4M";
+
+function normalizeAuthUser(rawValue) {
+  if (!rawValue) return null;
+  if (typeof rawValue === "object") return rawValue;
+  if (typeof rawValue === "string") {
+    try {
+      return JSON.parse(rawValue);
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
 function readFirebaseAuth() {
   try {
     const request = indexedDB.open("firebaseLocalStorageDb");
@@ -27,37 +42,47 @@ function readFirebaseAuth() {
 
       getReq.onsuccess = () => {
         const items = getReq.result || [];
-        let found = false;
+        const authItems = items.filter((item) =>
+          item?.fbase_key &&
+          item.fbase_key.startsWith("firebase:authUser:") &&
+          normalizeAuthUser(item.value)
+        );
 
-        for (const item of items) {
-          if (
-            item.fbase_key &&
-            item.fbase_key.startsWith("firebase:authUser:") &&
-            item.value
-          ) {
-            const u = item.value;
-            window.postMessage(
-              {
-                type: "__FLOWPULSE_AUTH__",
-                uid: u.uid,
-                email: u.email || "",
-                displayName: u.displayName || "",
-                photoURL: u.photoURL || "",
-                refreshToken: u.stsTokenManager
-                  ? u.stsTokenManager.refreshToken
-                  : "",
-                accessToken: u.stsTokenManager
-                  ? u.stsTokenManager.accessToken
-                  : "",
-                expirationTime: u.stsTokenManager
-                  ? u.stsTokenManager.expirationTime
-                  : 0,
-              },
-              "*"
-            );
-            found = true;
-            break;
+        const preferred = authItems.find((item) =>
+          String(item.fbase_key).includes(EXPECTED_FIREBASE_API_KEY) &&
+          !!normalizeAuthUser(item.value)?.stsTokenManager?.refreshToken
+        );
+
+        const fallback = authItems.find((item) => !!normalizeAuthUser(item.value)?.stsTokenManager?.refreshToken);
+        const selected = preferred || fallback;
+        const found = !!selected;
+
+        if (selected) {
+          const u = normalizeAuthUser(selected.value);
+          if (!u) {
+            window.postMessage({ type: "__FLOWPULSE_NO_AUTH__" }, "*");
+            db.close();
+            return;
           }
+          window.postMessage(
+            {
+              type: "__FLOWPULSE_AUTH__",
+              uid: u.uid,
+              email: u.email || "",
+              displayName: u.displayName || "",
+              photoURL: u.photoURL || "",
+              refreshToken: u.stsTokenManager
+                ? u.stsTokenManager.refreshToken
+                : "",
+              accessToken: u.stsTokenManager
+                ? u.stsTokenManager.accessToken
+                : "",
+              expirationTime: u.stsTokenManager
+                ? u.stsTokenManager.expirationTime
+                : 0,
+            },
+            "*"
+          );
         }
 
         if (!found) {

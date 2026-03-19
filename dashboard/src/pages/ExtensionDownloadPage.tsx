@@ -18,8 +18,8 @@ interface Step {
 const INSTALL_STEPS: Step[] = [
     {
         number: "01",
-        title: "Download the extension",
-        body: "Click Download to get extension.zip. Save it, then extract/unzip it to a normal folder (for example: Downloads/flowpulse-extension).",
+        title: "Download the latest package",
+        body: "Click Download to get the latest FlowPulse extension package from Firebase Hosting, then extract it to a normal folder (for example: Downloads/flowpulse-extension).",
     },
     {
         number: "02",
