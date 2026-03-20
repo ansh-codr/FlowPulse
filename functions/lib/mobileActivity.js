@@ -33,9 +33,11 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.disconnectGoogleActivity = exports.getGoogleActivityConnectionStatus = exports.getMobileActivitySummaries = exports.syncGoogleActivityData = exports.googleActivityOAuthCallback = exports.connectGoogleActivity = exports.scheduledMobileActivitySync = void 0;
+exports.disconnectGoogleActivity = exports.getGoogleActivityConnectionStatus = exports.getMobileActivitySummaries = exports.ingestMobileHealthConnectData = exports.syncGoogleActivityData = exports.googleActivityOAuthCallback = exports.connectGoogleActivity = exports.scheduledMobileActivitySync = void 0;
 const functions = __importStar(require("firebase-functions"));
 const admin = __importStar(require("firebase-admin"));
+const storageService_1 = require("./mobileActivity/storageService");
+const mobileSyncService_1 = require("./mobileActivity/mobileSyncService");
 if (!admin.apps.length)
     admin.initializeApp();
 const db = admin.firestore();
@@ -64,9 +66,6 @@ async function updateSyncStatus(uid, result, errorMessage) {
         lastError: result === "failed" ? (errorMessage ?? "Unknown synchronization error") : admin.firestore.FieldValue.delete(),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     }, { merge: true });
-}
-function mobileSummaryRef(uid, dateStr) {
-    return db.doc(`users/${uid}/mobile_activity_summary/${dateStr}`);
 }
 function toDateStr(d) {
     return d.toISOString().slice(0, 10);
@@ -230,29 +229,12 @@ function normalizeRawRecordsToDailySummary(dateStr, raw) {
         activitySessions: raw.sessions.length,
     };
 }
-async function upsertMobileSummary(uid, dateStr, summary) {
-    const payload = {
-        user_id: uid,
-        date: dateStr,
-        step_count: Math.max(0, Math.round(summary.step_count)),
-        active_minutes: Math.max(0, Math.round(summary.active_minutes)),
-        activity_sessions: Math.max(0, Math.round(summary.activity_sessions)),
-        created_at: admin.firestore.FieldValue.serverTimestamp(),
-    };
-    await mobileSummaryRef(uid, dateStr).set(payload, { merge: true });
-    // Keep dailyStats correlated so existing analytics can consume mobile data directly.
-    await db.doc(`users/${uid}/dailyStats/${dateStr}`).set({
-        mobileStepCount: payload.step_count,
-        mobileActiveMinutes: payload.active_minutes,
-        mobileActivitySessions: payload.activity_sessions,
-        updatedAt: new Date().toISOString(),
-    }, { merge: true });
-}
 async function syncDate(uid, dateStr) {
     const accessToken = await ensureAccessToken(uid);
     const rawRecords = await fetchRawActivityRecords(accessToken, dateStr);
     const normalized = normalizeRawRecordsToDailySummary(dateStr, rawRecords);
-    await upsertMobileSummary(uid, dateStr, {
+    await (0, storageService_1.upsertMobileActivitySummary)(uid, {
+        date: dateStr,
         step_count: normalized.stepCount,
         active_minutes: normalized.activeMinutes,
         activity_sessions: normalized.activitySessions,
@@ -403,6 +385,41 @@ exports.syncGoogleActivityData = functions.https.onCall(async (data, context) =>
         syncedDays: synced.length,
         summaries: synced,
     };
+});
+/**
+ * REST endpoint used by the Android Health Connect bridge app.
+ * Accepts only daily summaries: date, step_count, active_minutes, activity_sessions.
+ */
+exports.ingestMobileHealthConnectData = functions.https.onRequest(async (req, res) => {
+    if (req.method !== "POST") {
+        res.status(405).json({ error: "Method not allowed. Use POST." });
+        return;
+    }
+    let uid = "";
+    try {
+        uid = await (0, mobileSyncService_1.authenticateMobileIngestRequest)(req);
+        const payload = (0, mobileSyncService_1.validateMobileIngestRequestBody)(req.body);
+        await (0, storageService_1.upsertMobileActivitySummaries)(uid, payload.summaries);
+        await updateSyncStatus(uid, "success");
+        res.status(200).json({
+            source: payload.source,
+            syncedDays: payload.summaries.length,
+            dates: payload.summaries.map((s) => s.date),
+            message: "Health Connect activity summaries synchronized successfully.",
+        });
+    }
+    catch (error) {
+        if (uid) {
+            await updateSyncStatus(uid, "failed", error instanceof Error ? error.message : "Health Connect sync failed");
+        }
+        if (error instanceof functions.https.HttpsError) {
+            const status = error.code === "unauthenticated" ? 401 : error.code === "failed-precondition" ? 412 : 400;
+            res.status(status).json({ error: error.message, code: error.code });
+            return;
+        }
+        functions.logger.error("ingestMobileHealthConnectData failed", error);
+        res.status(500).json({ error: "Internal server error while syncing Health Connect data." });
+    }
 });
 exports.getMobileActivitySummaries = functions.https.onCall(async (data, context) => {
     if (!context.auth?.uid) {

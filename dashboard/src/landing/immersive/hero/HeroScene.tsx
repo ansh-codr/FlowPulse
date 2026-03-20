@@ -129,17 +129,13 @@ export function HeroScene() {
 
             {/* ── Layer 0.5: frame-wise image sequence (changes with scroll) */}
             <motion.div
-                className="pointer-events-none absolute inset-0 z-[1] overflow-hidden"
+                className="pointer-events-none absolute inset-0 z-[1] overflow-hidden bg-black"
                 style={{ opacity: frameOpacity }}
             >
-                <motion.img
-                    key={heroFrameIndex}
+                <img
                     src={heroCurrentFrame}
-                    alt=""
+                    alt="Hero frames"
                     className="h-full w-full object-cover"
-                    initial={{ opacity: 0, scale: 1.05 }}
-                    animate={{ opacity: 1, scale: 1.02 }}
-                    transition={{ duration: 0.45, ease: "easeOut" }}
                     style={{ mixBlendMode: "screen", filter: "saturate(1.08) contrast(1.06)" }}
                 />
             </motion.div>

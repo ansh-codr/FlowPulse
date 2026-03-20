@@ -67,7 +67,7 @@ export interface CombinedAnalyticsDaily {
 export interface HealthAlert {
   id?: string;
   date: string; // YYYY-MM-DD
-  type: "screen_usage_threshold" | "low_step_count" | "focus_without_movement" | "healthy_balance";
+  type: "screen_usage_threshold" | "low_step_count" | "focus_without_movement" | "long_study_without_break" | "healthy_balance";
   message: string;
   priority: "low" | "medium" | "high";
   dismissed: boolean;

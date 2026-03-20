@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useTransform, useInView, useMotionValueEvent } from "framer-motion";
 import { GlassPanel, ScrollReveal } from "../AnimationWrappers";
 import { ACCENT, HIGHLIGHT, DEEP, SURFACE, EASE_SMOOTH, GPU_STYLE } from "../motionConfig";
@@ -125,13 +125,50 @@ function CircularHeatmap({ revealed }: { revealed: boolean }) {
 
 export function FeatureImageA() {
     const ref = useRef<HTMLDivElement>(null);
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const imagesRef = useRef<HTMLImageElement[]>([]);
+    
     const isInView = useInView(ref, { once: true, amount: 0.3 });
     const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
     const [laptopFrameIndex, setLaptopFrameIndex] = useState(0);
 
+    // Preload all frames for smooth canvas rendering
+    useEffect(() => {
+        imagesRef.current = LAPTOP_FRAMES.map((src) => {
+            const img = new Image();
+            img.src = src;
+            return img;
+        });
+    }, []);
+
+    // Render current frame to canvas
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        const ctx = canvas?.getContext('2d');
+        if (!canvas || !ctx) return;
+
+        const img = imagesRef.current[laptopFrameIndex];
+        if (!img) return;
+
+        const renderFrame = () => {
+            if (img.naturalWidth > 0 && img.naturalHeight > 0) {
+                // Ensure canvas internal resolution matches the image for sharp rendering
+                if (canvas.width !== img.naturalWidth) canvas.width = img.naturalWidth;
+                if (canvas.height !== img.naturalHeight) canvas.height = img.naturalHeight;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+            }
+        };
+
+        if (img.complete) {
+            renderFrame();
+        } else {
+            img.onload = renderFrame;
+        }
+    }, [laptopFrameIndex]);
+
     // Multi-speed parallax
     const contentY = useTransform(scrollYProgress, [0, 1], ["5%", "-5%"]);
-    const heatmapScale = useTransform(scrollYProgress, [0.2, 0.6], [0.85, 1]);
 
     useMotionValueEvent(scrollYProgress, "change", (latest) => {
         if (LAPTOP_FRAMES.length === 0) return;
@@ -139,8 +176,6 @@ export function FeatureImageA() {
         const next = Math.max(0, Math.min(LAPTOP_FRAMES.length - 1, Math.floor(curved * (LAPTOP_FRAMES.length - 1))));
         setLaptopFrameIndex((prev) => (prev === next ? prev : next));
     });
-
-    const laptopFrame = LAPTOP_FRAMES[laptopFrameIndex] || "";
 
     return (
         <section ref={ref} className="relative overflow-hidden" style={{ minHeight: "100vh" }}>
@@ -215,23 +250,39 @@ export function FeatureImageA() {
                     </ScrollReveal>
                 </div>
 
-                {/* Right — Laptop frame animation (scroll-driven) */}
+                {/* Right — Laptop frame animation (scroll-driven card format) */}
                 <motion.div
-                    className="flex w-full h-full items-center justify-center lg:justify-end"
+                    className="flex w-full h-full items-center justify-center lg:justify-end pr-[2vw]"
                     initial={{ opacity: 0, scale: 0.85 }}
                     animate={isInView ? { opacity: 1, scale: 1 } : {}}
                     transition={{ delay: 0.2, duration: 1.0, ease: EASE_SMOOTH }}
-                    style={{ scale: heatmapScale, ...GPU_STYLE }}
+                    style={{ ...GPU_STYLE }}
                 >
-                    <div className="relative w-full max-w-[600px] lg:max-w-none">
-                        <img
-                            src={laptopFrame}
-                            alt=""
-                            className="w-full h-auto object-contain"
-                            style={{ 
-                                filter: "drop-shadow(0 20px 50px rgba(0,0,0,0.5))"
+                    <div className="relative">
+                        <div
+                            className="bg-[#0b080b] overflow-hidden rounded-[20px] border"
+                            style={{
+                                width: "640px",
+                                maxWidth: "86vw",
+                                height: "400px",
+                                borderColor: "rgba(255,107,53,0.3)",
+                                boxShadow: "0 22px 60px rgba(0,0,0,0.8)",
+                                position: "relative"
                             }}
-                        />
+                        >
+                            {/* We use scale to hide the Veo watermark out of bounds after upscaling */}
+                            <canvas
+                                ref={canvasRef}
+                                className="absolute"
+                                style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    objectFit: "cover",
+                                    transform: "scale(1.15)",
+                                    transformOrigin: "center"
+                                }}
+                            />
+                        </div>
                     </div>
                 </motion.div>
             </motion.div>

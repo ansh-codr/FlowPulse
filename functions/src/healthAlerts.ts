@@ -20,6 +20,7 @@ type HealthAlertType =
   | "screen_usage_threshold"
   | "low_step_count"
   | "focus_without_movement"
+  | "long_study_without_break"
   | "healthy_balance";
 
 interface HealthAlert {
@@ -47,7 +48,7 @@ function buildHealthAlerts(data: CombinedAnalyticsDaily): HealthAlert[] {
     alerts.push({
       type: "screen_usage_threshold",
       priority: "high",
-      message: "Screen usage is high today. Take a 10-minute walk break now.",
+      message: "High screen usage detected. Consider a break.",
     });
   }
 
@@ -55,7 +56,7 @@ function buildHealthAlerts(data: CombinedAnalyticsDaily): HealthAlert[] {
     alerts.push({
       type: "low_step_count",
       priority: "medium",
-      message: "Step count is below target. Add a short movement break this hour.",
+      message: "Low movement detected. Take a short walk.",
     });
   }
 
@@ -67,6 +68,14 @@ function buildHealthAlerts(data: CombinedAnalyticsDaily): HealthAlert[] {
       type: "focus_without_movement",
       priority: "high",
       message: "Long focus without movement detected. Stand up, stretch, and walk for 5 minutes.",
+    });
+  }
+
+  if (data.longSedentaryStudyDetected || data.longSedentaryStudyPeriods > 0) {
+    alerts.push({
+      type: "long_study_without_break",
+      priority: "high",
+      message: "Long study session detected without breaks. Pause and move for a few minutes.",
     });
   }
 

@@ -15,6 +15,7 @@ export {
   connectGoogleActivity,
   googleActivityOAuthCallback,
   syncGoogleActivityData,
+  ingestMobileHealthConnectData,
   scheduledMobileActivitySync,
   getMobileActivitySummaries,
   getGoogleActivityConnectionStatus,
