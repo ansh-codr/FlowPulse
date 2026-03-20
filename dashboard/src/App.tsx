@@ -12,6 +12,8 @@ import { SettingsPage } from "./pages/SettingsPage";
 import { LeaderboardPage } from "./pages/LeaderboardPage";
 import { ExtensionDownloadPage } from "./pages/ExtensionDownloadPage";
 import { InsightsPage } from "./pages/InsightsPage";
+import { PrivacyPage } from "./pages/PrivacyPage";
+import { TermsPage } from "./pages/TermsPage";
 import { GlobalBackground } from "./components/GlobalBackground";
 
 const LoadingScreen = () => (
@@ -56,6 +58,8 @@ function AppRoutes() {
           </AuthGuard>
         }
       />
+      <Route path="/privacy" element={<PrivacyPage />} />
+      <Route path="/terms" element={<TermsPage />} />
       <Route
         path="/app"
         element={
