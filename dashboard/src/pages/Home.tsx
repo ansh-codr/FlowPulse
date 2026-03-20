@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from "react";
 import { motion, type Variants } from "framer-motion";
 import { GlassCard } from "../components/GlassCard";
 import { FocusRing } from "../components/FocusRing";
@@ -6,6 +7,13 @@ import { ActiveBar, FocusTimeline, MiniPie } from "../components/charts";
 import { KpiCard } from "../components/KpiCard";
 import { useDashboardData } from "../hooks/useDashboardData";
 import { Link } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+import {
+  getMobileActivitySummaries,
+  getWeeklyCombinedAnalytics,
+  subscribeToHealthAlerts,
+} from "../lib/firestoreQueries";
+import type { CombinedAnalyticsDaily, HealthAlert, MobileActivitySummary } from "../../../shared/types";
 
 const container: Variants = {
   hidden: { opacity: 0 },
@@ -21,9 +29,60 @@ const item: Variants = {
 };
 
 const kpiAccents = ["#58f0ff", "#9c6bff", "#f5c842", "#4ade80"];
+const MOBILE_FEATURE_VERSION = "mobile-health-connect-v1";
+
+function toIsoDate(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
 
 export function HomePage() {
+  const { user } = useAuth();
   const { overview, timeline, attention, distractions, kpis, loading, hasData } = useDashboardData();
+  const [mobileSummaries, setMobileSummaries] = useState<MobileActivitySummary[]>([]);
+  const [combinedAnalytics, setCombinedAnalytics] = useState<CombinedAnalyticsDaily[]>([]);
+  const [healthAlerts, setHealthAlerts] = useState<HealthAlert[]>([]);
+  const [isLoadingMobile, setIsLoadingMobile] = useState(false);
+  const [showFeaturePulse, setShowFeaturePulse] = useState(false);
+
+  useEffect(() => {
+    const seenKey = `fp_feature_seen_${MOBILE_FEATURE_VERSION}`;
+    setShowFeaturePulse(localStorage.getItem(seenKey) !== "1");
+  }, []);
+
+  useEffect(() => {
+    if (!user?.uid) {
+      setMobileSummaries([]);
+      setCombinedAnalytics([]);
+      setHealthAlerts([]);
+      return;
+    }
+
+    setIsLoadingMobile(true);
+    Promise.all([
+      getMobileActivitySummaries(7),
+      getWeeklyCombinedAnalytics(user.uid),
+    ])
+      .then(([summaries, combined]) => {
+        setMobileSummaries(summaries);
+        setCombinedAnalytics(combined);
+      })
+      .finally(() => setIsLoadingMobile(false));
+
+    const unsubscribeAlerts = subscribeToHealthAlerts(user.uid, setHealthAlerts);
+    return () => unsubscribeAlerts();
+  }, [user?.uid]);
+
+  const todaySummary = useMemo(() => {
+    const today = toIsoDate(new Date());
+    return mobileSummaries.find((summary) => summary.date === today) ?? mobileSummaries[0] ?? null;
+  }, [mobileSummaries]);
+
+  const latestCombined = combinedAnalytics[0] ?? null;
+
+  function markFeatureAsSeen() {
+    localStorage.setItem(`fp_feature_seen_${MOBILE_FEATURE_VERSION}`, "1");
+    setShowFeaturePulse(false);
+  }
 
   if (loading) {
     return (
@@ -81,6 +140,51 @@ export function HomePage() {
 
   return (
     <motion.div className="space-y-6 overflow-x-hidden" variants={container} initial="hidden" animate="show">
+      {/* New Features */}
+      <motion.div variants={item}>
+        <GlassCard
+          title="New Features Implemented"
+          subtitle="Mobile health sync and behavior reminders"
+          accentColor="#6ef5b1"
+          corner={
+            showFeaturePulse ? (
+              <span className="feature-blink-badge rounded-full border border-emerald-300/50 bg-emerald-300/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-200">
+                New
+              </span>
+            ) : (
+              <span className="rounded-full border border-white/15 bg-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/60">
+                Seen
+              </span>
+            )
+          }
+        >
+          <div className="grid gap-3 md:grid-cols-3">
+            <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 text-sm text-white/80">
+              <p className="font-semibold text-white">Health Connect Sync</p>
+              <p className="mt-1 text-white/50">Daily steps, active minutes, and session counts from Android.</p>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 text-sm text-white/80">
+              <p className="font-semibold text-white">Cross-Device Patterns</p>
+              <p className="mt-1 text-white/50">Desktop screen time is now analyzed against movement trends.</p>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 text-sm text-white/80">
+              <p className="font-semibold text-white">Health Reminders</p>
+              <p className="mt-1 text-white/50">You now get prompts like low movement and high screen usage alerts.</p>
+            </div>
+          </div>
+          {showFeaturePulse && (
+            <div className="mt-4 flex justify-end">
+              <button
+                onClick={markFeatureAsSeen}
+                className="rounded-lg border border-white/20 bg-white/5 px-3 py-1.5 text-xs text-white/70 transition hover:bg-white/10 hover:text-white"
+              >
+                Mark as seen
+              </button>
+            </div>
+          )}
+        </GlassCard>
+      </motion.div>
+
       {/* Header */}
       <motion.header variants={item} className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-1">
@@ -91,7 +195,10 @@ export function HomePage() {
           <h1 className="font-display text-3xl font-bold leading-tight tracking-tight text-white sm:text-4xl">
             {greeting} 👋
           </h1>
-          <p className="max-w-[56ch] text-sm leading-relaxed text-white/40">Here's your cognitive snapshot for today.</p>
+          <p className="max-w-[56ch] text-sm leading-relaxed text-white/40">
+            Here&apos;s your cognitive snapshot for today.
+            {user?.email ? ` Connected Gmail ID: ${user.email}` : ""}
+          </p>
         </div>
         <motion.button
           className="group relative w-full overflow-hidden rounded-xl border border-white/[0.10] bg-white/[0.05] px-5 py-2.5 text-sm font-medium text-white/70 transition hover:border-neon/30 hover:text-white sm:w-auto"
@@ -102,6 +209,58 @@ export function HomePage() {
           Generate Report
         </motion.button>
       </motion.header>
+
+      {/* Mobile Activity + Reminders */}
+      <motion.div variants={item} className="grid gap-6 lg:grid-cols-2">
+        <GlassCard title="Mobile Activity (Health Connect)" subtitle="Today&apos;s synced activity" accentColor="#58f0ff">
+          {isLoadingMobile ? (
+            <p className="text-sm text-white/40">Loading mobile activity…</p>
+          ) : !todaySummary ? (
+            <div className="space-y-3 text-sm text-white/60">
+              <p>No synced mobile activity yet.</p>
+              <Link to="/app/settings" className="inline-flex rounded-lg border border-neon/30 bg-neon/10 px-3 py-1.5 text-xs font-medium text-neon transition hover:bg-neon/20">
+                Connect in Settings
+              </Link>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-3 gap-3 border-b border-white/[0.06] pb-4">
+                <StatTicker value={todaySummary.step_count} label="Steps" accentColor="#6ef5b1" />
+                <StatTicker value={todaySummary.active_minutes} label="Active Min" suffix="m" accentColor="#58f0ff" />
+                <StatTicker value={todaySummary.activity_sessions} label="Sessions" accentColor="#f5c842" />
+              </div>
+              {latestCombined && (
+                <div className="mt-4 flex flex-wrap gap-2 text-xs">
+                  <span className={`rounded-full px-2 py-1 ${latestCombined.highScreenUsageLowPhysicalActivity ? "bg-rose-500/20 text-rose-300" : "bg-white/10 text-white/60"}`}>
+                    {latestCombined.highScreenUsageLowPhysicalActivity ? "High screen + low movement" : "Screen/movement balanced"}
+                  </span>
+                  <span className={`rounded-full px-2 py-1 ${latestCombined.longSedentaryStudyDetected ? "bg-amber-500/20 text-amber-300" : "bg-white/10 text-white/60"}`}>
+                    {latestCombined.longSedentaryStudyDetected ? "Long study without breaks detected" : "Break rhythm healthy"}
+                  </span>
+                  <span className={`rounded-full px-2 py-1 ${latestCombined.healthyLearningMovementBalance ? "bg-emerald-500/20 text-emerald-300" : "bg-white/10 text-white/60"}`}>
+                    {latestCombined.healthyLearningMovementBalance ? "Healthy learning balance" : "Balance building"}
+                  </span>
+                </div>
+              )}
+            </>
+          )}
+        </GlassCard>
+
+        <GlassCard title="Reminder Feed" subtitle="Latest health prompts" accentColor="#ff8a8a">
+          {healthAlerts.length === 0 ? (
+            <p className="text-sm text-white/40">No active reminders right now.</p>
+          ) : (
+            <div className="space-y-2">
+              {healthAlerts.slice(0, 3).map((alert) => (
+                <div key={alert.id} className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2">
+                  <p className="text-sm text-white/80">{alert.message}</p>
+                  <p className="mt-1 text-[10px] uppercase tracking-[0.22em] text-white/40">{alert.priority} priority</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </GlassCard>
+      </motion.div>
 
       {/* KPI Cards */}
       {kpis && (

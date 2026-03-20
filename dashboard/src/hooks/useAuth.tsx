@@ -5,6 +5,7 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut as firebaseSignOut,
+  updateProfile,
   type User,
 } from "firebase/auth";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
@@ -17,6 +18,7 @@ interface AuthState {
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  updateAvatar: (photoURL: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthState>({
@@ -26,6 +28,7 @@ const AuthContext = createContext<AuthState>({
   signInWithEmail: async () => { },
   signUpWithEmail: async () => { },
   signOut: async () => { },
+  updateAvatar: async () => { },
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -72,8 +75,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await firebaseSignOut(auth);
   }, []);
 
+  const updateAvatar = useCallback(async (photoURL: string) => {
+    if (!auth.currentUser) return;
+    await updateProfile(auth.currentUser, { photoURL });
+    setUser({ ...auth.currentUser }); // Force re-render with updated info
+    
+    // Also save in Firestore
+    const userRef = doc(db, "users", auth.currentUser.uid);
+    await setDoc(userRef, { photoURL }, { merge: true });
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signInWithEmail, signUpWithEmail, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signIn, signInWithEmail, signUpWithEmail, signOut, updateAvatar }}>
       {children}
     </AuthContext.Provider>
   );

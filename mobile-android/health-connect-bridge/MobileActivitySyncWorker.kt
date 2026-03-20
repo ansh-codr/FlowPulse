@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import androidx.health.connect.client.HealthConnectClient
-import java.time.ZoneOffset
 
 /**
  * Periodic worker that syncs privacy-safe daily activity summaries to FlowPulse.
