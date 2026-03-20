@@ -92,9 +92,9 @@ export function DashboardLayout() {
   }
 
   return (
-    <div className="min-h-screen text-white flex justify-center py-4 px-4 sm:py-8 sm:px-8">
+    <div className="min-h-screen text-white flex flex-col py-4 px-4 sm:py-6 sm:px-6">
       {/* Main Bento Container */}
-      <div className="w-full max-w-[1400px] rounded-[32px] border border-white/10 bg-black/40 backdrop-blur-3xl overflow-hidden flex flex-col relative shadow-2xl">
+      <div className="w-full flex-1 rounded-[32px] border border-white/10 bg-black/40 backdrop-blur-3xl overflow-hidden flex flex-col relative shadow-2xl">
         {/* Glow Effects inside container */}
         <div className="pointer-events-none absolute -left-20 -top-20 h-64 w-64 animate-orb-drift rounded-full bg-white/5 blur-3xl" />
         <div className="pointer-events-none absolute -right-20 bottom-10 h-72 w-72 animate-orb-drift-2 rounded-full bg-neon/5 blur-3xl" />
